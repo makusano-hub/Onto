@@ -120,6 +120,15 @@
     
 
 
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#tieneModelo3D -->
+
+    <owl:DatatypeProperty rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#tieneModelo3D">
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Lugares"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#anyURI"/>
+    </owl:DatatypeProperty>
+
+
+
     <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#tieneTemporada -->
 
     <owl:DatatypeProperty rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#tieneTemporada">
@@ -419,6 +428,17 @@
     
 
 
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Cementerio_Sara_Braun -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Cementerio_Sara_Braun">
+        <rdf:type rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#SitioHistorico"/>
+        <Ontologia2:ubicadoEnCiudad rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Punta_Arenas"/>
+        <Ontologia2:Nombre>Cementerio Municipal Sara Braun</Ontologia2:Nombre>
+        <Ontologia2:tieneModelo3D rdf:datatype="http://www.w3.org/2001/XMLSchema#anyURI">modelos3d/fachadaCementerio.fbx</Ontologia2:tieneModelo3D>
+    </owl:NamedIndividual>
+
+
+
     <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Circuito_O -->
 
     <owl:NamedIndividual rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Circuito_O">
@@ -520,6 +540,7 @@
         <Ontologia2:ubicadoEnCiudad rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Punta_Arenas"/>
         <Ontologia2:Nombre>Monumento Hernando de Magallanes</Ontologia2:Nombre>
         <Ontologia2:Precio rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">0</Ontologia2:Precio>
+        <Ontologia2:tieneModelo3D rdf:datatype="http://www.w3.org/2001/XMLSchema#anyURI">modelos3d/monumentohernandoMagallanes2.glb</Ontologia2:tieneModelo3D>
     </owl:NamedIndividual>
     
 
@@ -645,6 +666,17 @@
         <Ontologia2:Nombre>Conocido como el parque de los estromatolitos</Ontologia2:Nombre>
     </owl:NamedIndividual>
     
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Monumento_al_Ovejero -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Monumento_al_Ovejero">
+        <rdf:type rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Estatua"/>
+        <Ontologia2:ubicadoEnCiudad rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Punta_Arenas"/>
+        <Ontologia2:Nombre>Monumento al Ovejero</Ontologia2:Nombre>
+        <Ontologia2:tieneModelo3D rdf:datatype="http://www.w3.org/2001/XMLSchema#anyURI">modelos3d/monumentoOvejero.fbx</Ontologia2:tieneModelo3D>
+    </owl:NamedIndividual>
+
 
 
     <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Nao_Victoria -->
