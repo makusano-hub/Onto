@@ -538,9 +538,14 @@ h2 {
   background: #eeeeee;
 }
 
+.selector-modelos:not(:empty) { margin-bottom: 14px; }
+
 #visor3d canvas { display: block; }
 
+.estado-visor[hidden] { display: none; }
+
 .estado-visor {
+  pointer-events: none;
   position: absolute;
   inset: 0;
   z-index: 1;

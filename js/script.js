@@ -1,24 +1,37 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-import { FBXLoader } from 'three/addons/loaders/FBXLoader.js';
+import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { atracciones } from './ontologia.js';
+import { obtenerAtraccion } from './ontologia.js';
 
 const contenedor = document.getElementById('visor3d');
 const estado = document.getElementById('estado-visor');
 
-// El botón de la página principal indica qué atracción mostrar: atraccion.html?id=...
-const id = new URLSearchParams(window.location.search).get('id');
-const atraccion = atracciones.find((item) => item.id === id);
+iniciar();
 
-if (!atraccion) {
-  document.getElementById('nombre-atraccion').textContent = 'Atracción no encontrada';
-  estado.textContent = 'Esta atracción no existe. Vuelve a la lista para elegir otra.';
-} else {
+async function iniciar() {
+  // El botón de la página principal indica qué atracción mostrar: atraccion.html?id=...
+  const id = new URLSearchParams(window.location.search).get('id');
+  let atraccion;
+
+  try {
+    atraccion = await obtenerAtraccion(id);
+  } catch (error) {
+    console.error('Error consultando Fuseki:', error);
+    estado.textContent = 'No se pudo conectar con Fuseki. Comprueba que esté en ejecución y recarga la página.';
+    return;
+  }
+
+  if (!atraccion) {
+    document.getElementById('nombre-atraccion').textContent = 'Atracción no encontrada';
+    estado.textContent = 'Esta atracción no existe. Vuelve a la lista para elegir otra.';
+    return;
+  }
+
   mostrarDatos(atraccion);
 
-  if (atraccion.modelo) {
-    iniciarVisor(atraccion);
+  if (atraccion.modelos.length) {
+    iniciarVisor(atraccion.modelos);
   } else {
     estado.textContent = 'Esta atracción aún no tiene modelo 3D.';
   }
@@ -55,7 +68,7 @@ function agregarDato(lista, etiqueta, valor) {
 }
 
 // Datos estructurados de schema.org, enlazados con el individuo de la ontología
-function publicarDatosEstructurados({ uri, nombre, comuna, descripcion, modelo }) {
+function publicarDatosEstructurados({ uri, nombre, comuna, descripcion, modelos }) {
   const datos = document.createElement('script');
   datos.type = 'application/ld+json';
   datos.textContent = JSON.stringify({
@@ -72,21 +85,21 @@ function publicarDatosEstructurados({ uri, nombre, comuna, descripcion, modelo }
         addressCountry: 'CL'
       }
     }),
-    ...(modelo && {
-      subjectOf: {
+    ...(modelos.length && {
+      subjectOf: modelos.map((modelo) => ({
         '@type': '3DModel',
-        name: `Modelo 3D de ${nombre}`,
+        name: `Modelo 3D de ${modelo.nombre}`,
         encoding: {
           '@type': 'MediaObject',
-          contentUrl: new URL(modelo, window.location.href).href
+          contentUrl: new URL(modelo.ruta, window.location.href).href
         }
-      }
+      }))
     })
   });
   document.head.appendChild(datos);
 }
 
-function iniciarVisor({ nombre, modelo: rutaModelo }) {
+function iniciarVisor(modelos) {
   const escena = new THREE.Scene();
   escena.background = new THREE.Color(0xeeeeee);
 
@@ -97,65 +110,97 @@ function iniciarVisor({ nombre, modelo: rutaModelo }) {
     1000
   );
 
-  camara.position.set(3, 2, 5);
-
   const renderer = new THREE.WebGLRenderer({ antialias: true });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   renderer.setSize(contenedor.clientWidth, contenedor.clientHeight);
   renderer.domElement.setAttribute('role', 'img');
-  renderer.domElement.setAttribute('aria-label', `Modelo 3D de ${nombre}`);
   contenedor.appendChild(renderer.domElement);
 
   const luz = new THREE.HemisphereLight(0xffffff, 0x777777, 3);
   escena.add(luz);
 
   const controles = new OrbitControls(camara, renderer.domElement);
+  // Los modelos de modelos3d/ están comprimidos con Meshopt
+  const loader = new GLTFLoader().setMeshoptDecoder(MeshoptDecoder);
 
-  const loader = rutaModelo.toLowerCase().endsWith('.fbx') ? new FBXLoader() : new GLTFLoader();
+  let modeloActual = null;
+  // Si se cambia de modelo durante una descarga, solo se muestra el último elegido
+  let ultimaCarga = 0;
 
-  loader.load(
-    rutaModelo,
-    (resultado) => {
-      // GLTFLoader entrega el modelo en .scene; FBXLoader lo entrega directamente
-      const modelo = resultado.scene ?? resultado;
-      escena.add(modelo);
+  function cargarModelo({ nombre, ruta }) {
+    const carga = ++ultimaCarga;
 
-      // Algunos modelos son superficies delgadas: sin esto desaparecen al mirarlos por detrás
-      modelo.traverse((objeto) => {
-        if (!objeto.isMesh) return;
-        [objeto.material].flat().forEach((material) => {
-          material.side = THREE.DoubleSide;
+    retirarModeloActual();
+    renderer.domElement.setAttribute('aria-label', `Modelo 3D de ${nombre}`);
+    estado.hidden = false;
+    estado.textContent = 'Cargando modelo…';
+
+    loader.load(
+      ruta,
+      ({ scene: modelo }) => {
+        if (carga !== ultimaCarga) return;
+
+        modeloActual = modelo;
+        escena.add(modelo);
+
+        // Algunos modelos son superficies delgadas: sin esto desaparecen al mirarlos por detrás
+        modelo.traverse((objeto) => {
+          if (!objeto.isMesh) return;
+          [objeto.material].flat().forEach((material) => {
+            material.side = THREE.DoubleSide;
+          });
         });
-      });
 
-      // Centrar el modelo y ajustar la cámara
-      const caja = new THREE.Box3().setFromObject(modelo);
-      const centro = caja.getCenter(new THREE.Vector3());
-      const tamano = caja.getSize(new THREE.Vector3());
+        // Centrar el modelo y ajustar la cámara
+        const caja = new THREE.Box3().setFromObject(modelo);
+        const centro = caja.getCenter(new THREE.Vector3());
+        const tamano = caja.getSize(new THREE.Vector3());
 
-      modelo.position.sub(centro);
+        modelo.position.sub(centro);
 
-      const distancia = tamano.length() * 0.75;
-      camara.position.set(distancia, distancia * 0.6, distancia);
-      camara.near = distancia / 100;
-      camara.far = distancia * 10;
-      camara.updateProjectionMatrix();
-      camara.lookAt(0, 0, 0);
-      controles.target.set(0, 0, 0);
-      controles.update();
+        const distancia = tamano.length() * 0.75;
+        camara.position.set(distancia, distancia * 0.6, distancia);
+        camara.near = distancia / 100;
+        camara.far = distancia * 10;
+        camara.updateProjectionMatrix();
+        camara.lookAt(0, 0, 0);
+        controles.target.set(0, 0, 0);
+        controles.update();
 
-      estado.remove();
-    },
-    (progreso) => {
-      if (progreso.lengthComputable) {
-        estado.textContent = `Cargando modelo… ${Math.round((progreso.loaded / progreso.total) * 100)}%`;
+        estado.hidden = true;
+      },
+      (progreso) => {
+        if (carga === ultimaCarga && progreso.lengthComputable) {
+          estado.textContent = `Cargando modelo… ${Math.round((progreso.loaded / progreso.total) * 100)}%`;
+        }
+      },
+      (error) => {
+        console.error('Error cargando modelo:', error);
+        if (carga === ultimaCarga) estado.textContent = 'No se pudo cargar el modelo 3D.';
       }
-    },
-    (error) => {
-      console.error('Error cargando modelo:', error);
-      estado.textContent = 'No se pudo cargar el modelo 3D.';
-    }
-  );
+    );
+  }
+
+  // Los modelos son pesados: al cambiar de uno a otro se libera la memoria de la tarjeta gráfica
+  function retirarModeloActual() {
+    if (!modeloActual) return;
+
+    escena.remove(modeloActual);
+    modeloActual.traverse((objeto) => {
+      if (!objeto.isMesh) return;
+      objeto.geometry.dispose();
+      [objeto.material].flat().forEach((material) => {
+        Object.values(material).forEach((valor) => {
+          if (valor?.isTexture) valor.dispose();
+        });
+        material.dispose();
+      });
+    });
+    modeloActual = null;
+  }
+
+  if (modelos.length > 1) crearSelectorModelos(modelos, cargarModelo);
+  cargarModelo(modelos[0]);
 
   window.addEventListener('resize', () => {
     camara.aspect = contenedor.clientWidth / contenedor.clientHeight;
@@ -170,4 +215,27 @@ function iniciarVisor({ nombre, modelo: rutaModelo }) {
   }
 
   animar();
+}
+
+function crearSelectorModelos(modelos, cargarModelo) {
+  const selector = document.getElementById('selector-modelos');
+
+  modelos.forEach((modelo, indice) => {
+    const boton = document.createElement('button');
+    boton.type = 'button';
+    boton.className = 'button outline boton-filtro';
+    boton.textContent = modelo.nombre;
+    boton.setAttribute('aria-pressed', String(indice === 0));
+
+    boton.addEventListener('click', () => {
+      if (boton.getAttribute('aria-pressed') === 'true') return;
+
+      selector.querySelectorAll('button').forEach((otro) => {
+        otro.setAttribute('aria-pressed', String(otro === boton));
+      });
+      cargarModelo(modelo);
+    });
+
+    selector.appendChild(boton);
+  });
 }

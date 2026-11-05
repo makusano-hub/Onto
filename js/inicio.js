@@ -1,4 +1,4 @@
-import { atracciones } from './ontologia.js';
+import { obtenerFiltros, buscarAtracciones } from './ontologia.js';
 
 const lista = document.getElementById('lista-atracciones');
 const total = document.getElementById('total-atracciones');
@@ -12,40 +12,49 @@ const grupos = [
 const parametros = new URLSearchParams(window.location.search);
 const filtros = {};
 
-grupos.forEach((grupo) => {
-  const valores = valoresUnicos(grupo.campo);
-  const inicial = parametros.get(grupo.campo);
-  filtros[grupo.campo] = valores.includes(inicial) ? inicial : '';
-  crearBotones(grupo, valores);
-});
+// Cada búsqueda es una consulta a Fuseki: solo se muestra la respuesta de la más reciente
+let ultimaBusqueda = 0;
 
-mostrarAtracciones();
+iniciar();
 
-function valoresUnicos(campo) {
-  return [...new Set(atracciones.map((atraccion) => atraccion[campo]).filter(Boolean))]
-    .sort((a, b) => a.localeCompare(b, 'es'));
+async function iniciar() {
+  total.textContent = 'Buscando…';
+
+  try {
+    const opciones = await obtenerFiltros();
+
+    grupos.forEach((grupo) => {
+      const inicial = parametros.get(grupo.campo);
+      filtros[grupo.campo] = opciones[grupo.campo].some(({ id }) => id === inicial) ? inicial : '';
+      crearBotones(grupo, opciones[grupo.campo]);
+    });
+  } catch (error) {
+    mostrarError(error);
+    return;
+  }
+
+  mostrarAtracciones();
 }
 
-function crearBotones({ campo, contenedor, todas }, valores) {
-  [{ valor: '', texto: todas }, ...valores.map((valor) => ({ valor, texto: valor }))]
-    .forEach(({ valor, texto }) => {
-      const boton = document.createElement('button');
-      boton.type = 'button';
-      boton.className = 'button outline boton-filtro';
-      boton.textContent = texto;
-      boton.setAttribute('aria-pressed', String(filtros[campo] === valor));
+function crearBotones({ campo, contenedor, todas }, opciones) {
+  [{ id: '', nombre: todas }, ...opciones].forEach(({ id, nombre }) => {
+    const boton = document.createElement('button');
+    boton.type = 'button';
+    boton.className = 'button outline boton-filtro';
+    boton.textContent = nombre;
+    boton.setAttribute('aria-pressed', String(filtros[campo] === id));
 
-      boton.addEventListener('click', () => {
-        filtros[campo] = valor;
-        contenedor.querySelectorAll('button').forEach((otro) => {
-          otro.setAttribute('aria-pressed', String(otro === boton));
-        });
-        guardarFiltros();
-        mostrarAtracciones();
+    boton.addEventListener('click', () => {
+      filtros[campo] = id;
+      contenedor.querySelectorAll('button').forEach((otro) => {
+        otro.setAttribute('aria-pressed', String(otro === boton));
       });
-
-      contenedor.appendChild(boton);
+      guardarFiltros();
+      mostrarAtracciones();
     });
+
+    contenedor.appendChild(boton);
+  });
 }
 
 function guardarFiltros() {
@@ -58,21 +67,37 @@ function guardarFiltros() {
   history.replaceState(null, '', consulta ? `?${consulta}` : window.location.pathname);
 }
 
-function mostrarAtracciones() {
-  const visibles = atracciones.filter((atraccion) =>
-    Object.entries(filtros).every(([campo, valor]) => !valor || atraccion[campo] === valor)
-  );
+async function mostrarAtracciones() {
+  const busqueda = ++ultimaBusqueda;
+  total.textContent = 'Buscando…';
 
-  lista.replaceChildren(...visibles.map(crearTarjeta));
+  try {
+    const visibles = await buscarAtracciones(filtros);
+    if (busqueda !== ultimaBusqueda) return;
 
-  if (visibles.length === 0) {
-    total.textContent = 'No hay atracciones con estos filtros.';
-  } else {
-    total.textContent = visibles.length === 1 ? '1 atracción' : `${visibles.length} atracciones`;
+    lista.replaceChildren(...visibles.map(crearTarjeta));
+    total.textContent = textoTotal(visibles.length);
+  } catch (error) {
+    if (busqueda === ultimaBusqueda) mostrarError(error);
   }
 }
 
-function crearTarjeta({ id, nombre, comuna, tipo, modelo }) {
+function textoTotal(cantidad) {
+  if (cantidad === 1) return '1 atracción';
+  if (cantidad > 1) return `${cantidad} atracciones`;
+
+  return Object.values(filtros).some(Boolean)
+    ? 'No hay atracciones con estos filtros.'
+    : 'Fuseki no tiene atracciones. Comprueba que turismo.rdf esté cargado en el dataset turismo.';
+}
+
+function mostrarError(error) {
+  console.error('Error consultando Fuseki:', error);
+  lista.replaceChildren();
+  total.textContent = 'No se pudo conectar con Fuseki. Comprueba que esté en ejecución y recarga la página.';
+}
+
+function crearTarjeta({ id, nombre, comuna, tipo, modelos }) {
   const elemento = document.createElement('li');
   const enlace = document.createElement('a');
   const titulo = document.createElement('h3');
@@ -84,10 +109,10 @@ function crearTarjeta({ id, nombre, comuna, tipo, modelo }) {
   detalle.textContent = comuna ? `${tipo} · ${comuna}` : tipo;
   enlace.append(titulo, detalle);
 
-  if (modelo) {
+  if (modelos.length) {
     const etiqueta = document.createElement('span');
     etiqueta.className = 'etiqueta-3d';
-    etiqueta.textContent = 'Modelo 3D';
+    etiqueta.textContent = modelos.length > 1 ? `${modelos.length} modelos 3D` : 'Modelo 3D';
     enlace.appendChild(etiqueta);
   }
 

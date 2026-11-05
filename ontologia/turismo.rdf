@@ -434,7 +434,7 @@
         <rdf:type rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#SitioHistorico"/>
         <Ontologia2:ubicadoEnCiudad rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Punta_Arenas"/>
         <Ontologia2:Nombre>Cementerio Municipal Sara Braun</Ontologia2:Nombre>
-        <Ontologia2:tieneModelo3D rdf:datatype="http://www.w3.org/2001/XMLSchema#anyURI">modelos3d/fachadaCementerio.fbx</Ontologia2:tieneModelo3D>
+        <Ontologia2:tieneModelo3D rdf:datatype="http://www.w3.org/2001/XMLSchema#anyURI">modelos3d/fachadaCementerio.glb</Ontologia2:tieneModelo3D>
     </owl:NamedIndividual>
 
 
@@ -540,7 +540,7 @@
         <Ontologia2:ubicadoEnCiudad rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Punta_Arenas"/>
         <Ontologia2:Nombre>Monumento Hernando de Magallanes</Ontologia2:Nombre>
         <Ontologia2:Precio rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">0</Ontologia2:Precio>
-        <Ontologia2:tieneModelo3D rdf:datatype="http://www.w3.org/2001/XMLSchema#anyURI">modelos3d/monumentohernandoMagallanes2.glb</Ontologia2:tieneModelo3D>
+        <Ontologia2:tieneModelo3D rdf:datatype="http://www.w3.org/2001/XMLSchema#anyURI">modelos3d/monumentoHernandoMagallanesFin.glb</Ontologia2:tieneModelo3D>
     </owl:NamedIndividual>
     
 
@@ -674,7 +674,7 @@
         <rdf:type rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Estatua"/>
         <Ontologia2:ubicadoEnCiudad rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Punta_Arenas"/>
         <Ontologia2:Nombre>Monumento al Ovejero</Ontologia2:Nombre>
-        <Ontologia2:tieneModelo3D rdf:datatype="http://www.w3.org/2001/XMLSchema#anyURI">modelos3d/monumentoOvejero.fbx</Ontologia2:tieneModelo3D>
+        <Ontologia2:tieneModelo3D rdf:datatype="http://www.w3.org/2001/XMLSchema#anyURI">modelos3d/monumento_al_ovejero_.glb</Ontologia2:tieneModelo3D>
     </owl:NamedIndividual>
 
 
@@ -689,6 +689,11 @@
         <Ontologia2:Nombre>Museo Nao Victoria</Ontologia2:Nombre>
         <Ontologia2:requierePermisoAutoridad rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">false</Ontologia2:requierePermisoAutoridad>
         <Ontologia2:tieneTemporada rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">false</Ontologia2:tieneTemporada>
+        <Ontologia2:tieneModelo3D rdf:datatype="http://www.w3.org/2001/XMLSchema#anyURI">modelos3d/nao_victoria_model.glb</Ontologia2:tieneModelo3D>
+        <Ontologia2:tieneModelo3D rdf:datatype="http://www.w3.org/2001/XMLSchema#anyURI">modelos3d/hms_beagle_model.glb</Ontologia2:tieneModelo3D>
+        <Ontologia2:tieneModelo3D rdf:datatype="http://www.w3.org/2001/XMLSchema#anyURI">modelos3d/goleta_ancud_model.glb</Ontologia2:tieneModelo3D>
+        <Ontologia2:Precio rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">10000</Ontologia2:Precio>
+        <Ontologia2:ubicadoEnComuna rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#PuntaArenas"/>
     </owl:NamedIndividual>
     
 
@@ -716,6 +721,7 @@
         <Ontologia2:Precio rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">10000</Ontologia2:Precio>
         <Ontologia2:requierePermisoAutoridad rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</Ontologia2:requierePermisoAutoridad>
         <Ontologia2:tieneTemporada rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</Ontologia2:tieneTemporada>
+        <Ontologia2:tieneModelo3D rdf:datatype="http://www.w3.org/2001/XMLSchema#anyURI">modelos3d/Torres_del_paine.glb</Ontologia2:tieneModelo3D>
     </owl:NamedIndividual>
     
 
@@ -917,6 +923,7 @@
 
     <owl:NamedIndividual rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#TorresDelPaine">
         <rdf:type rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Comuna"/>
+        <Ontologia2:tieneModelo3D rdf:datatype="http://www.w3.org/2001/XMLSchema#anyURI">modelos3d/Torres_del_paine.glb</Ontologia2:tieneModelo3D>
     </owl:NamedIndividual>
     
 
