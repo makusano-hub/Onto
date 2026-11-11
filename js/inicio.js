@@ -2,10 +2,11 @@ import { obtenerFiltros, buscarAtracciones } from './ontologia.js';
 
 const lista = document.getElementById('lista-atracciones');
 const total = document.getElementById('total-atracciones');
+const tarjetasCategoria = document.getElementById('categorias-portada');
 
 const grupos = [
   { campo: 'comuna', contenedor: document.getElementById('filtro-comuna'), todas: 'Todas' },
-  { campo: 'tipo', contenedor: document.getElementById('filtro-tipo'), todas: 'Todos' }
+  { campo: 'categoria', contenedor: document.getElementById('filtro-categoria'), todas: 'Todas' }
 ];
 
 // Los filtros se guardan en la dirección para conservarlos al volver desde una atracción
@@ -15,7 +16,23 @@ const filtros = {};
 // Cada búsqueda es una consulta a Fuseki: solo se muestra la respuesta de la más reciente
 let ultimaBusqueda = 0;
 
+mostrarIdentidad();
 iniciar();
+
+// Bandera y escudo: archivos en public/identidad/. Si faltan, se indica dónde ponerlos.
+function mostrarIdentidad() {
+  document.querySelectorAll('#identidad img').forEach((imagen) => {
+    const reemplazar = () => {
+      const aviso = document.createElement('span');
+      aviso.className = `falta-identidad ${imagen.dataset.falta}-falta`;
+      aviso.textContent = `${imagen.dataset.falta}.svg`;
+      aviso.title = `Copia el archivo en public/identidad/${imagen.dataset.falta}.svg`;
+      imagen.replaceWith(aviso);
+    };
+    if (imagen.complete && imagen.naturalWidth === 0) reemplazar();
+    else imagen.addEventListener('error', reemplazar, { once: true });
+  });
+}
 
 async function iniciar() {
   total.textContent = 'Buscando…';
@@ -28,6 +45,8 @@ async function iniciar() {
       filtros[grupo.campo] = opciones[grupo.campo].some(({ id }) => id === inicial) ? inicial : '';
       crearBotones(grupo, opciones[grupo.campo]);
     });
+
+    crearTarjetasCategoria(opciones.categoria.filter(({ portada }) => portada));
   } catch (error) {
     mostrarError(error);
     return;
@@ -36,24 +55,58 @@ async function iniciar() {
   mostrarAtracciones();
 }
 
+function elegir(campo, valor) {
+  filtros[campo] = valor;
+  grupos.find((grupo) => grupo.campo === campo).contenedor.querySelectorAll('button').forEach((boton) => {
+    boton.setAttribute('aria-pressed', String(boton.dataset.valor === valor));
+  });
+  if (campo === 'categoria') marcarTarjetas();
+  guardarFiltros();
+  mostrarAtracciones();
+}
+
 function crearBotones({ campo, contenedor, todas }, opciones) {
-  [{ id: '', nombre: todas }, ...opciones].forEach(({ id, nombre }) => {
+  [{ id: '', nombre: todas }, ...opciones].forEach(({ id, nombre, total: cantidad }) => {
     const boton = document.createElement('button');
     boton.type = 'button';
     boton.className = 'button outline boton-filtro';
-    boton.textContent = nombre;
+    boton.dataset.valor = id;
+    boton.textContent = cantidad === undefined ? nombre : `${nombre} (${cantidad})`;
     boton.setAttribute('aria-pressed', String(filtros[campo] === id));
+    boton.addEventListener('click', () => elegir(campo, id));
+    contenedor.appendChild(boton);
+  });
+}
 
-    boton.addEventListener('click', () => {
-      filtros[campo] = id;
-      contenedor.querySelectorAll('button').forEach((otro) => {
-        otro.setAttribute('aria-pressed', String(otro === boton));
-      });
-      guardarFiltros();
-      mostrarAtracciones();
+// Los seis accesos grandes de la portada: monumentos, museos, plazas, actividades, restaurantes y hoteles
+function crearTarjetasCategoria(categorias) {
+  tarjetasCategoria.replaceChildren(...categorias.map(({ id, nombre, total: cantidad }) => {
+    const elemento = document.createElement('li');
+    const enlace = document.createElement('a');
+    const titulo = document.createElement('strong');
+    const detalle = document.createElement('span');
+
+    enlace.href = `?categoria=${id}#atracciones`;
+    enlace.dataset.valor = id;
+    titulo.textContent = nombre;
+    detalle.textContent = cantidad === 1 ? '1 lugar' : cantidad ? `${cantidad} lugares` : 'Próximamente';
+    enlace.append(titulo, detalle);
+
+    enlace.addEventListener('click', (evento) => {
+      evento.preventDefault();
+      elegir('categoria', filtros.categoria === id ? '' : id);
+      document.getElementById('atracciones').scrollIntoView();
     });
 
-    contenedor.appendChild(boton);
+    elemento.appendChild(enlace);
+    return elemento;
+  }));
+  marcarTarjetas();
+}
+
+function marcarTarjetas() {
+  tarjetasCategoria.querySelectorAll('a').forEach((enlace) => {
+    enlace.setAttribute('aria-current', String(enlace.dataset.valor === filtros.categoria));
   });
 }
 
@@ -64,7 +117,7 @@ function guardarFiltros() {
   });
 
   const consulta = nuevos.toString();
-  history.replaceState(null, '', consulta ? `?${consulta}` : window.location.pathname);
+  history.replaceState(null, '', `${consulta ? `?${consulta}` : window.location.pathname}#atracciones`);
 }
 
 async function mostrarAtracciones() {
@@ -87,7 +140,7 @@ function textoTotal(cantidad) {
   if (cantidad > 1) return `${cantidad} atracciones`;
 
   return Object.values(filtros).some(Boolean)
-    ? 'No hay atracciones con estos filtros.'
+    ? 'Aún no hay atracciones con estos filtros.'
     : 'Fuseki no tiene atracciones. Comprueba que turismo.rdf esté cargado en el dataset turismo.';
 }
 

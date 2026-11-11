@@ -120,6 +120,24 @@
     
 
 
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#tieneEnlace -->
+
+    <owl:DatatypeProperty rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#tieneEnlace">
+        <rdfs:comment xml:lang="es">Enlace web relacionado (sitio oficial, reservas, Wikipedia). Puede repetirse.</rdfs:comment>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#anyURI"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#tieneImagen -->
+
+    <owl:DatatypeProperty rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#tieneImagen">
+        <rdfs:comment xml:lang="es">Ruta de una imagen dentro de public/ (por ejemplo imagenes/fuerte-bulnes.jpg) o URL completa. Puede repetirse.</rdfs:comment>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#anyURI"/>
+    </owl:DatatypeProperty>
+    
+
+
     <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#tieneModelo3D -->
 
     <owl:DatatypeProperty rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#tieneModelo3D">
@@ -305,6 +323,14 @@
 
     <owl:Class rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#PescaDeportiva">
         <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Turistica"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Plaza -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Plaza">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#ZonaTuristica"/>
     </owl:Class>
     
 

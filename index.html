@@ -10,30 +10,44 @@
 <body>
 	<header><nav class="wrap" aria-label="Navegación principal">
 		<a class="brand" href="index.html"><span class="mark">o</span>onto</a>
-		<div class="links"><a href="#atracciones">Atracciones</a></div>
+		<div class="links"><a href="#atracciones">Atracciones</a><a href="grafo.html">Carta 3D</a><a href="panel.html">Panel</a></div>
 	</nav></header>
 	<main>
 		<section class="wrap portada">
-			<span class="eyebrow">Región de Magallanes</span>
-			<h1>Atracciones turísticas. <span>En 3D.</span></h1>
-			<p class="lead">Busca por comuna o tipo de atracción y elige una para explorar su modelo 3D.</p>
+			<div class="portada-texto">
+				<div class="identidad" id="identidad">
+					<img class="bandera" src="identidad/bandera.svg" alt="Bandera de la Región de Magallanes y de la Antártica Chilena" data-falta="bandera">
+					<img class="escudo" src="identidad/escudo.svg" alt="Escudo de armas de la Región de Magallanes y de la Antártica Chilena" data-falta="escudo">
+				</div>
+				<span class="eyebrow">Región de Magallanes</span>
+				<h1>Atracciones turísticas. <span>En 3D.</span></h1>
+				<p class="lead">Busca por comuna o categoría y elige una para explorar su modelo 3D.</p>
+				<a class="enlace-carta" href="grafo.html">Explorar la carta 3D de la región →</a>
+			</div>
+			<figure class="mapa-portada" id="mapa-portada">
+				<canvas id="mapa-portada-lienzo" role="img" aria-label="Carta 3D de la Región de Magallanes con sus ciudades principales"></canvas>
+				<figcaption>arrastra para girar · costa real, relieve esquemático</figcaption>
+			</figure>
 		</section>
 		<section class="wrap atracciones" id="atracciones" aria-label="Buscar atracciones">
+			<h2 class="titulo-seccion">¿Qué quieres visitar?</h2>
+			<ul class="categorias-portada" id="categorias-portada"></ul>
 			<div class="filtros">
 				<div>
 					<p class="titulo-filtro" id="titulo-comuna">Comuna</p>
 					<div class="grupo-botones" id="filtro-comuna" role="group" aria-labelledby="titulo-comuna"></div>
 				</div>
 				<div>
-					<p class="titulo-filtro" id="titulo-tipo">Tipo de atracción</p>
-					<div class="grupo-botones" id="filtro-tipo" role="group" aria-labelledby="titulo-tipo"></div>
+					<p class="titulo-filtro" id="titulo-categoria">Categoría</p>
+					<div class="grupo-botones" id="filtro-categoria" role="group" aria-labelledby="titulo-categoria"></div>
 				</div>
 			</div>
 			<p class="total-atracciones" id="total-atracciones" role="status"></p>
 			<ul class="cards lista-atracciones" id="lista-atracciones"></ul>
 		</section>
 	</main>
-	<footer><div class="wrap footer-inner"><a class="brand" href="index.html"><span class="mark">o</span>onto</a><span>© 2026 Onto. Conocimiento conectado.</span></div></footer>
+	<footer><div class="wrap footer-inner"><a class="brand" href="index.html"><span class="mark">o</span>onto</a><span>© 2026 Onto. Conocimiento conectado. · Bandera: <a href="https://commons.wikimedia.org/wiki/File:Flag_of_Magallanes_y_la_Ant%C3%A1rtica_Chilena,_Chile.svg" rel="noopener">Wikimedia Commons</a>, CC BY-SA 3.0 · Escudo: dominio público</span></div></footer>
 	<script type="module" src="js/inicio.js"></script>
+	<script type="module" src="js/portada-mapa.js"></script>
 </body>
 </html>

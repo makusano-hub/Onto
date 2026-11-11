@@ -1,169 +1,129 @@
+// Convierte las respuestas de Fuseki en objetos que usan las páginas
 import { consultarSPARQL } from './fuseki.js';
-
-const NS = 'http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#';
-
-const PREFIJOS = `
-  PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-  PREFIX t: <${NS}>
-`;
-
-// Un lugar es atracción si su clase desciende de alguna de estas raíces.
-// La comuna puede estar indicada directamente o a través de la ciudad.
-const PATRON_ATRACCION = `
-  VALUES ?raiz { t:CulturalHistorico t:ZonaTuristica }
-  ?atraccion a ?clase .
-  ?clase rdfs:subClassOf* ?raiz .
-  OPTIONAL {
-    { ?atraccion t:ubicadoEnComuna ?comuna }
-    UNION
-    { ?atraccion t:ubicadoEnCiudad/t:perteneceAComuna ?comuna }
-  }
-`;
-
-// Nombre de cada botón de tipo; otra clase nueva usa su propio nombre
-const NOMBRES_TIPO = {
-  Estatua: 'Monumentos',
-  Museo: 'Museos',
-  SitioHistorico: 'Sitios históricos',
-  Lago: 'Lagos',
-  Montaña: 'Montañas',
-  Parque: 'Parques',
-  Reserva: 'Reservas',
-  Rio: 'Ríos'
-};
-
-// Nombre del botón de cada modelo cuando una atracción tiene varios; otro archivo usa su propio nombre
-const NOMBRES_MODELO = {
-  'modelos3d/nao_victoria_model.glb': 'Nao Victoria',
-  'modelos3d/hms_beagle_model.glb': 'HMS Beagle',
-  'modelos3d/goleta_ancud_model.glb': 'Goleta Ancud'
-};
-
-// Solo se aceptan identificadores simples, para que un valor de la dirección no altere la consulta
-const ID_VALIDO = /^[\p{L}\p{N}_-]+$/u;
-
-function idDe(uri) {
-  return uri.split('#').pop();
-}
-
-function iri(id) {
-  if (!ID_VALIDO.test(id)) throw new Error(`Identificador no válido: ${id}`);
-  return `<${NS}${id}>`;
-}
-
-// Convierte "PuertoHambre" o "Isla_Magdalena" en un nombre legible
-function nombreLegible(id) {
-  const texto = id
-    .replace(/_/g, ' ')
-    .replace(/([a-zñ])([A-Z])/g, '$1 $2')
-    .replace(/\s(De|Del|La|Las|Los)\s/g, (conector) => conector.toLowerCase());
-  return texto.charAt(0).toUpperCase() + texto.slice(1);
-}
-
-function nombreTipo(clase) {
-  return NOMBRES_TIPO[clase] ?? nombreLegible(clase);
-}
+import { construir, SEP } from './consultas.js';
+import {
+  CATEGORIAS, NS, ID_VALIDO, NOMBRES_MODELO,
+  idDe, nombreLegible, nombreClase, categoriaPorId, rutaPublica
+} from './catalogo.js';
 
 function ordenarPorNombre(opciones) {
   return opciones.sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'));
 }
 
-// Botones de comuna y de tipo: solo los que tienen alguna atracción
+function validarId(id) {
+  if (!ID_VALIDO.test(id)) throw new Error(`Identificador no válido: ${id}`);
+  return id;
+}
+
+// Botones de comuna (solo las que tienen atracciones) y de categoría (todas, con su total)
 export async function obtenerFiltros() {
-  const [comunas, tipos] = await Promise.all([
-    consultarSPARQL(`${PREFIJOS}
-      SELECT DISTINCT ?comuna WHERE {
-        ${PATRON_ATRACCION}
-        FILTER(BOUND(?comuna))
-      }
-    `),
-    consultarSPARQL(`${PREFIJOS}
-      SELECT DISTINCT ?clase WHERE {
-        ${PATRON_ATRACCION}
-      }
-    `)
+  const [comunas, totales] = await Promise.all([
+    consultarSPARQL(construir.comunas()),
+    consultarSPARQL(construir.categorias())
   ]);
 
+  const totalPorCategoria = Object.fromEntries(totales.map(({ categoria, total }) => [categoria, Number(total)]));
+
   return {
-    comuna: ordenarPorNombre(comunas.map(({ comuna }) => ({
+    comuna: ordenarPorNombre(comunas.map(({ comuna, total }) => ({
       id: idDe(comuna),
-      nombre: nombreLegible(idDe(comuna))
+      nombre: nombreLegible(idDe(comuna)),
+      total: Number(total)
     }))),
-    tipo: ordenarPorNombre(tipos.map(({ clase }) => ({
-      id: idDe(clase),
-      nombre: nombreTipo(idDe(clase))
-    })))
+    categoria: CATEGORIAS.map(({ id, nombre, portada }) => ({
+      id, nombre, portada: Boolean(portada), total: totalPorCategoria[id] ?? 0
+    }))
   };
 }
 
-export function buscarAtracciones({ comuna, tipo }) {
-  return consultarAtracciones(`
-    ${comuna ? `FILTER(?comuna = ${iri(comuna)})` : ''}
-    ${tipo ? `FILTER(?clase = ${iri(tipo)})` : ''}
-  `);
+export async function buscarAtracciones({ comuna, categoria }) {
+  const filas = await consultarSPARQL(construir.busqueda({
+    comuna: comuna ? validarId(comuna) : '',
+    categoria: categoria ? categoriaPorId(categoria) : null
+  }));
+  return ordenar(filas.map(crearAtraccion));
+}
+
+export async function obtenerInventario() {
+  const filas = await consultarSPARQL(construir.inventario());
+  return ordenar(filas.map(crearAtraccion));
 }
 
 export async function obtenerAtraccion(id) {
   if (!ID_VALIDO.test(id ?? '')) return null;
 
-  const [atraccion] = await consultarAtracciones(`FILTER(?atraccion = ${iri(id)})`);
-  return atraccion ?? null;
+  const [fila] = await consultarSPARQL(construir.ficha(id));
+  return fila ? crearAtraccion(fila) : null;
 }
 
-async function consultarAtracciones(filtros) {
-  const filas = await consultarSPARQL(`${PREFIJOS}
-    SELECT ?atraccion ?clase ?comuna ?nombre ?descripcion ?calificacion
-           ?precio ?requierePermiso ?tieneTemporada
-           (GROUP_CONCAT(DISTINCT ?modelo; SEPARATOR="|") AS ?modelos)
-    WHERE {
-      ${PATRON_ATRACCION}
-      OPTIONAL { ?atraccion t:Nombre ?nombre }
-      OPTIONAL { ?atraccion t:Descripcion ?descripcion }
-      OPTIONAL { ?atraccion t:Calificacion ?calificacion }
-      OPTIONAL { ?atraccion t:Precio ?precio }
-      OPTIONAL { ?atraccion t:requierePermisoAutoridad ?requierePermiso }
-      OPTIONAL { ?atraccion t:tieneTemporada ?tieneTemporada }
-      OPTIONAL { ?atraccion t:tieneModelo3D ?modelo }
-      ${filtros}
-    }
-    GROUP BY ?atraccion ?clase ?comuna ?nombre ?descripcion ?calificacion
-             ?precio ?requierePermiso ?tieneTemporada
-  `);
-
-  return filas
-    .map(crearAtraccion)
-    // Primero las que ya tienen modelo 3D
-    .sort((a, b) => (b.modelos.length > 0) - (a.modelos.length > 0) || a.nombre.localeCompare(b.nombre, 'es'));
+// Primero las que ya tienen modelo 3D
+function ordenar(atracciones) {
+  return atracciones.sort((a, b) =>
+    (b.modelos.length > 0) - (a.modelos.length > 0) || a.nombre.localeCompare(b.nombre, 'es'));
 }
 
-function crearAtraccion(fila) {
+const lista = (valor) => (valor ? valor.split(SEP).filter(Boolean) : []);
+const nombres = (uris) => uris.map((uri) => nombreLegible(idDe(uri)));
+
+// Objeto de atracción. Conserva los valores en bruto (crudo) para que la validación pueda revisarlos.
+export function crearAtraccion(fila) {
   const id = idDe(fila.atraccion);
-  const nombre = fila.nombre ?? nombreLegible(id);
+  const crudo = {
+    clases: lista(fila.clases),
+    nombres: lista(fila.nombres),
+    descripciones: lista(fila.descripciones),
+    calificaciones: lista(fila.calificaciones),
+    precios: lista(fila.precios),
+    modelos: lista(fila.modelos),
+    imagenes: lista(fila.imagenes),
+    enlaces: lista(fila.enlaces),
+    lugares: lista(fila.lugares),
+    ciudades: lista(fila.ciudades),
+    comunas: lista(fila.comunas)
+  };
+
+  const nombre = crudo.nombres[0] ?? nombreLegible(id);
+  const clases = crudo.clases.map(idDe);
 
   return {
     id,
     uri: fila.atraccion,
+    enEspacioPrincipal: fila.atraccion.startsWith(NS),
     nombre,
-    tipo: nombreTipo(idDe(fila.clase)),
-    comuna: fila.comuna ? nombreLegible(idDe(fila.comuna)) : null,
-    descripcion: fila.descripcion ?? '',
-    calificacion: fila.calificacion ?? null,
-    precio: fila.precio ?? null,
+    clases,
+    tipo: clases.map(nombreClase).join(' / '),
+    ciudad: nombres(crudo.ciudades).join(', ') || null,
+    comuna: nombres(crudo.comunas).join(', ') || null,
+    comunaIds: crudo.comunas.map(idDe),
+    lugar: nombres(crudo.lugares).join(', ') || null,
+    lugarIds: crudo.lugares.map(idDe),
+    descripcion: crudo.descripciones[0] ?? '',
+    calificacion: crudo.calificaciones[0] ?? null,
+    precio: crudo.precios[0] ?? null,
     requierePermiso: fila.requierePermiso ?? null,
     tieneTemporada: fila.tieneTemporada ?? null,
-    modelos: crearModelos(fila.modelos, nombre)
+    modelos: crearModelos(crudo.modelos, nombre),
+    imagenes: crudo.imagenes.map((ruta) => ({ ruta: rutaPublica(ruta), original: ruta })),
+    enlaces: crudo.enlaces.map((url) => ({ url, texto: textoEnlace(url) })),
+    crudo
   };
 }
 
-function crearModelos(modelos, nombreAtraccion) {
-  // Una atracción sin modelos no trae este valor en la respuesta
-  const rutas = modelos?.split('|') ?? [];
+function textoEnlace(url) {
+  try {
+    return new URL(url).hostname.replace(/^www\./, '');
+  } catch {
+    return url;
+  }
+}
 
+function crearModelos(rutas, nombreAtraccion) {
   return rutas
     .map((ruta) => ({
       // Un modelo único se llama igual que su atracción
       nombre: rutas.length > 1 ? nombreModelo(ruta) : nombreAtraccion,
-      ruta: `${import.meta.env.BASE_URL}${ruta}`
+      ruta: rutaPublica(ruta),
+      original: ruta
     }))
     // Primero el modelo que da nombre a la atracción
     .sort((a, b) => nombreAtraccion.includes(b.nombre) - nombreAtraccion.includes(a.nombre) || a.nombre.localeCompare(b.nombre, 'es'));
