@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="description" content="Panel para explorar, consultar y validar las atracciones turísticas de la ontología de Magallanes.">
+	<meta name="robots" content="noindex">
+	<title>Panel de la ontología | Onto</title>
+	<link rel="stylesheet" href="css/style.css">
+	<link rel="stylesheet" href="css/panel.css">
+</head>
+<body class="panel">
+	<header><nav class="wrap" aria-label="Navegación principal">
+		<a class="brand" href="index.html"><span class="mark">o</span>onto <small class="brand-panel">panel</small></a>
+		<div class="links">
+			<span class="estado-fuseki" id="estado-fuseki" role="status" data-estado="comprobando">Fuseki…</span>
+			<a href="index.html">Sitio público</a>
+		</div>
+	</nav></header>
+
+	<main class="wrap panel-main">
+		<div class="pestanas" role="tablist" aria-label="Vistas del panel">
+			<a role="tab" href="#explorar" id="tab-explorar" aria-controls="vista-explorar">Explorar</a>
+			<a role="tab" href="#validacion" id="tab-validacion" aria-controls="vista-validacion">Validación <span class="contador" id="contador-errores" hidden></span></a>
+			<a role="tab" href="#consultas" id="tab-consultas" aria-controls="vista-consultas">Consultas SPARQL</a>
+			<a role="tab" href="#nuevo" id="tab-nuevo" aria-controls="vista-nuevo">Nuevo individuo</a>
+		</div>
+
+		<p class="aviso-carga" id="aviso-carga" role="status">Cargando datos desde Fuseki…</p>
+
+		<!-- Explorar -->
+		<section class="vista" id="vista-explorar" role="tabpanel" aria-labelledby="tab-explorar" hidden>
+			<div class="indicadores" id="indicadores"></div>
+			<div class="panel-filtros">
+				<label class="campo-busqueda">
+					<span class="visually-hidden">Buscar atracción</span>
+					<input type="search" id="buscar" placeholder="Buscar por nombre, ciudad o descripción…" autocomplete="off">
+				</label>
+				<div>
+					<p class="titulo-filtro" id="t-comuna">Comuna</p>
+					<div class="grupo-botones compacto" id="p-filtro-comuna" role="group" aria-labelledby="t-comuna"></div>
+				</div>
+				<div>
+					<p class="titulo-filtro" id="t-categoria">Categoría</p>
+					<div class="grupo-botones compacto" id="p-filtro-categoria" role="group" aria-labelledby="t-categoria"></div>
+				</div>
+				<div>
+					<p class="titulo-filtro" id="t-falta">Mostrar solo las que no tienen</p>
+					<div class="grupo-botones compacto" id="p-filtro-falta" role="group" aria-labelledby="t-falta"></div>
+				</div>
+			</div>
+			<p class="total-atracciones" id="p-total" role="status"></p>
+			<ul class="rejilla-panel" id="p-lista"></ul>
+		</section>
+
+		<!-- Validación -->
+		<section class="vista" id="vista-validacion" role="tabpanel" aria-labelledby="tab-validacion" hidden>
+			<div class="barra-acciones">
+				<button type="button" class="button" id="v-revalidar">Volver a validar</button>
+				<button type="button" class="button outline" id="v-archivos">Abrir modelos 3D e imágenes</button>
+				<label class="interruptor"><input type="checkbox" id="v-solo-problemas" checked> Solo con problemas</label>
+				<button type="button" class="button outline" id="v-csv">Descargar CSV</button>
+				<span class="progreso" id="v-progreso" role="status"></span>
+			</div>
+			<div class="resumen-validacion" id="v-resumen"></div>
+			<details class="bloque-global" id="v-global-bloque" open>
+				<summary>Problemas generales <span id="v-global-total"></span></summary>
+				<ul class="lista-hallazgos" id="v-global"></ul>
+			</details>
+			<div class="tabla-validacion" id="v-tabla" role="list"></div>
+		</section>
+
+		<!-- Consultas -->
+		<section class="vista" id="vista-consultas" role="tabpanel" aria-labelledby="tab-consultas" hidden>
+			<div class="consultas">
+				<nav class="lista-consultas" aria-label="Consultas del sitio">
+					<ul id="c-lista"></ul>
+				</nav>
+				<div class="editor-consulta">
+					<div class="cabecera-consulta">
+						<h2 id="c-titulo">Consulta</h2>
+						<p class="usada-en" id="c-usada"></p>
+						<p class="descripcion-consulta" id="c-descripcion"></p>
+					</div>
+					<label for="c-texto" class="visually-hidden">Texto de la consulta SPARQL</label>
+					<textarea id="c-texto" spellcheck="false" rows="16"></textarea>
+					<div class="barra-acciones">
+						<button type="button" class="button" id="c-ejecutar">Ejecutar <kbd>Ctrl</kbd>+<kbd>Enter</kbd></button>
+						<button type="button" class="button outline" id="c-restaurar">Restaurar</button>
+						<button type="button" class="button outline" id="c-copiar">Copiar</button>
+						<span class="progreso" id="c-estado" role="status"></span>
+					</div>
+					<pre class="error-consulta" id="c-error" hidden></pre>
+					<div class="resultado-consulta" id="c-resultado"></div>
+				</div>
+			</div>
+		</section>
+
+		<!-- Nuevo individuo -->
+		<section class="vista" id="vista-nuevo" role="tabpanel" aria-labelledby="tab-nuevo" hidden>
+			<div class="nuevo">
+				<form id="n-formulario" class="formulario-nuevo" novalidate>
+					<p class="nota-nuevo">Rellena los datos y copia el resultado en Protégé o en Fuseki. El sitio lo mostrará sin cambiar código.</p>
+					<label>Identificador (IRI) <input name="id" required placeholder="Plaza_Munoz_Gamero"></label>
+					<label>Clase <select name="clase" required></select></label>
+					<label>Nombre <input name="nombre" placeholder="Plaza Muñoz Gamero"></label>
+					<label>Descripción <textarea name="descripcion" rows="3"></textarea></label>
+					<label data-para="lugar">Ciudad <select name="ciudad"></select></label>
+					<label data-para="lugar">Comuna (si no tiene ciudad) <select name="comuna"></select></label>
+					<label data-para="actividad" hidden>Se realiza en <select name="lugar"></select></label>
+					<label>Calificación (0 a 5) <input name="calificacion" type="number" min="0" max="5" step="0.1"></label>
+					<label>Modelo 3D <input name="modelo" list="n-modelos" placeholder="modelos3d/archivo.glb"></label>
+					<datalist id="n-modelos"></datalist>
+					<label>Imágenes (una por línea) <textarea name="imagenes" rows="2" placeholder="imagenes/archivo.jpg"></textarea></label>
+					<label>Enlaces (uno por línea) <textarea name="enlaces" rows="2" placeholder="https://…"></textarea></label>
+				</form>
+				<div class="salida-nuevo">
+					<ul class="lista-hallazgos" id="n-avisos"></ul>
+					<div class="grupo-botones compacto" role="group" aria-label="Formato">
+						<button type="button" class="button outline boton-filtro" data-formato="turtle" aria-pressed="true">Turtle</button>
+						<button type="button" class="button outline boton-filtro" data-formato="sparql" aria-pressed="false">SPARQL INSERT</button>
+					</div>
+					<pre class="codigo" id="n-salida"></pre>
+					<div class="barra-acciones">
+						<button type="button" class="button" id="n-copiar">Copiar</button>
+						<span class="progreso" id="n-estado" role="status"></span>
+					</div>
+					<ol class="pasos-nuevo">
+						<li>Copia los archivos a <code>public/modelos3d/</code> o <code>public/imagenes/</code>.</li>
+						<li>Pega el Turtle en Protégé (o usa el INSERT en Fuseki, endpoint <code>/turismo/update</code>).</li>
+						<li>Recarga el dataset y abre la pestaña Validación.</li>
+					</ol>
+				</div>
+			</div>
+		</section>
+	</main>
+
+	<dialog class="dialogo-ficha" id="dialogo-ficha" aria-labelledby="dialogo-titulo">
+		<div class="dialogo-cabecera">
+			<span id="dialogo-titulo" class="visually-hidden">Ficha de la atracción</span>
+			<a id="dialogo-publica" class="enlace-volver" target="_blank" rel="noopener">Abrir ficha pública ↗</a>
+			<button type="button" class="button outline" id="dialogo-cerrar" aria-label="Cerrar ficha">Cerrar</button>
+		</div>
+		<div id="dialogo-contenido"></div>
+		<div class="dialogo-pie" id="dialogo-pie"></div>
+	</dialog>
+
+	<footer><div class="wrap footer-inner"><a class="brand" href="index.html"><span class="mark">o</span>onto</a><span>Panel interno · Región de Magallanes</span></div></footer>
+	<script type="module" src="js/panel.js"></script>
+</body>
+</html>

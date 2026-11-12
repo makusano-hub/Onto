@@ -1,0 +1,1088 @@
+<?xml version="1.0"?>
+<rdf:RDF xmlns="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2/"
+     xml:base="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2/"
+     xmlns:owl="http://www.w3.org/2002/07/owl#"
+     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+     xmlns:xml="http://www.w3.org/XML/1998/namespace"
+     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+     xmlns:Ontologia2="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#">
+    <owl:Ontology rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2"/>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Object Properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#permiteActividad -->
+
+    <owl:ObjectProperty rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#permiteActividad">
+        <owl:inverseOf rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#seRealizaEn"/>
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Lugares"/>
+        <rdfs:range rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Actividad"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#perteneceAComuna -->
+
+    <owl:ObjectProperty rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#perteneceAComuna">
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Ciudad"/>
+        <rdfs:range rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Comuna"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#seRealizaEn -->
+
+    <owl:ObjectProperty rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#seRealizaEn">
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Actividad"/>
+        <rdfs:range rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Lugares"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#ubicadoEnCiudad -->
+
+    <owl:ObjectProperty rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#ubicadoEnCiudad">
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Lugares"/>
+        <rdfs:range rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Ciudad"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#ubicadoEnComuna -->
+
+    <owl:ObjectProperty rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#ubicadoEnComuna">
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Lugares"/>
+        <rdfs:range rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Comuna"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Data properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Calificacion -->
+
+    <owl:DatatypeProperty rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Calificacion">
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#decimal"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Descripcion -->
+
+    <owl:DatatypeProperty rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Descripcion">
+        <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topDataProperty"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Nombre -->
+
+    <owl:DatatypeProperty rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Nombre">
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Precio -->
+
+    <owl:DatatypeProperty rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Precio">
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#integer"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#requierePermisoAutoridad -->
+
+    <owl:DatatypeProperty rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#requierePermisoAutoridad">
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#boolean"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#tieneModelo3D -->
+
+    <owl:DatatypeProperty rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#tieneModelo3D">
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Lugares"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#anyURI"/>
+    </owl:DatatypeProperty>
+
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#tieneTemporada -->
+
+    <owl:DatatypeProperty rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#tieneTemporada">
+        <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topDataProperty"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#boolean"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Classes
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Actividad -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Actividad"/>
+    
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Alojamiento -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Alojamiento">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Cotidiana"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Cafeteria -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Cafeteria">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Establecimientos"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Ciudad -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Ciudad"/>
+    
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Comida -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Comida">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Cotidiana"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Compras -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Compras">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Cotidiana"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Comuna -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Comuna"/>
+    
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Cotidiana -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Cotidiana">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Actividad"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#CulturalHistorico -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#CulturalHistorico">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Lugares"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Establecimientos -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Establecimientos">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Lugares"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Estatua -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Estatua">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#CulturalHistorico"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Hotel -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Hotel">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Establecimientos"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Lago -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Lago">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Naturaleza"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Lugares -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Lugares"/>
+    
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Mercado -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Mercado">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Establecimientos"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Montaña -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Montaña">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Naturaleza"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Museo -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Museo">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#CulturalHistorico"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Naturaleza -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Naturaleza">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#ZonaTuristica"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#PanoramaCiudad -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#PanoramaCiudad">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Cotidiana"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Parque -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Parque">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Naturaleza"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#PescaDeportiva -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#PescaDeportiva">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Turistica"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Reserva -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Reserva">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Naturaleza"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Restaurante -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Restaurante">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Establecimientos"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Rio -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Rio">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Naturaleza"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Senderismo -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Senderismo">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Turistica"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#SitioHistorico -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#SitioHistorico">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#CulturalHistorico"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Trekking -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Trekking">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Turistica"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Turistica -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Turistica">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Actividad"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#ZonaTiendas -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#ZonaTiendas">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Establecimientos"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#ZonaTuristica -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#ZonaTuristica">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Lugares"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#safari -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#safari">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Turistica"/>
+    </owl:Class>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Individuals
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/8/ontologiaTurismo#Shopping -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/8/ontologiaTurismo#Shopping">
+        <rdf:type rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Compras"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Cabo_de_Hornos -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Cabo_de_Hornos">
+        <rdf:type rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Comuna"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Calle_Bories -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Calle_Bories">
+        <rdf:type rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#ZonaTiendas"/>
+        <Ontologia2:ubicadoEnCiudad rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Punta_Arenas"/>
+        <Ontologia2:Descripcion>Calle considerada como el centro de Punta Arenas con muchos negocios de distinta indole</Ontologia2:Descripcion>
+        <Ontologia2:requierePermisoAutoridad rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">false</Ontologia2:requierePermisoAutoridad>
+        <Ontologia2:tieneTemporada rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">false</Ontologia2:tieneTemporada>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Cementerio_Sara_Braun -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Cementerio_Sara_Braun">
+        <rdf:type rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#SitioHistorico"/>
+        <Ontologia2:ubicadoEnCiudad rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Punta_Arenas"/>
+        <Ontologia2:Nombre>Cementerio Municipal Sara Braun</Ontologia2:Nombre>
+        <Ontologia2:tieneModelo3D rdf:datatype="http://www.w3.org/2001/XMLSchema#anyURI">modelos3d/fachadaCementerio.glb</Ontologia2:tieneModelo3D>
+    </owl:NamedIndividual>
+
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Circuito_O -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Circuito_O">
+        <rdf:type rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Senderismo"/>
+        <Ontologia2:seRealizaEn rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#ParqueTorresDelPaine"/>
+        <Ontologia2:Descripcion>• Duración: 8 a 9 días (7 a 8 noches).
+• Distancia: Entre 93 y 110 kilómetros.
+• Dificultad: Alta y extenuante</Ontologia2:Descripcion>
+        <Ontologia2:Nombre>Circuito O de senderismo</Ontologia2:Nombre>
+        <Ontologia2:requierePermisoAutoridad rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</Ontologia2:requierePermisoAutoridad>
+        <Ontologia2:tieneTemporada rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</Ontologia2:tieneTemporada>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#ComerenDinos -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#ComerenDinos">
+        <rdf:type rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Comida"/>
+        <Ontologia2:seRealizaEn rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Dinos_Pizza"/>
+        <Ontologia2:Nombre>Comer en el Dinos pizza</Ontologia2:Nombre>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#ComerenRestraurant -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#ComerenRestraurant">
+        <rdf:type rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Comida"/>
+        <Ontologia2:seRealizaEn rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Cormoran_de_las_rocas"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Cormoran_de_las_rocas -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Cormoran_de_las_rocas">
+        <rdf:type rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Restaurante"/>
+        <Ontologia2:ubicadoEnCiudad rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Puerto_Natales"/>
+        <Ontologia2:Descripcion>Excelente Restaurant con bella vista al seno ultima esperanza</Ontologia2:Descripcion>
+        <Ontologia2:Nombre>Cormorán de las rocas</Ontologia2:Nombre>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#DiegoAlmagro -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#DiegoAlmagro">
+        <rdf:type rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Hotel"/>
+        <Ontologia2:ubicadoEnCiudad rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Punta_Arenas"/>
+        <Ontologia2:Calificacion rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">4.5</Ontologia2:Calificacion>
+        <Ontologia2:Descripcion>Hotel ubicado en la costanera de Punta arenas</Ontologia2:Descripcion>
+        <Ontologia2:Nombre>Diego de Almagro</Ontologia2:Nombre>
+        <Ontologia2:tieneTemporada rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">false</Ontologia2:tieneTemporada>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Dinos_Pizza -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Dinos_Pizza">
+        <rdf:type rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Restaurante"/>
+        <Ontologia2:ubicadoEnCiudad rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Punta_Arenas"/>
+        <Ontologia2:Descripcion>Sandwicheria popular en Punta Arenas</Ontologia2:Descripcion>
+        <Ontologia2:Nombre>Dino´s Pizza</Ontologia2:Nombre>
+        <Ontologia2:requierePermisoAutoridad rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">false</Ontologia2:requierePermisoAutoridad>
+        <Ontologia2:tieneTemporada rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">false</Ontologia2:tieneTemporada>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#FuerteBulnes -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#FuerteBulnes">
+        <rdf:type rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#SitioHistorico"/>
+        <Ontologia2:ubicadoEnCiudad rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Punta_Arenas"/>
+        <Ontologia2:ubicadoEnComuna rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#PuntaArenas"/>
+        <Ontologia2:Calificacion rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">4.7</Ontologia2:Calificacion>
+        <Ontologia2:Descripcion>Primer Asentamiento de la region de magallanes chilena</Ontologia2:Descripcion>
+        <Ontologia2:Nombre>Fuerte Bulnes</Ontologia2:Nombre>
+        <Ontologia2:requierePermisoAutoridad rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">false</Ontologia2:requierePermisoAutoridad>
+        <Ontologia2:tieneTemporada rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">false</Ontologia2:tieneTemporada>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Gimnasio -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Gimnasio">
+        <rdf:type rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#PanoramaCiudad"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Hernando_de_Magallanes -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Hernando_de_Magallanes">
+        <rdf:type rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Estatua"/>
+        <Ontologia2:ubicadoEnCiudad rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Punta_Arenas"/>
+        <Ontologia2:Nombre>Monumento Hernando de Magallanes</Ontologia2:Nombre>
+        <Ontologia2:Precio rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">0</Ontologia2:Precio>
+        <Ontologia2:tieneModelo3D rdf:datatype="http://www.w3.org/2001/XMLSchema#anyURI">modelos3d/monumentoHernando.glb</Ontologia2:tieneModelo3D>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Iglesia_San_Francisco_de_Sales -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Iglesia_San_Francisco_de_Sales">
+        <rdf:type rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#SitioHistorico"/>
+        <Ontologia2:ubicadoEnCiudad rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#porvenir"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Isla_Magdalena -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Isla_Magdalena">
+        <rdf:type rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Reserva"/>
+        <Ontologia2:ubicadoEnComuna rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#PuntaArenas"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Lago_Blanco -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Lago_Blanco">
+        <rdf:type rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Lago"/>
+        <Ontologia2:ubicadoEnComuna rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Timaukel"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#LagunaBlanca -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#LagunaBlanca">
+        <rdf:type rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Comuna"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#LlanurasdeDiana -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#LlanurasdeDiana">
+        <rdf:type rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Hotel"/>
+        <Ontologia2:ubicadoEnComuna rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#PuertoNatales"/>
+        <Ontologia2:Calificacion rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">5</Ontologia2:Calificacion>
+        <Ontologia2:Descripcion>Hotel Ubicado en un lugar llamado las llanuras de diana, 15 min a distancia de Puerto Natales, posee piscina, alojamientos, zonas de entretencion entre otros.</Ontologia2:Descripcion>
+        <Ontologia2:Nombre>Hotel LLanuras de diana</Ontologia2:Nombre>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Maggiorino_Borgatello -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Maggiorino_Borgatello">
+        <rdf:type rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Museo"/>
+        <Ontologia2:ubicadoEnCiudad rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Punta_Arenas"/>
+        <Ontologia2:Descripcion>Es un museo que posee coleccion privada de historia, flora y fauna de la region de Magallanes</Ontologia2:Descripcion>
+        <Ontologia2:Nombre>Museo salesiano Maggiorino Borgatello</Ontologia2:Nombre>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Masay -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Masay">
+        <rdf:type rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Restaurante"/>
+        <Ontologia2:ubicadoEnCiudad rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Puerto_Natales"/>
+        <Ontologia2:Descripcion>Sandwicheria tipica de la ciudad de Puerto Natales</Ontologia2:Descripcion>
+        <Ontologia2:Nombre>Masay Pizza</Ontologia2:Nombre>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#MercadoRegional -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#MercadoRegional">
+        <rdf:type rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Mercado"/>
+        <Ontologia2:ubicadoEnCiudad rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Punta_Arenas"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Mirador_Ballenas -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Mirador_Ballenas">
+        <rdf:type rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#safari"/>
+        <Ontologia2:seRealizaEn rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Parque_Marino_Francisco_Coloane"/>
+        <Ontologia2:Descripcion>Solo se puede visitar a traves de navegación</Ontologia2:Descripcion>
+        <Ontologia2:requierePermisoAutoridad rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</Ontologia2:requierePermisoAutoridad>
+        <Ontologia2:tieneTemporada rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</Ontologia2:tieneTemporada>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Mirador_Base_las_Torres -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Mirador_Base_las_Torres">
+        <rdf:type rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Trekking"/>
+        <Ontologia2:seRealizaEn rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#ParqueTorresDelPaine"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Monte_Tarn -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Monte_Tarn">
+        <rdf:type rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Montaña"/>
+        <Ontologia2:ubicadoEnComuna rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#PuntaArenas"/>
+        <Ontologia2:Nombre>Monte Tarn</Ontologia2:Nombre>
+        <Ontologia2:Precio rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">0</Ontologia2:Precio>
+        <Ontologia2:requierePermisoAutoridad rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</Ontologia2:requierePermisoAutoridad>
+        <Ontologia2:tieneTemporada rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</Ontologia2:tieneTemporada>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Monumento_Lago_Cisnes -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Monumento_Lago_Cisnes">
+        <rdf:type rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Reserva"/>
+        <Ontologia2:ubicadoEnComuna rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Porvenir"/>
+        <Ontologia2:Descripcion>Presencia de fosiles vivientes llamados estromatolitos</Ontologia2:Descripcion>
+        <Ontologia2:Nombre>Conocido como el parque de los estromatolitos</Ontologia2:Nombre>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Monumento_al_Ovejero -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Monumento_al_Ovejero">
+        <rdf:type rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Estatua"/>
+        <Ontologia2:ubicadoEnCiudad rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Punta_Arenas"/>
+        <Ontologia2:Nombre>Monumento al Ovejero</Ontologia2:Nombre>
+        <Ontologia2:tieneModelo3D rdf:datatype="http://www.w3.org/2001/XMLSchema#anyURI">modelos3d/monumento_al_ovejero_.glb</Ontologia2:tieneModelo3D>
+    </owl:NamedIndividual>
+
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Nao_Victoria -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Nao_Victoria">
+        <rdf:type rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Museo"/>
+        <Ontologia2:ubicadoEnCiudad rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Punta_Arenas"/>
+        <Ontologia2:Calificacion rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">4.5</Ontologia2:Calificacion>
+        <Ontologia2:Descripcion>Museo donde se pueden replicas a escala de las naves que exploraron el estrecho de magallanes</Ontologia2:Descripcion>
+        <Ontologia2:Nombre>Museo Nao Victoria</Ontologia2:Nombre>
+        <Ontologia2:requierePermisoAutoridad rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">false</Ontologia2:requierePermisoAutoridad>
+        <Ontologia2:tieneTemporada rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">false</Ontologia2:tieneTemporada>
+        <Ontologia2:tieneModelo3D rdf:datatype="http://www.w3.org/2001/XMLSchema#anyURI">modelos3d/nao_victoria_model.glb</Ontologia2:tieneModelo3D>
+        <Ontologia2:tieneModelo3D rdf:datatype="http://www.w3.org/2001/XMLSchema#anyURI">modelos3d/hms_beagle_model.glb</Ontologia2:tieneModelo3D>
+        <Ontologia2:tieneModelo3D rdf:datatype="http://www.w3.org/2001/XMLSchema#anyURI">modelos3d/goleta_ancud_model.glb</Ontologia2:tieneModelo3D>
+        <Ontologia2:Precio rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">10000</Ontologia2:Precio>
+        <Ontologia2:ubicadoEnComuna rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#PuntaArenas"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#ParqueJapones -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#ParqueJapones">
+        <rdf:type rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Parque"/>
+        <Ontologia2:ubicadoEnCiudad rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Punta_Arenas"/>
+        <Ontologia2:Descripcion>Paseo Cercano a la ciudad</Ontologia2:Descripcion>
+        <Ontologia2:Nombre>Reserva nacional Magallanes</Ontologia2:Nombre>
+        <Ontologia2:Precio rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">0</Ontologia2:Precio>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#ParqueTorresDelPaine -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#ParqueTorresDelPaine">
+        <rdf:type rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Parque"/>
+        <Ontologia2:ubicadoEnComuna rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#TorresDelPaine"/>
+        <Ontologia2:Calificacion rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">4.8</Ontologia2:Calificacion>
+        <Ontologia2:Descripcion>Es una atraccion turistica, con multiples panoramas</Ontologia2:Descripcion>
+        <Ontologia2:Nombre>Parque Nacional Torres del Paine</Ontologia2:Nombre>
+        <Ontologia2:Precio rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">10000</Ontologia2:Precio>
+        <Ontologia2:requierePermisoAutoridad rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</Ontologia2:requierePermisoAutoridad>
+        <Ontologia2:tieneTemporada rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</Ontologia2:tieneTemporada>
+        <Ontologia2:tieneModelo3D rdf:datatype="http://www.w3.org/2001/XMLSchema#anyURI">modelos3d/Torres_del_paine.glb</Ontologia2:tieneModelo3D>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Parque_Marino_Francisco_Coloane -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Parque_Marino_Francisco_Coloane">
+        <rdf:type rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Parque"/>
+        <Ontologia2:ubicadoEnComuna rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#PuntaArenas"/>
+        <Ontologia2:Descripcion>Zona protegida para las vida marina de la region de magallanes</Ontologia2:Descripcion>
+        <Ontologia2:Nombre>Francisco Coloane</Ontologia2:Nombre>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Parrillar -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Parrillar">
+        <rdf:type rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Lago"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Paseo -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Paseo">
+        <rdf:type rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#PanoramaCiudad"/>
+        <Ontologia2:seRealizaEn rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Calle_Bories"/>
+        <Ontologia2:seRealizaEn rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Puerto_Bories"/>
+        <Ontologia2:seRealizaEn rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#ZonaFranca"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Pinguineras -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Pinguineras">
+        <rdf:type rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#safari"/>
+        <Ontologia2:seRealizaEn rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Isla_Magdalena"/>
+        <Ontologia2:seRealizaEn rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#PinguinoRey"/>
+        <Ontologia2:Descripcion>Ver pinguinos en la naturaleza</Ontologia2:Descripcion>
+        <Ontologia2:requierePermisoAutoridad rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</Ontologia2:requierePermisoAutoridad>
+        <Ontologia2:tieneTemporada rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</Ontologia2:tieneTemporada>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#PinguinoRey -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#PinguinoRey">
+        <rdf:type rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Reserva"/>
+        <Ontologia2:ubicadoEnComuna rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Timaukel"/>
+        <Ontologia2:Nombre>Reserva natuiral Pinguino Rey de la Patagonia</Ontologia2:Nombre>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Plaza_de_armas_porvenir -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Plaza_de_armas_porvenir">
+        <rdf:type rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Estatua"/>
+        <Ontologia2:ubicadoEnCiudad rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#porvenir"/>
+        <Ontologia2:Nombre>Plaza de armas de porvenir</Ontologia2:Nombre>
+        <Ontologia2:tieneModelo3D rdf:datatype="http://www.w3.org/2001/XMLSchema#anyURI">modelos3d/monumento_porve_Final.glb</Ontologia2:tieneModelo3D>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Porvenir -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Porvenir">
+        <rdf:type rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Comuna"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Primavera -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Primavera">
+        <rdf:type rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Comuna"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#PuertoHambre -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#PuertoHambre">
+        <rdf:type rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#SitioHistorico"/>
+        <Ontologia2:ubicadoEnCiudad rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Punta_Arenas"/>
+        <Ontologia2:ubicadoEnComuna rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#PuntaArenas"/>
+        <Ontologia2:Descripcion>Asentamiento Español Abandonado</Ontologia2:Descripcion>
+        <Ontologia2:Precio rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">0</Ontologia2:Precio>
+        <Ontologia2:requierePermisoAutoridad rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">false</Ontologia2:requierePermisoAutoridad>
+        <Ontologia2:tieneTemporada rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">false</Ontologia2:tieneTemporada>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#PuertoNatales -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#PuertoNatales">
+        <rdf:type rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Comuna"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Puerto_Bories -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Puerto_Bories">
+        <rdf:type rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#SitioHistorico"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Puerto_Natales -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Puerto_Natales">
+        <rdf:type rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Ciudad"/>
+        <Ontologia2:perteneceAComuna rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#PuertoNatales"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Puerto_Williams -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Puerto_Williams">
+        <rdf:type rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Ciudad"/>
+        <Ontologia2:perteneceAComuna rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Cabo_de_Hornos"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#PuntaArenas -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#PuntaArenas">
+        <rdf:type rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Comuna"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Punta_Arenas -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Punta_Arenas">
+        <rdf:type rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Ciudad"/>
+        <Ontologia2:perteneceAComuna rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#PuntaArenas"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#RioVerde -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#RioVerde">
+        <rdf:type rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Comuna"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#SanGregorio -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#SanGregorio">
+        <rdf:type rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Comuna"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Serrano -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Serrano">
+        <rdf:type rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Rio"/>
+        <Ontologia2:ubicadoEnComuna rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#TorresDelPaine"/>
+        <Ontologia2:Descripcion>Rio ubicado en las cercanias del parque Torres del Paine</Ontologia2:Descripcion>
+        <Ontologia2:Nombre>Rio Serrano</Ontologia2:Nombre>
+        <Ontologia2:requierePermisoAutoridad rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</Ontologia2:requierePermisoAutoridad>
+        <Ontologia2:tieneTemporada rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</Ontologia2:tieneTemporada>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Sotitos_bar -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Sotitos_bar">
+        <rdf:type rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Restaurante"/>
+        <Ontologia2:ubicadoEnCiudad rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Punta_Arenas"/>
+        <Ontologia2:Calificacion rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">4.4</Ontologia2:Calificacion>
+        <Ontologia2:Descripcion>Restaurante de alta cocina magallanica, especializado en platos magallanicos</Ontologia2:Descripcion>
+        <Ontologia2:Nombre>Sotitos Bar</Ontologia2:Nombre>
+        <Ontologia2:Precio rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">25000</Ontologia2:Precio>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Timaukel -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Timaukel">
+        <rdf:type rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Comuna"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#TorresDelPaine -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#TorresDelPaine">
+        <rdf:type rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Comuna"/>
+        <Ontologia2:tieneModelo3D rdf:datatype="http://www.w3.org/2001/XMLSchema#anyURI">modelos3d/Torres_del_paine.glb</Ontologia2:tieneModelo3D>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Tren_Mclelland -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Tren_Mclelland">
+        <rdf:type rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Estatua"/>
+        <Ontologia2:ubicadoEnCiudad rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Puerto_Natales"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Vida_nocturna -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Vida_nocturna">
+        <rdf:type rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#PanoramaCiudad"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Wake_up -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Wake_up">
+        <rdf:type rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Cafeteria"/>
+        <Ontologia2:ubicadoEnCiudad rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Punta_Arenas"/>
+        <Ontologia2:Descripcion>Coffee shop y tienda donde puedes aprender a hacer café</Ontologia2:Descripcion>
+        <Ontologia2:Nombre>Wake up - coffee Lab</Ontologia2:Nombre>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#ZonaFranca -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#ZonaFranca">
+        <rdf:type rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#ZonaTiendas"/>
+        <Ontologia2:permiteActividad rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/8/ontologiaTurismo#Shopping"/>
+        <Ontologia2:ubicadoEnCiudad rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Punta_Arenas"/>
+        <Ontologia2:Descripcion>Usualmente abierto entre las 10:30 am y 8 PM</Ontologia2:Descripcion>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#alojamientoDiegoAlmagro -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#alojamientoDiegoAlmagro">
+        <rdf:type rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Alojamiento"/>
+        <Ontologia2:seRealizaEn rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#DiegoAlmagro"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#circuito_W -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#circuito_W">
+        <rdf:type rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Senderismo"/>
+        <Ontologia2:seRealizaEn rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#ParqueTorresDelPaine"/>
+        <Ontologia2:Descripcion>• Duración: De 4 a 5 días (3 o 4 noches).
+• Distancia: Entre 70 y 80 km en total.
+• Dificultad: Alta</Ontologia2:Descripcion>
+        <Ontologia2:Nombre>Circuito W de senderismo</Ontologia2:Nombre>
+        <Ontologia2:requierePermisoAutoridad rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</Ontologia2:requierePermisoAutoridad>
+        <Ontologia2:tieneTemporada rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</Ontologia2:tieneTemporada>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#mirador_Cuernos_del_Paine -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#mirador_Cuernos_del_Paine">
+        <rdf:type rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Trekking"/>
+        <Ontologia2:seRealizaEn rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#ParqueTorresDelPaine"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#pescaRioSerrano -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#pescaRioSerrano">
+        <rdf:type rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#PescaDeportiva"/>
+        <Ontologia2:seRealizaEn rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Serrano"/>
+        <Ontologia2:Descripcion>Pesca Salmon de rio, y trucha</Ontologia2:Descripcion>
+        <Ontologia2:requierePermisoAutoridad rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</Ontologia2:requierePermisoAutoridad>
+        <Ontologia2:tieneTemporada rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</Ontologia2:tieneTemporada>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#pescaSanJuan -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#pescaSanJuan">
+        <rdf:type rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#PescaDeportiva"/>
+        <Ontologia2:seRealizaEn rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#rioSanjuan"/>
+        <Ontologia2:Descripcion>Se puede pescar diferentes especies de trucha</Ontologia2:Descripcion>
+        <Ontologia2:requierePermisoAutoridad rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</Ontologia2:requierePermisoAutoridad>
+        <Ontologia2:tieneTemporada rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</Ontologia2:tieneTemporada>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#porvenir -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#porvenir">
+        <rdf:type rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Ciudad"/>
+        <Ontologia2:perteneceAComuna rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Porvenir"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#rioSanjuan -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#rioSanjuan">
+        <rdf:type rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Rio"/>
+        <Ontologia2:ubicadoEnComuna rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#PuntaArenas"/>
+        <Ontologia2:Descripcion>Rio ubicado aprox 60 Kilometros al Sur de Punta arenas</Ontologia2:Descripcion>
+        <Ontologia2:Nombre>San Juan</Ontologia2:Nombre>
+        <Ontologia2:Precio rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">0</Ontologia2:Precio>
+        <Ontologia2:requierePermisoAutoridad rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">false</Ontologia2:requierePermisoAutoridad>
+        <Ontologia2:tieneTemporada rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</Ontologia2:tieneTemporada>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#senderismoTarn -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#senderismoTarn">
+        <rdf:type rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Senderismo"/>
+        <Ontologia2:seRealizaEn rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Monte_Tarn"/>
+        <Ontologia2:Descripcion>A una distancia aproximada de 70 km de Punta Arenas, el sendero es de alta dificultad, y se debe avisar previamente a la comisaria de Carabineros de Chile de Aguafresca</Ontologia2:Descripcion>
+        <Ontologia2:Nombre>Subida al Monte Tarn</Ontologia2:Nombre>
+        <Ontologia2:requierePermisoAutoridad rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</Ontologia2:requierePermisoAutoridad>
+        <Ontologia2:tieneTemporada rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</Ontologia2:tieneTemporada>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Holaste! -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Holaste!">
+        <rdf:type rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Cafeteria"/>
+        <Ontologia2:ubicadoEnCiudad rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Puerto_Natales"/>
+        <Ontologia2:Calificacion rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">5</Ontologia2:Calificacion>
+        <Ontologia2:Descripcion>Cafeteria ubicada en la plaza de armas de Puerto Natales, reconocida por su sistema de dispensar café, y que este sea tostado por los mismo dueños</Ontologia2:Descripcion>
+        <Ontologia2:Nombre>Holaste! salon de Café</Ontologia2:Nombre>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#The_Cormorant_at_55°_South -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#The_Cormorant_at_55°_South">
+        <rdf:type rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Hotel"/>
+        <Ontologia2:ubicadoEnCiudad rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Puerto_Williams"/>
+    </owl:NamedIndividual>
+</rdf:RDF>
+
+
+
+<!-- Generated by the OWL API (version 4.5.29.2024-05-13T12:11:03Z) https://github.com/owlcs/owlapi -->
+

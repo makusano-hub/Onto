@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Carta 3D de la Región de Magallanes con los lugares, actividades y modelos 3D de la ontología de turismo, leídos con SPARQL desde Fuseki.">
+<title>Magallanes Grafo 3D</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,800&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/grafo.css">
+</head>
+<body>
+
+<header class="top">
+  <a class="marca" href="#inicio" aria-label="Magallanes Grafo 3D, inicio">
+    <!-- Cruz del Sur, como en la bandera regional -->
+    <svg viewBox="0 0 26 26" aria-hidden="true"><rect width="26" height="26" rx="6" fill="#11304f"/><g fill="#f2b632"><circle cx="13" cy="4.5" r="1.7"/><circle cx="13.6" cy="21" r="2"/><circle cx="6" cy="11" r="1.6"/><circle cx="20" cy="12.5" r="1.6"/><circle cx="16.5" cy="15.5" r="1"/></g></svg>
+    Magallanes Grafo 3D
+  </a>
+  <nav aria-label="Secciones">
+    <a href="#carta">Carta 3D</a>
+    <a href="#lugares">Lugares</a>
+    <a href="#actividades">Actividades</a>
+    <a href="#conexion">Conexión SPARQL</a>
+    <a href="#region">La región</a>
+    <a href="index.html">Atracciones</a>
+  </nav>
+</header>
+
+<main id="inicio">
+  <div class="hero">
+    <div>
+      <div class="coord">53°09′S 70°54′O · Región de Magallanes y de la Antártica Chilena</div>
+      <h1>Magallanes es un <em>grafo</em> al fin del mundo.</h1>
+    </div>
+    <div class="lado">
+      <p class="lead">Los lugares, actividades y comunas de la ontología de turismo, leídos con SPARQL y levantados sobre una carta 3D de la región. Elige un nodo para ver sus datos, sus enlaces y su modelo 3D.</p>
+      <div class="estado" id="estado" data-modo="ejemplo"><i></i><span>Cargando ontología</span></div>
+    </div>
+  </div>
+
+  <div class="explorador">
+    <div class="carta" id="carta">
+      <canvas id="lienzo" aria-label="Carta 3D de la Región de Magallanes con los lugares de la ontología"></canvas>
+      <div class="sinwebgl" id="sinwebgl">Tu navegador no pudo iniciar WebGL. Los lugares siguen disponibles en la lista de abajo.</div>
+      <div class="etiquetas" id="etiquetas"></div>
+      <div class="filtros" id="filtros" role="group" aria-label="Filtrar por categoría"></div>
+      <div class="ayuda">arrastra para girar · costa real, relieve esquemático</div>
+      <div class="visor" id="visor" hidden>
+        <header>
+          <div><strong id="visorTitulo"></strong><span id="visorRuta"></span></div>
+          <button type="button" class="chip" id="visorCerrar">Volver a la carta</button>
+        </header>
+        <div class="escena"><canvas id="visorLienzo"></canvas><div class="aviso" id="visorAviso"></div></div>
+      </div>
+    </div>
+    <article class="ficha" id="ficha" aria-live="polite"></article>
+  </div>
+
+  <section id="lugares">
+    <div class="cab">
+      <h2>Los lugares de la ontología</h2>
+      <p>Individuos de la clase <code>Lugares</code> y las ciudades que los contienen. Elige uno para verlo en la carta.</p>
+    </div>
+    <div class="indice" id="indice"></div>
+  </section>
+
+  <section id="actividades" style="padding-top:0">
+    <div class="cab">
+      <h2>Qué se puede hacer</h2>
+      <p>Individuos de la clase <code>Actividad</code>, enlazados a sus lugares con <code>seRealizaEn</code>.</p>
+    </div>
+    <div class="acts" id="acts"></div>
+  </section>
+
+  <section id="conexion" class="conexion">
+    <div class="cab">
+      <h2>De Protégé a la pantalla</h2>
+      <p>La página lee la ontología en vivo desde el dataset <code>turismo</code> de Fuseki. Si Fuseki no responde, usa una copia de <code>turismo.rdf</code> incluida en <code>js/grafo-datos.js</code>.</p>
+    </div>
+    <ol class="pasos">
+      <li><h3>Ontología</h3><p>Editas clases, propiedades e individuos en Protégé y guardas <code>turismo.rdf</code>.</p></li>
+      <li><h3>Fuseki</h3><p>Subes el archivo al dataset <code>turismo</code> de Apache Jena Fuseki. Vite reenvía <code>/fuseki/turismo/query</code> a <code>localhost:3030</code>.</p></li>
+      <li><h3>Carta 3D</h3><p>La página pide todas las tripletas de los individuos y la jerarquía de clases, y arma con eso los nodos, las fichas y los enlaces.</p></li>
+    </ol>
+    <div class="codigos">
+      <div class="codigo">
+        <header><span>consultas que envía la página</span><button type="button" data-copiar="consulta">Copiar</button></header>
+        <pre id="consulta"></pre>
+      </div>
+      <div class="codigo">
+        <header><span>CONFIG en js/grafo.js</span><button type="button" data-copiar="config">Copiar</button></header>
+<pre id="config">const CONFIG = {
+  // Vite lo reenvía a Fuseki;
+  // null = usar siempre la copia
+  endpoint: "/fuseki/turismo/query",
+  // los .glb se sirven desde
+  // public/modelos3d/
+  modelos: ""
+};</pre>
+      </div>
+    </div>
+    <p class="nota">La ontología no guarda coordenadas, así que la página usa la tabla <code>COORDS</code> (aproximada) para ciudades, comunas y lugares naturales; los lugares urbanos se reparten en anillo alrededor de su ciudad. Si agregas a un individuo las propiedades de datos <code>Latitud</code> y <code>Longitud</code>, la página las usa en lugar de la tabla. Los archivos <code>.glb</code> de <code>tieneModelo3D</code> se cargan desde la carpeta <code>public/modelos3d/</code>.</p>
+  </section>
+
+  <section id="region">
+    <div class="cab">
+      <h2>La región más austral de Chile</h2>
+      <p>Estepa al oriente, cordillera y hielo al poniente, y un estrecho que une dos océanos.</p>
+    </div>
+    <dl class="cifras">
+      <div><dd>4</dd><dt>provincias: Última Esperanza, Magallanes, Tierra del Fuego y Antártica Chilena</dt></div>
+      <div><dd>132.291 km²</dd><dt>de superficie continental e insular, sin el Territorio Antártico</dt></div>
+      <div><dd>1520</dd><dt>año en que Hernando de Magallanes cruzó el estrecho, del 1 al 28 de noviembre</dt></div>
+      <div><dd>1848</dd><dt>fundación de Punta Arenas, la capital regional</dt></div>
+    </dl>
+  </section>
+</main>
+
+<footer>Proyecto de web semántica · Datos de la ontología de turismo. Línea de costa: Natural Earth. Las coordenadas de los lugares son aproximadas y el relieve es una estilización, no un modelo de elevación.</footer>
+
+<script type="module" src="js/grafo.js"></script>
+</body>
+</html>

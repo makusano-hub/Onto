@@ -3,49 +3,51 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<meta name="description" content="Conecta y organiza el conocimiento de tu organización con Onto.">
-	<title>Onto — Conocimiento conectado</title>
-	<style>
-		:root{--ink:#17252d;--muted:#65747b;--green:#176b59;--mint:#e2f2e9;--paper:#fafbf8;--line:#e5ebe7}
-		*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--paper);color:var(--ink);font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif}a{color:inherit;text-decoration:none}.wrap{width:min(1100px,calc(100% - 40px));margin:auto}
-		header{height:74px;border-bottom:1px solid var(--line);display:flex;align-items:center}nav{display:flex;justify-content:space-between;align-items:center}.brand{display:flex;align-items:center;gap:10px;font-size:21px;font-weight:750;letter-spacing:-.6px}.mark{width:30px;height:30px;border-radius:10px;background:var(--green);color:white;display:grid;place-items:center}.links{display:flex;align-items:center;gap:30px;color:#536268;font-size:14px}.links a:hover{color:var(--green)}
-		.button{display:inline-flex;align-items:center;justify-content:center;padding:12px 18px;border:1px solid var(--green);border-radius:8px;background:var(--green);color:white;font-size:14px;font-weight:650}.button:hover{background:#105746}.button.outline{background:transparent;color:var(--green)}
-		.hero{display:grid;grid-template-columns:1.05fr .95fr;align-items:center;gap:45px;padding:85px 0 90px}.eyebrow{color:var(--green);font-size:12px;font-weight:750;letter-spacing:1px;text-transform:uppercase}h1{max-width:580px;margin:17px 0;font-size:clamp(42px,5.5vw,66px);line-height:1.04;letter-spacing:-3px}h1 span{color:var(--green)}.lead{max-width:490px;color:var(--muted);font-size:17px;line-height:1.75}.actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:28px}.note{color:#7b898c;font-size:12px;margin-top:16px}
-		.visual{position:relative;min-height:350px;display:grid;place-items:center}.orb{position:absolute;width:310px;height:310px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#f1faf4,#c5e3d6)}.diagram{position:relative;width:420px;height:330px;max-width:100%}.diagram svg{position:absolute;width:100%;height:100%;inset:0}.diagram line{stroke:#9ac9b4;stroke-width:2;stroke-dasharray:5 6}.node{position:absolute;display:flex;align-items:center;gap:10px;padding:12px 14px;border:1px solid #e4ece7;border-radius:12px;background:white;box-shadow:0 10px 28px #1f4a3918;font-size:13px;font-weight:650;white-space:nowrap}.node b{width:30px;height:30px;border-radius:9px;background:#edf7f1;color:var(--green);display:grid;place-items:center}.node.center{top:131px;left:140px;background:var(--green);color:white;padding:15px 19px}.node.center b{background:#ffffff29;color:white}.one{top:24px;left:12px}.two{top:26px;right:0}.three{bottom:24px;left:0}.four{bottom:31px;right:0}
-		.trust{padding:23px 0;border-block:1px solid var(--line);text-align:center}.trust p{margin:0 0 16px;color:#7b898c;font-size:12px;font-weight:650;text-transform:uppercase;letter-spacing:.7px}.trust-items{display:flex;justify-content:center;gap:clamp(24px,6vw,70px);flex-wrap:wrap;color:#718078;font-size:15px;font-weight:700}
-		.features{padding:85px 0 95px}.section-head{max-width:620px;text-align:center;margin:0 auto 40px}h2{margin:13px 0;font-size:clamp(30px,4vw,42px);line-height:1.15;letter-spacing:-1.5px}.section-head p,.card p{color:var(--muted);line-height:1.7}.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}.card{padding:26px;border:1px solid var(--line);border-radius:13px;background:white}.icon{width:42px;height:42px;display:grid;place-items:center;border-radius:12px;background:var(--mint);color:var(--green);font-size:20px}.card h3{margin:18px 0 8px;font-size:17px}.card p{margin:0;font-size:14px}
-		.cta{display:flex;align-items:center;justify-content:space-between;gap:25px;margin-bottom:72px;padding:40px 44px;border-radius:16px;background:#eaf4ee}.cta h2{max-width:500px;margin:0;font-size:30px}.cta p{margin:9px 0 0;color:var(--muted);font-size:14px}footer{padding:23px 0;border-top:1px solid var(--line);color:#78858a;font-size:13px}.footer-inner{display:flex;align-items:center;justify-content:space-between;gap:15px}
-		@media(max-width:760px){.wrap{width:min(100% - 36px,560px)}.links{gap:14px}.links a:not(.button){display:none}.hero{grid-template-columns:1fr;gap:20px;padding:62px 0 48px}h1{letter-spacing:-2px}.visual{min-height:310px}.orb{width:270px;height:270px}.diagram{transform:scale(.84)}.features{padding:65px 0}.cards{grid-template-columns:1fr}.cta{align-items:flex-start;flex-direction:column;padding:29px 24px;margin-bottom:52px}.footer-inner{align-items:flex-start;flex-direction:column}}
-		@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
-	</style>
+	<meta name="description" content="Busca las atracciones turísticas de la Región de Magallanes por comuna y tipo, y explora sus modelos 3D.">
+	<title>Onto — Atracciones turísticas de Magallanes</title>
+	<link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 	<header><nav class="wrap" aria-label="Navegación principal">
-		<a class="brand" href="#inicio"><span class="mark">o</span>onto</a>
-		<div class="links"><a href="#soluciones">Soluciones</a><a href="#como-funciona">Cómo funciona</a><a class="button" href="#contacto">Hablemos</a></div>
+		<a class="brand" href="index.html"><span class="mark">o</span>onto</a>
+		<div class="links"><a href="#atracciones">Atracciones</a><a href="grafo.html">Carta 3D</a><a href="panel.html">Panel</a></div>
 	</nav></header>
 	<main>
-		<section class="wrap hero" id="inicio">
-			<div><span class="eyebrow">Ideas que se conectan</span><h1>Todo el conocimiento. <span>En su lugar.</span></h1>
-				<p class="lead">Organiza la información de tu organización y descubre conexiones que ayudan a tu equipo a tomar mejores decisiones.</p>
-				<div class="actions"><a class="button" href="#contacto">Descubre Onto&nbsp; →</a><a class="button outline" href="#soluciones">Conoce más</a></div>
-				<p class="note">Claro, conectado y listo para crecer contigo.</p>
+		<section class="wrap portada">
+			<div class="portada-texto">
+				<div class="identidad" id="identidad">
+					<img class="bandera" src="identidad/bandera.svg" alt="Bandera de la Región de Magallanes y de la Antártica Chilena" data-falta="bandera">
+					<img class="escudo" src="identidad/escudo.svg" alt="Escudo de armas de la Región de Magallanes y de la Antártica Chilena" data-falta="escudo">
+				</div>
+				<span class="eyebrow">Región de Magallanes</span>
+				<h1>Atracciones turísticas. <span>En 3D.</span></h1>
+				<p class="lead">Busca por comuna o categoría y elige una para explorar su modelo 3D.</p>
+				<a class="enlace-carta" href="grafo.html">Explorar la carta 3D de la región →</a>
 			</div>
-			<div class="visual" aria-label="Diagrama de conocimiento conectado"><div class="orb"></div><div class="diagram">
-				<svg viewBox="0 0 420 330" aria-hidden="true"><line x1="205" y1="165" x2="90" y2="65"/><line x1="205" y1="165" x2="335" y2="65"/><line x1="205" y1="165" x2="85" y2="270"/><line x1="205" y1="165" x2="335" y2="270"/></svg>
-				<div class="node one"><b>✦</b>Conocimiento</div><div class="node two"><b>⌘</b>Personas</div><div class="node center"><b>◎</b>Onto</div><div class="node three"><b>▤</b>Procesos</div><div class="node four"><b>↗</b>Decisiones</div>
-			</div></div>
+			<figure class="mapa-portada" id="mapa-portada">
+				<canvas id="mapa-portada-lienzo" role="img" aria-label="Carta 3D de la Región de Magallanes con sus ciudades principales"></canvas>
+				<figcaption>arrastra para girar · costa real, relieve esquemático</figcaption>
+			</figure>
 		</section>
-		<div class="trust"><div class="wrap"><p>Un espacio común para todo tu equipo</p><div class="trust-items"><span>Personas</span><span>Procesos</span><span>Datos</span><span>Ideas</span><span>Objetivos</span></div></div></div>
-		<section class="wrap features" id="soluciones"><div class="section-head"><span class="eyebrow">Menos silos, más claridad</span><h2>El contexto transforma la información en valor.</h2><p>Una base compartida permite que cada pieza de conocimiento sea fácil de encontrar, entender y poner en práctica.</p></div>
-			<div class="cards" id="como-funciona">
-				<article class="card"><div class="icon" aria-hidden="true">◈</div><h3>Conecta lo importante</h3><p>Relaciona conceptos, equipos y recursos para ver cómo encajan las piezas de tu organización.</p></article>
-				<article class="card"><div class="icon" aria-hidden="true">⌕</div><h3>Encuentra respuestas</h3><p>Ayuda a las personas a explorar la información y llegar antes a lo que necesitan.</p></article>
-				<article class="card"><div class="icon" aria-hidden="true">↗</div><h3>Avanza con confianza</h3><p>Comparte una visión común para facilitar decisiones coherentes y un trabajo mejor coordinado.</p></article>
+		<section class="wrap atracciones" id="atracciones" aria-label="Buscar atracciones">
+			<h2 class="titulo-seccion">¿Qué quieres visitar?</h2>
+			<ul class="categorias-portada" id="categorias-portada"></ul>
+			<div class="filtros">
+				<div>
+					<p class="titulo-filtro" id="titulo-comuna">Comuna</p>
+					<div class="grupo-botones" id="filtro-comuna" role="group" aria-labelledby="titulo-comuna"></div>
+				</div>
+				<div>
+					<p class="titulo-filtro" id="titulo-categoria">Categoría</p>
+					<div class="grupo-botones" id="filtro-categoria" role="group" aria-labelledby="titulo-categoria"></div>
+				</div>
 			</div>
+			<p class="total-atracciones" id="total-atracciones" role="status"></p>
+			<ul class="cards lista-atracciones" id="lista-atracciones"></ul>
 		</section>
-		<section class="wrap cta" id="contacto"><div><h2>Haz que el conocimiento trabaje para ti.</h2><p>Empieza a conectar lo que tu organización ya sabe.</p></div><a class="button" href="mailto:hola@onto.com">Contacta con nosotros&nbsp; →</a></section>
 	</main>
-	<footer><div class="wrap footer-inner"><a class="brand" href="#inicio"><span class="mark">o</span>onto</a><span>© 2025 Onto. Conocimiento conectado.</span></div></footer>
+	<footer><div class="wrap footer-inner"><a class="brand" href="index.html"><span class="mark">o</span>onto</a><span>© 2026 Onto. Conocimiento conectado. · Bandera: <a href="https://commons.wikimedia.org/wiki/File:Flag_of_Magallanes_y_la_Ant%C3%A1rtica_Chilena,_Chile.svg" rel="noopener">Wikimedia Commons</a>, CC BY-SA 3.0 · Escudo: dominio público</span></div></footer>
+	<script type="module" src="js/inicio.js"></script>
+	<script type="module" src="js/portada-mapa.js"></script>
 </body>
 </html>
