@@ -1,11 +1,15 @@
-// Ficha pública de una atracción: atraccion.html?id=...
+// Ficha pública de una atracción.
+//  · atraccion.html?id=...  pide los datos a Fuseki.
+//  · ficha/<id>.html        (generada al compilar) los trae incrustados junto con su JSON-LD: no necesita Fuseki.
 import { obtenerAtraccion } from './ontologia.js';
 import { renderizarFicha, datosEstructurados } from './ficha.js';
 
 const contenedor = document.getElementById('ficha');
 const estado = document.getElementById('estado-ficha');
+const incrustados = document.getElementById('datos-atraccion');
 
-iniciar();
+if (incrustados) renderizarFicha(contenedor, JSON.parse(incrustados.textContent));
+else iniciar();
 
 async function iniciar() {
   const id = new URLSearchParams(window.location.search).get('id');

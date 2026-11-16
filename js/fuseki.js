@@ -35,8 +35,8 @@ export async function consultarSPARQLDetallado(consulta, endpoint = ENDPOINT) {
 }
 
 // Filas simplificadas a { variable: valor }
-export async function consultarSPARQL(consulta) {
-    const { filas } = await consultarSPARQLDetallado(consulta);
+export async function consultarSPARQL(consulta, endpoint = ENDPOINT) {
+    const { filas } = await consultarSPARQLDetallado(consulta, endpoint);
 
     return filas.map(fila => {
         const objeto = {};

@@ -1,21 +1,10 @@
 // Ficha reutilizable de una atracción: la usan atraccion.html y el panel.
 // Cada parte lleva data-campo para que la validación compruebe lo que realmente se dibuja.
 import { crearVisor } from './visor3d.js';
+import { CAMPOS } from './ficha-datos.js';
 
-const CAMPOS = [
-  ['ciudad', 'Ciudad', (a) => a.ciudad],
-  ['comuna', 'Comuna', (a) => a.comuna],
-  ['lugar', 'Se realiza en', (a) => a.lugar],
-  ['coordenadas', 'Coordenadas', (a) => a.coordenadas && `${grados(a.coordenadas.latitud, 'N', 'S')} · ${grados(a.coordenadas.longitud, 'E', 'O')}`],
-  ['calificacion', 'Calificación', (a) => a.calificacion && `${formatearNumero(a.calificacion)} de 5`],
-  ['precio', 'Precio', (a) => a.precio && (Number(a.precio) === 0 ? 'Gratis' : `$${Number(a.precio).toLocaleString('es-CL')}`)],
-  ['permiso', 'Permiso de la autoridad', (a) => a.requierePermiso && (a.requierePermiso === 'true' ? 'Requerido' : 'No requerido')],
-  ['temporada', 'Temporada', (a) => a.tieneTemporada && (a.tieneTemporada === 'true' ? 'Depende de la temporada' : 'Todo el año')]
-];
-
-const formatearNumero = (valor) => Number(valor).toLocaleString('es-CL');
-const grados = (valor, positivo, negativo) =>
-  `${Math.abs(valor).toLocaleString('es-CL', { maximumFractionDigits: 4 })}° ${valor < 0 ? negativo : positivo}`;
+// Los datos estructurados viven en ficha-datos.js, que también se usa al compilar
+export { datosEstructurados } from './ficha-datos.js';
 
 function el(etiqueta, atributos = {}, ...hijos) {
   const elemento = document.createElement(etiqueta);
@@ -88,41 +77,5 @@ export function renderizarFicha(contenedor, atraccion, { visor = true, nivelTitu
     destruir() {
       visor3d?.destruir();
     }
-  };
-}
-
-// Datos estructurados de schema.org, enlazados con el individuo de la ontología
-export function datosEstructurados({ uri, nombre, tiposSchema, ciudad, comuna, descripcion, calificacion, coordenadas, modelos, imagenes, enlaces, equivalentes }) {
-  const mismos = [...equivalentes, ...enlaces].map(({ url }) => url);
-  return {
-    '@context': 'https://schema.org',
-    // Los tipos salen de la ontología: las clases de schema.org de las que desciende la clase del individuo
-    '@type': tiposSchema.length ? tiposSchema : 'TouristAttraction',
-    '@id': uri,
-    name: nombre,
-    ...(descripcion && { description: descripcion }),
-    ...((ciudad || comuna) && {
-      address: {
-        '@type': 'PostalAddress',
-        addressLocality: ciudad ?? comuna,
-        addressRegion: 'Región de Magallanes y de la Antártica Chilena',
-        addressCountry: 'CL'
-      }
-    }),
-    ...(calificacion && {
-      aggregateRating: { '@type': 'AggregateRating', ratingValue: Number(calificacion), bestRating: 5 }
-    }),
-    ...(coordenadas && {
-      geo: { '@type': 'GeoCoordinates', latitude: coordenadas.latitud, longitude: coordenadas.longitud }
-    }),
-    ...(imagenes.length && { image: imagenes.map(({ ruta }) => new URL(ruta, window.location.href).href) }),
-    ...(mismos.length && { sameAs: mismos }),
-    ...(modelos.length && {
-      subjectOf: modelos.map((modelo) => ({
-        '@type': '3DModel',
-        name: `Modelo 3D de ${modelo.nombre}`,
-        encoding: { '@type': 'MediaObject', contentUrl: new URL(modelo.ruta, window.location.href).href }
-      }))
-    })
   };
 }

@@ -1138,6 +1138,7 @@
 
     <owl:NamedIndividual rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Puerto_Bories">
         <rdf:type rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#SitioHistorico"/>
+        <Ontologia2:ubicadoEnComuna rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#PuertoNatales"/>
         <owl:sameAs rdf:resource="http://www.wikidata.org/entity/Q6091979"/>
         <Ontologia2:Latitud rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">-51.69</Ontologia2:Latitud>
         <Ontologia2:Longitud rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">-72.53</Ontologia2:Longitud>
@@ -1258,7 +1259,6 @@
 
     <owl:NamedIndividual rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#TorresDelPaine">
         <rdf:type rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Comuna"/>
-        <Ontologia2:tieneModelo3D rdf:datatype="http://www.w3.org/2001/XMLSchema#anyURI">modelos3d/Torres_del_paine.glb</Ontologia2:tieneModelo3D>
         <owl:sameAs rdf:resource="http://www.wikidata.org/entity/Q200948"/>
         <Ontologia2:Latitud rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">-51.26</Ontologia2:Latitud>
         <Ontologia2:Longitud rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">-72.35</Ontologia2:Longitud>

@@ -44,8 +44,9 @@ export async function buscarAtracciones({ comuna, categoria }) {
   return ordenar(filas.map(crearAtraccion));
 }
 
-export async function obtenerInventario() {
-  const filas = await consultarSPARQL(construir.inventario());
+// "endpoint" permite consultar Fuseki por su dirección completa (al compilar no hay proxy de Vite)
+export async function obtenerInventario(endpoint) {
+  const filas = await consultarSPARQL(construir.inventario(), endpoint);
   return ordenar(filas.map(crearAtraccion));
 }
 

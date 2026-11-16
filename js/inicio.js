@@ -129,6 +129,7 @@ async function mostrarAtracciones() {
     if (busqueda !== ultimaBusqueda) return;
 
     lista.replaceChildren(...visibles.map(crearTarjeta));
+    delete lista.dataset.estatica; // desde aquí la lista viene de Fuseki, no de la compilación
     total.textContent = textoTotal(visibles.length);
   } catch (error) {
     if (busqueda === ultimaBusqueda) mostrarError(error);
@@ -146,6 +147,13 @@ function textoTotal(cantidad) {
 
 function mostrarError(error) {
   console.error('Error consultando Fuseki:', error);
+
+  // El sitio compilado trae la lista ya escrita (scripts/publicacion.mjs): se conserva si Fuseki no responde
+  if (lista.dataset.estatica !== undefined && lista.children.length) {
+    total.textContent = `${textoTotal(lista.children.length)} · lista guardada al compilar; los filtros necesitan Fuseki.`;
+    return;
+  }
+
   lista.replaceChildren();
   total.textContent = 'No se pudo conectar con Fuseki. Comprueba que esté en ejecución y recarga la página.';
 }

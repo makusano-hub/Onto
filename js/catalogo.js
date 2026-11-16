@@ -82,8 +82,11 @@ export function categoriaPorId(id) {
   return CATEGORIAS.find((categoria) => categoria.id === id) ?? null;
 }
 
+// Fuera de Vite (al generar las fichas estáticas con Node) no existe import.meta.env
+const BASE = import.meta.env?.BASE_URL ?? './';
+
 // Convierte una ruta de la ontología en una dirección que el navegador puede abrir
 export function rutaPublica(ruta) {
   if (/^https?:\/\//i.test(ruta)) return ruta;
-  return `${import.meta.env.BASE_URL}${ruta.replace(/^\/+/, '')}`;
+  return `${BASE}${ruta.replace(/^\/+/, '')}`;
 }

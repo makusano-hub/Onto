@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="description" content="Descarga la ontología de turismo de la Región de Magallanes en RDF/XML, Turtle y JSON-LD, con sus reglas SHACL.">
+	<title>Datos abiertos | Onto</title>
+	<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+	<header><nav class="wrap" aria-label="Navegación principal">
+		<a class="brand" href="index.html"><span class="mark">o</span>onto</a>
+		<div class="links"><a href="index.html#atracciones">Atracciones</a><a href="grafo.html">Carta 3D</a><a href="panel.html">Panel</a></div>
+	</nav></header>
+	<main class="wrap ficha">
+		<a class="enlace-volver" href="index.html#atracciones">← Todas las atracciones</a>
+		<h1>Datos abiertos</h1>
+		<p class="categoria-atraccion">Ontología de turismo de la Región de Magallanes</p>
+		<p class="lead">Todo lo que muestra este sitio sale de un grafo RDF: lugares, actividades, ciudades y comunas, con sus coordenadas y modelos 3D. Puedes descargarlo completo o consultarlo con SPARQL.</p>
+
+		<h2 class="titulo-seccion">Descargas</h2>
+		<p>El mismo grafo en tres formatos, y las reglas con las que se valida.</p>
+		<!-- scripts/publicacion.mjs escribe aquí solo los archivos que existen -->
+		<ul class="ficha-enlaces" id="descargas"></ul>
+
+		<h2 class="titulo-seccion">Qué contiene</h2>
+		<dl class="datos-atraccion">
+			<div><dt>Vocabulario</dt><dd>OWL, con etiquetas en español</dd></div>
+			<div><dt>Alineado con</dt><dd>schema.org</dd></div>
+			<div><dt>Enlazado con</dt><dd>Wikidata (owl:sameAs)</dd></div>
+			<div><dt>Validado con</dt><dd>SHACL</dd></div>
+		</dl>
+
+		<h2 class="titulo-seccion">Consultas SPARQL</h2>
+		<p>Con Fuseki en marcha, el <a href="panel.html#consultas">panel</a> permite ejecutar consultas sobre los datos declarados y sobre lo que deduce el razonador. Cada ficha de atracción lleva además sus datos en JSON-LD.</p>
+	</main>
+	<footer><div class="wrap footer-inner"><a class="brand" href="index.html"><span class="mark">o</span>onto</a><span>© 2026 Onto. Conocimiento conectado.</span></div></footer>
+</body>
+</html>

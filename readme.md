@@ -9,6 +9,8 @@ este programa es para poder realizar ontologias a una web, para proyecto de ramo
 | `atraccion.html?id=…` | Ficha pública con el visor 3D. |
 | `panel.html` | Panel interno: **Explorar**, **Validación**, **Consultas SPARQL** y **Nuevo individuo**. |
 | `grafo.html` | Carta 3D de la región. |
+| `datos.html` | Datos abiertos: descarga del grafo en RDF/XML, Turtle y JSON-LD, y las reglas SHACL. |
+| `ficha/<id>.html` | Solo en el sitio compilado: una ficha por atracción con sus datos y su JSON-LD ya incrustados. |
 
 Código compartido en `js/`:
 
@@ -16,6 +18,7 @@ Código compartido en `js/`:
 - `consultas.js`: todas las consultas SPARQL, con nombre; el panel las muestra y permite ejecutarlas.
 - `ontologia.js`: convierte las respuestas de Fuseki en objetos de atracción.
 - `ficha.js` y `visor3d.js`: ficha y visor Three.js reutilizables (los usan la ficha pública y el panel).
+- `ficha-datos.js`: campos de la ficha y datos estructurados (JSON-LD); no necesita navegador, así que también se usa al compilar.
 - `validacion.js`: reglas de validación (ontología, datos, modelo/imágenes e interfaz).
 - `shacl.js`: envía las reglas SHACL a Fuseki y lee su informe.
 
@@ -42,6 +45,27 @@ java -cp C:\apache-jena-fuseki-6.2.0\fuseki-server.jar shacl.shacl validate --sh
 ```
 
 Si inicias Fuseki de otra forma (un dataset `turismo` vacío al que subes el archivo), el sitio funciona igual, pero el panel avisa de que faltan la inferencia y SHACL.
+
+## Publicar el sitio
+
+Con Fuseki en marcha, compila:
+
+```bash
+npx vite build
+```
+
+Además de las páginas, `scripts/publicacion.mjs` deja en `dist/` lo que una máquina puede leer sin ejecutar JavaScript ni consultar Fuseki:
+
+| En `dist/` | Qué es |
+| --- | --- |
+| `datos/turismo.rdf`, `.ttl`, `.jsonld` | El grafo completo en tres formatos, más `turismo.shacl.ttl`. |
+| `ficha/<id>.html` | Una página por atracción con el texto, el JSON-LD de schema.org y los datos del visor 3D incrustados. |
+| `index.html` | La lista de atracciones ya escrita, con enlaces a esas fichas y un `ItemList` en JSON-LD. |
+| `datos.html` | La descripción del conjunto de datos (`schema:Dataset`) con sus descargas. |
+
+El sitio compilado se puede servir como archivos estáticos: las fichas y la lista funcionan sin Fuseki; los filtros de la portada, la carta 3D en vivo y el panel sí lo necesitan.
+
+Si Fuseki no responde al compilar, la compilación termina igual con un aviso, pero solo publica `turismo.rdf` y las reglas SHACL.
 
 ## Agregar contenido sin tocar el código
 
