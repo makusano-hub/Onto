@@ -406,6 +406,8 @@
 
 .bloque-global summary { cursor: pointer; font-weight: 700; }
 .bloque-global .lista-hallazgos { margin-top: 12px; }
+.bloque-global .nota-shacl { margin-top: 8px; }
+.bloque-global .lista-hallazgos:empty { display: none; }
 
 .tabla-validacion {
   border: 1px solid var(--line);

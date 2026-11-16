@@ -7,9 +7,13 @@
 
 export const NS = 'http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#';
 
+// Vocabulario externo con el que está alineada la ontología (rdfs:subClassOf y rdfs:subPropertyOf)
+export const SCHEMA = 'https://schema.org/';
+
 export const PREFIJOS = `PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX schema: <${SCHEMA}>
 PREFIX t: <${NS}>`;
 
 // Un individuo es "atracción" si alguna de sus clases desciende de estas raíces
@@ -41,8 +45,7 @@ export const NOMBRES_CLASE = {
   Cafeteria: 'Cafetería',
   PanoramaCiudad: 'Panorama en la ciudad',
   PescaDeportiva: 'Pesca deportiva',
-  ZonaTiendas: 'Zona de tiendas',
-  safari: 'Safari'
+  ZonaTiendas: 'Zona de tiendas'
 };
 
 // Nombre del botón de cada modelo cuando una atracción tiene varios; otro archivo usa su propio nombre

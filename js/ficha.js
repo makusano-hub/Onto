@@ -6,6 +6,7 @@ const CAMPOS = [
   ['ciudad', 'Ciudad', (a) => a.ciudad],
   ['comuna', 'Comuna', (a) => a.comuna],
   ['lugar', 'Se realiza en', (a) => a.lugar],
+  ['coordenadas', 'Coordenadas', (a) => a.coordenadas && `${grados(a.coordenadas.latitud, 'N', 'S')} · ${grados(a.coordenadas.longitud, 'E', 'O')}`],
   ['calificacion', 'Calificación', (a) => a.calificacion && `${formatearNumero(a.calificacion)} de 5`],
   ['precio', 'Precio', (a) => a.precio && (Number(a.precio) === 0 ? 'Gratis' : `$${Number(a.precio).toLocaleString('es-CL')}`)],
   ['permiso', 'Permiso de la autoridad', (a) => a.requierePermiso && (a.requierePermiso === 'true' ? 'Requerido' : 'No requerido')],
@@ -13,6 +14,8 @@ const CAMPOS = [
 ];
 
 const formatearNumero = (valor) => Number(valor).toLocaleString('es-CL');
+const grados = (valor, positivo, negativo) =>
+  `${Math.abs(valor).toLocaleString('es-CL', { maximumFractionDigits: 4 })}° ${valor < 0 ? negativo : positivo}`;
 
 function el(etiqueta, atributos = {}, ...hijos) {
   const elemento = document.createElement(etiqueta);
@@ -27,7 +30,7 @@ function el(etiqueta, atributos = {}, ...hijos) {
 
 // Dibuja la ficha en el contenedor. Con visor: false no crea el visor 3D (útil para pruebas).
 export function renderizarFicha(contenedor, atraccion, { visor = true, nivelTitulo = 'h1' } = {}) {
-  const { nombre, tipo, comuna, descripcion, modelos, imagenes, enlaces } = atraccion;
+  const { nombre, tipo, comuna, descripcion, modelos, imagenes, enlaces, equivalentes } = atraccion;
 
   const titulo = el(nivelTitulo, { class: 'ficha-nombre', 'data-campo': 'nombre', texto: nombre });
   const categoria = el('p', {
@@ -60,8 +63,15 @@ export function renderizarFicha(contenedor, atraccion, { visor = true, nivelTitu
         el('a', { href: url, target: '_blank', rel: 'noopener noreferrer', texto: `${texto} ↗` }))))
     : null;
 
+  // owl:sameAs: el mismo lugar en otras bases de datos (Wikidata)
+  const listaEquivalentes = equivalentes.length
+    ? el('ul', { class: 'ficha-enlaces', 'data-campo': 'equivalentes', 'aria-label': 'Este lugar en otras bases de datos' },
+      ...equivalentes.map(({ url, texto }) => el('li', {},
+        el('a', { href: url, target: '_blank', rel: 'noopener noreferrer', texto: `${texto} ↗` }))))
+    : null;
+
   const ficha = el('article', { class: 'ficha-atraccion', 'data-atraccion': atraccion.id },
-    titulo, categoria, figura, galeria, datos, listaEnlaces);
+    titulo, categoria, figura, galeria, datos, listaEnlaces, listaEquivalentes);
   contenedor.replaceChildren(ficha);
 
   let visor3d = null;
@@ -82,10 +92,12 @@ export function renderizarFicha(contenedor, atraccion, { visor = true, nivelTitu
 }
 
 // Datos estructurados de schema.org, enlazados con el individuo de la ontología
-export function datosEstructurados({ uri, nombre, ciudad, comuna, descripcion, calificacion, modelos, imagenes, enlaces }) {
+export function datosEstructurados({ uri, nombre, tiposSchema, ciudad, comuna, descripcion, calificacion, coordenadas, modelos, imagenes, enlaces, equivalentes }) {
+  const mismos = [...equivalentes, ...enlaces].map(({ url }) => url);
   return {
     '@context': 'https://schema.org',
-    '@type': 'TouristAttraction',
+    // Los tipos salen de la ontología: las clases de schema.org de las que desciende la clase del individuo
+    '@type': tiposSchema.length ? tiposSchema : 'TouristAttraction',
     '@id': uri,
     name: nombre,
     ...(descripcion && { description: descripcion }),
@@ -100,8 +112,11 @@ export function datosEstructurados({ uri, nombre, ciudad, comuna, descripcion, c
     ...(calificacion && {
       aggregateRating: { '@type': 'AggregateRating', ratingValue: Number(calificacion), bestRating: 5 }
     }),
+    ...(coordenadas && {
+      geo: { '@type': 'GeoCoordinates', latitude: coordenadas.latitud, longitude: coordenadas.longitud }
+    }),
     ...(imagenes.length && { image: imagenes.map(({ ruta }) => new URL(ruta, window.location.href).href) }),
-    ...(enlaces.length && { sameAs: enlaces.map(({ url }) => url) }),
+    ...(mismos.length && { sameAs: mismos }),
     ...(modelos.length && {
       subjectOf: modelos.map((modelo) => ({
         '@type': '3DModel',

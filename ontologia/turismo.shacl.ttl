@@ -1,0 +1,224 @@
+# Reglas de validación de la ontología de turismo, en SHACL.
+#
+# Son las reglas de integridad que antes solo existían en js/validacion.js:
+# aquí están como datos, y cualquier herramienta SHACL puede aplicarlas.
+#
+#   Con Fuseki en marcha:  pestaña Validación del panel (bloque "Reglas SHACL")
+#   Sin Fuseki:            java -cp C:\apache-jena-fuseki-6.2.0\fuseki-server.jar shacl.shacl validate ^
+#                            --shapes ontologia/turismo.shacl.ttl --data ontologia/turismo.rdf
+#
+# sh:Violation = error que hay que corregir. sh:Warning = aviso.
+
+@prefix sh:   <http://www.w3.org/ns/shacl#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+@prefix t:    <http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#> .
+@prefix f:    <http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2/formas#> .
+
+# ---------- Identificadores
+
+f:Individuo
+    a sh:NodeShape ;
+    sh:targetClass owl:NamedIndividual ;
+    sh:nodeKind sh:IRI ;
+    sh:pattern "^http://www\\.semanticweb\\.org/usuario/ontologies/2026/9/Ontologia2#[\\p{L}\\p{N}_-]+$" ;
+    sh:message "El IRI debe estar en el espacio de Ontologia2 y usar solo letras, números, _ y -: si no, atraccion.html no puede abrirlo."@es .
+
+# ---------- Datos de lugares y actividades (lo que el sitio muestra como atracción)
+
+f:Atraccion
+    a sh:NodeShape ;
+    sh:targetClass t:Lugares , t:Actividad ;
+    sh:property [
+        sh:path t:Nombre ;
+        sh:minCount 1 ;
+        sh:severity sh:Warning ;
+        sh:message "Sin t:Nombre: el sitio muestra un nombre generado desde el IRI."@es
+    ] ;
+    sh:property [
+        sh:path t:Nombre ;
+        sh:maxCount 1 ;
+        sh:nodeKind sh:Literal ;
+        sh:severity sh:Warning ;
+        sh:message "Tiene más de un t:Nombre; la interfaz muestra solo uno."@es
+    ] ;
+    sh:property [
+        sh:path t:Descripcion ;
+        sh:maxCount 1 ;
+        sh:nodeKind sh:Literal ;
+        sh:severity sh:Warning ;
+        sh:message "Tiene más de una t:Descripcion; la interfaz muestra solo una."@es
+    ] ;
+    sh:property [
+        sh:path t:Calificacion ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0 ;
+        sh:maxInclusive 5 ;
+        sh:message "t:Calificacion debe ser un xsd:decimal entre 0 y 5."@es
+    ] ;
+    sh:property [
+        sh:path t:Calificacion ;
+        sh:maxCount 1 ;
+        sh:severity sh:Warning ;
+        sh:message "Tiene más de una t:Calificacion."@es
+    ] ;
+    sh:property [
+        sh:path t:Precio ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 0 ;
+        sh:maxCount 1 ;
+        sh:message "t:Precio debe ser un único xsd:integer sin signo (pesos chilenos; 0 es gratis)."@es
+    ] ;
+    sh:property [
+        sh:path t:requierePermisoAutoridad ;
+        sh:datatype xsd:boolean ;
+        sh:maxCount 1 ;
+        sh:message "t:requierePermisoAutoridad debe ser un único xsd:boolean."@es
+    ] ;
+    sh:property [
+        sh:path t:tieneTemporada ;
+        sh:datatype xsd:boolean ;
+        sh:maxCount 1 ;
+        sh:message "t:tieneTemporada debe ser un único xsd:boolean."@es
+    ] ;
+    sh:property [
+        sh:path t:tieneModelo3D ;
+        sh:datatype xsd:anyURI ;
+        sh:pattern "\\.(glb|gltf)(\\?.*)?$" ;
+        sh:flags "i" ;
+        sh:message "t:tieneModelo3D debe ser un xsd:anyURI que termine en .glb o .gltf: el visor no abre otros formatos."@es
+    ] ;
+    sh:property [
+        sh:path t:tieneImagen ;
+        sh:datatype xsd:anyURI ;
+        sh:message "t:tieneImagen debe ser un xsd:anyURI."@es
+    ] ;
+    sh:property [
+        sh:path t:tieneEnlace ;
+        sh:datatype xsd:anyURI ;
+        sh:pattern "^https?://[^\\s/]+\\.[^\\s]+$" ;
+        sh:message "t:tieneEnlace debe ser un xsd:anyURI con una dirección http(s) completa."@es
+    ] .
+
+# ---------- Relaciones de los lugares
+
+f:Lugar
+    a sh:NodeShape ;
+    sh:targetClass t:Lugares ;
+    # La comuna se indica directamente o a través de la ciudad
+    sh:property [
+        sh:path [ sh:alternativePath ( t:ubicadoEnComuna ( t:ubicadoEnCiudad t:perteneceAComuna ) ) ] ;
+        sh:minCount 1 ;
+        sh:message "Sin comuna: no aparece al filtrar por comuna. Añade t:ubicadoEnComuna, o t:ubicadoEnCiudad hacia una ciudad con comuna."@es
+    ] ;
+    sh:property [
+        sh:path [ sh:alternativePath ( t:ubicadoEnComuna ( t:ubicadoEnCiudad t:perteneceAComuna ) ) ] ;
+        sh:maxCount 1 ;
+        sh:message "Tiene más de una comuna: t:ubicadoEnComuna no coincide con la comuna de su ciudad."@es
+    ] ;
+    sh:property [
+        sh:path t:ubicadoEnCiudad ;
+        sh:class t:Ciudad ;
+        sh:message "t:ubicadoEnCiudad debe apuntar a un individuo de tipo t:Ciudad."@es
+    ] ;
+    sh:property [
+        sh:path t:ubicadoEnComuna ;
+        sh:class t:Comuna ;
+        sh:message "t:ubicadoEnComuna debe apuntar a un individuo de tipo t:Comuna."@es
+    ] ;
+    sh:property [
+        sh:path t:permiteActividad ;
+        sh:class t:Actividad ;
+        sh:message "t:permiteActividad debe apuntar a una actividad."@es
+    ] .
+
+# ---------- Relaciones de las actividades
+
+f:Actividad
+    a sh:NodeShape ;
+    sh:targetClass t:Actividad ;
+    # Una actividad se ubica a través del lugar donde se realiza
+    sh:property [
+        sh:path [ sh:alternativePath ( t:seRealizaEn [ sh:inversePath t:permiteActividad ] ) ] ;
+        sh:minCount 1 ;
+        sh:message "Es una actividad sin lugar: no tiene comuna ni ciudad. Añade t:seRealizaEn hacia el lugar donde se realiza."@es
+    ] ;
+    sh:property [
+        sh:path t:seRealizaEn ;
+        sh:class t:Lugares ;
+        sh:message "t:seRealizaEn debe apuntar a un lugar."@es
+    ] .
+
+# ---------- Ciudades
+
+f:Ciudad
+    a sh:NodeShape ;
+    sh:targetClass t:Ciudad ;
+    sh:property [
+        sh:path t:perteneceAComuna ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class t:Comuna ;
+        sh:message "Una ciudad debe tener exactamente un t:perteneceAComuna hacia una t:Comuna: sin él, sus atracciones quedan sin comuna."@es
+    ] .
+
+# ---------- Coordenadas
+
+f:Coordenadas
+    a sh:NodeShape ;
+    sh:targetSubjectsOf t:Latitud , t:Longitud ;
+    sh:property [
+        sh:path t:Latitud ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive -90 ;
+        sh:maxInclusive 90 ;
+        sh:message "Las coordenadas van en pareja: un único t:Latitud xsd:decimal entre -90 y 90."@es
+    ] ;
+    sh:property [
+        sh:path t:Longitud ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive -180 ;
+        sh:maxInclusive 180 ;
+        sh:message "Las coordenadas van en pareja: un único t:Longitud xsd:decimal entre -180 y 180."@es
+    ] ;
+    # Límites de la carta 3D (js/region-geo.js): detecta latitud y longitud intercambiadas
+    sh:property [
+        sh:path t:Latitud ;
+        sh:minInclusive -56.6 ;
+        sh:maxInclusive -48.6 ;
+        sh:severity sh:Warning ;
+        sh:message "La latitud queda fuera de la carta de la región (entre -56,6 y -48,6)."@es
+    ] ;
+    sh:property [
+        sh:path t:Longitud ;
+        sh:minInclusive -76 ;
+        sh:maxInclusive -66.4 ;
+        sh:severity sh:Warning ;
+        sh:message "La longitud queda fuera de la carta de la región (entre -76 y -66,4)."@es
+    ] .
+
+# ---------- Coherencia con la ontología
+
+# t:tieneModelo3D declara rdfs:domain t:Lugares: usado en otra cosa, el razonador la clasifica como lugar
+f:Modelo
+    a sh:NodeShape ;
+    sh:targetSubjectsOf t:tieneModelo3D ;
+    sh:class t:Lugares ;
+    sh:message "Tiene t:tieneModelo3D pero no es un t:Lugares: el dominio de la propiedad hace que el razonador lo clasifique como lugar."@es .
+
+# ---------- Datos enlazados
+
+# Si dos individuos apuntan a la misma entidad, owl:sameAs los vuelve el mismo individuo
+f:Equivalencia
+    a sh:NodeShape ;
+    sh:targetObjectsOf owl:sameAs ;
+    sh:nodeKind sh:IRI ;
+    sh:property [
+        sh:path [ sh:inversePath owl:sameAs ] ;
+        sh:maxCount 1 ;
+        sh:message "Esta entidad externa está enlazada con más de un individuo: owl:sameAs los convertiría en el mismo."@es
+    ] .

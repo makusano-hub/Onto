@@ -2,3 +2,5 @@ node_modules/
 dist/
 .claude/
 modelos3d-originales/
+# Carpeta de trabajo que Fuseki crea al iniciarlo desde aquí
+run/

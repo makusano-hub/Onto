@@ -1,6 +1,6 @@
 // Todas las consultas SPARQL que el sitio envía a Fuseki.
 // Están aquí, con nombre y descripción, para poder revisarlas y probarlas desde el panel (panel.html#consultas).
-import { PREFIJOS, RAICES, CATEGORIAS, NS } from './catalogo.js';
+import { PREFIJOS, RAICES, CATEGORIAS, NS, SCHEMA } from './catalogo.js';
 
 // Separador de los valores agrupados; no aparece en textos normales
 export const SEP = '␟';
@@ -23,8 +23,10 @@ const PATRON_ATRACCION = `
     { ?sitio t:ubicadoEnCiudad/t:perteneceAComuna ?comuna }
   }`;
 
+// COALESCE: sin él, una sola fila sin valor anula el grupo entero
+// (por ejemplo, una actividad con tres lugares y uno de ellos sin comuna se quedaba sin comuna)
 const agrupar = (variable, alias = `${variable}s`) =>
-  `(GROUP_CONCAT(DISTINCT STR(?${variable}); SEPARATOR="${SEP}") AS ?${alias})`;
+  `(GROUP_CONCAT(DISTINCT COALESCE(STR(?${variable}), ""); SEPARATOR="${SEP}") AS ?${alias})`;
 
 function inventario(filtros = '') {
   return `${PREFIJOS}
@@ -32,7 +34,9 @@ SELECT ?atraccion
        ${agrupar('clase')} ${agrupar('nombre')} ${agrupar('descripcion', 'descripciones')}
        ${agrupar('calificacion', 'calificaciones')} ${agrupar('precio')}
        (SAMPLE(STR(?requierePermiso)) AS ?requierePermiso) (SAMPLE(STR(?tieneTemporada)) AS ?tieneTemporada)
+       (SAMPLE(STR(?latitud)) AS ?latitud) (SAMPLE(STR(?longitud)) AS ?longitud)
        ${agrupar('modelo')} ${agrupar('imagen', 'imagenes')} ${agrupar('enlace')}
+       ${agrupar('mismo')} ${agrupar('tipoSchema', 'tiposSchema')}
        ${agrupar('lugar', 'lugares')} ${agrupar('ciudad', 'ciudades')} ${agrupar('comuna')}
 WHERE {
   ${PATRON_ATRACCION.trim()}
@@ -44,7 +48,10 @@ WHERE {
   OPTIONAL { ?atraccion t:tieneTemporada ?tieneTemporada }
   OPTIONAL { ?atraccion t:tieneModelo3D ?modelo }
   OPTIONAL { ?atraccion t:tieneImagen ?imagen }
-  OPTIONAL { ?atraccion t:tieneEnlace ?enlace }${filtros ? `\n  ${filtros.trim()}` : ''}
+  OPTIONAL { ?atraccion t:tieneEnlace ?enlace }
+  OPTIONAL { ?atraccion t:Latitud ?latitud ; t:Longitud ?longitud }
+  OPTIONAL { ?atraccion owl:sameAs ?mismo }
+  OPTIONAL { ?clase rdfs:subClassOf+ ?tipoSchema FILTER(STRSTARTS(STR(?tipoSchema), "${SCHEMA}")) }${filtros ? `\n  ${filtros.trim()}` : ''}
 }
 GROUP BY ?atraccion`;
 }
@@ -83,11 +90,12 @@ SELECT ?categoria (COUNT(DISTINCT ?atraccion) AS ?total) WHERE {
 }
 GROUP BY ?categoria`,
 
+  // Solo las clases propias: las de schema.org se usan como superclase, no como categoría del sitio
   jerarquia: () => `${PREFIJOS}
 SELECT ?clase ?padre WHERE {
   ?clase a owl:Class .
-  FILTER(isIRI(?clase))
-  OPTIONAL { ?clase rdfs:subClassOf ?padre FILTER(isIRI(?padre)) }
+  FILTER(STRSTARTS(STR(?clase), STR(t:)))
+  OPTIONAL { ?clase rdfs:subClassOf ?padre FILTER(STRSTARTS(STR(?padre), STR(t:))) }
 }`,
 
   // Tipos de todo lo que tiene tipo: sirve para comprobar que ciudades, comunas y lugares existen
@@ -130,7 +138,7 @@ export const CONSULTAS = [
     id: 'ficha',
     titulo: 'Ficha de una atracción',
     usadaEn: 'atraccion.html y panel',
-    descripcion: 'Mismos datos que la lista, para un solo individuo. Busca por la última parte del IRI.',
+    descripcion: 'Mismos datos que la lista, para un solo individuo. Busca por la última parte del IRI. Incluye sus coordenadas, su owl:sameAs y los tipos de schema.org de los que desciende su clase.',
     texto: () => construir.ficha('FuerteBulnes')
   },
   {
@@ -174,5 +182,31 @@ export const CONSULTAS = [
     usadaEn: 'Validación',
     descripcion: 'Tienen datos de atracción pero su clase no desciende de ninguna raíz, así que el sitio no los muestra.',
     texto: construir.huerfanos
+  },
+  // Estas dos solo dan resultado completo con el razonador (endpoint /turismo-inferido de fuseki/config.ttl)
+  {
+    id: 'lugares-schema',
+    titulo: 'Lugares según schema.org',
+    usadaEn: 'Solo en el panel · con inferencia',
+    inferencia: true,
+    descripcion: 'Ningún individuo declara schema:Place ni schema:name: el razonador los deduce de rdfs:subClassOf y rdfs:subPropertyOf. Desmarca "Con inferencia" y la misma consulta no devuelve nada.',
+    texto: () => `${PREFIJOS}
+SELECT ?lugar ?nombre WHERE {
+  ?lugar a schema:Place ;
+         schema:name ?nombre .
+}
+ORDER BY ?nombre`
+  },
+  {
+    id: 'actividades-por-lugar',
+    titulo: 'Actividades que permite cada lugar',
+    usadaEn: 'Solo en el panel · con inferencia',
+    inferencia: true,
+    descripcion: 'Casi todos los datos dicen t:seRealizaEn (actividad → lugar). El razonador deduce t:permiteActividad (lugar → actividad) porque la ontología las declara inversas con owl:inverseOf.',
+    texto: () => `${PREFIJOS}
+SELECT ?lugar ?actividad WHERE {
+  ?lugar t:permiteActividad ?actividad .
+}
+ORDER BY ?lugar ?actividad`
   }
 ];
