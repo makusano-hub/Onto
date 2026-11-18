@@ -5,7 +5,11 @@
 //  · Una imagen nueva: copiarla a public/imagenes/ y añadir t:tieneImagen "imagenes/archivo.jpg".
 //  · Un botón de categoría nuevo: añadir una entrada a CATEGORIAS.
 
-export const NS = 'http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#';
+// Dirección pública del sitio (GitHub Pages). Los IRIs de la ontología cuelgan de ella para que se puedan abrir:
+// <SITIO>ontologia#FuerteBulnes lleva al documento del vocabulario, que describe ese individuo.
+export const SITIO = 'https://makusano-hub.github.io/Onto/';
+
+export const NS = `${SITIO}ontologia#`;
 
 // Vocabulario externo con el que está alineada la ontología (rdfs:subClassOf y rdfs:subPropertyOf)
 export const SCHEMA = 'https://schema.org/';

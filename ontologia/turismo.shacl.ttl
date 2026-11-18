@@ -12,8 +12,9 @@
 @prefix sh:   <http://www.w3.org/ns/shacl#> .
 @prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
 @prefix owl:  <http://www.w3.org/2002/07/owl#> .
-@prefix t:    <http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#> .
-@prefix f:    <http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2/formas#> .
+@prefix t:    <https://makusano-hub.github.io/Onto/ontologia#> .
+# El espacio de nombres de las formas es este mismo archivo, tal como se publica
+@prefix f:    <https://makusano-hub.github.io/Onto/datos/turismo.shacl.ttl#> .
 
 # ---------- Identificadores
 
@@ -21,8 +22,8 @@ f:Individuo
     a sh:NodeShape ;
     sh:targetClass owl:NamedIndividual ;
     sh:nodeKind sh:IRI ;
-    sh:pattern "^http://www\\.semanticweb\\.org/usuario/ontologies/2026/9/Ontologia2#[\\p{L}\\p{N}_-]+$" ;
-    sh:message "El IRI debe estar en el espacio de Ontologia2 y usar solo letras, números, _ y -: si no, atraccion.html no puede abrirlo."@es .
+    sh:pattern "^https://makusano-hub\\.github\\.io/Onto/ontologia#[\\p{L}\\p{N}_-]+$" ;
+    sh:message "El IRI debe estar en el espacio de nombres de la ontología y usar solo letras, números, _ y -: si no, atraccion.html no puede abrirlo."@es .
 
 # ---------- Datos de lugares y actividades (lo que el sitio muestra como atracción)
 

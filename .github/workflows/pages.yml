@@ -1,0 +1,102 @@
+# Compila el sitio con Fuseki y lo publica en GitHub Pages.
+#
+# Antes de la primera ejecución, en GitHub: Settings → Pages → Source → "GitHub Actions".
+# La dirección del sitio (https://makusano-hub.github.io/Onto/) está en js/catalogo.js (SITIO):
+# de ella cuelgan los IRIs de la ontología, los enlaces canónicos y el sitemap.
+
+name: Publicar en GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Una publicación a la vez; la que está en curso termina antes de empezar la siguiente
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+env:
+  FUSEKI_VERSION: 6.2.0
+
+jobs:
+  compilar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Descargar Fuseki
+        run: |
+          curl -fsSLO "https://archive.apache.org/dist/jena/binaries/apache-jena-fuseki-${FUSEKI_VERSION}.tar.gz"
+          curl -fsSLO "https://archive.apache.org/dist/jena/binaries/apache-jena-fuseki-${FUSEKI_VERSION}.tar.gz.sha512"
+          sha512sum -c "apache-jena-fuseki-${FUSEKI_VERSION}.tar.gz.sha512"
+          tar -xzf "apache-jena-fuseki-${FUSEKI_VERSION}.tar.gz" -C "$RUNNER_TEMP"
+          echo "FUSEKI_JAR=$RUNNER_TEMP/apache-jena-fuseki-${FUSEKI_VERSION}/fuseki-server.jar" >> "$GITHUB_ENV"
+
+      # No se publica una ontología que incumple sus propias reglas (los avisos no bloquean)
+      - name: Validar la ontología con SHACL
+        run: |
+          java -cp "$FUSEKI_JAR" riotcmd.riot --validate ontologia/turismo.rdf
+          java -cp "$FUSEKI_JAR" shacl.shacl validate --shapes ontologia/turismo.shacl.ttl --data ontologia/turismo.rdf > "$RUNNER_TEMP/informe.ttl"
+          if grep -E -q "resultSeverity[[:space:]]+sh:Violation" "$RUNNER_TEMP/informe.ttl"; then
+            java -cp "$FUSEKI_JAR" shacl.shacl validate --shapes ontologia/turismo.shacl.ttl --data ontologia/turismo.rdf --text
+            echo "::error::La ontología tiene errores SHACL."
+            exit 1
+          fi
+
+      # Fuseki carga ontologia/turismo.rdf al arrancar (fuseki/config.ttl)
+      - name: Iniciar Fuseki
+        run: |
+          java -jar "$FUSEKI_JAR" --config=fuseki/config.ttl > "$RUNNER_TEMP/fuseki.log" 2>&1 &
+          for intento in $(seq 1 30); do
+            if curl -fs 'http://localhost:3030/$/ping' > /dev/null; then exit 0; fi
+            sleep 2
+          done
+          cat "$RUNNER_TEMP/fuseki.log"
+          echo "::error::Fuseki no arrancó."
+          exit 1
+
+      - run: npm ci
+
+      - name: Compilar el sitio
+        run: npx vite build
+
+      # Sin Fuseki la compilación termina igual pero sin fichas: aquí se impide publicar ese sitio incompleto
+      - name: Comprobar que la publicación está completa
+        run: |
+          test -f dist/datos/turismo.ttl
+          test -f dist/datos/turismo.jsonld
+          test -f dist/sitemap.xml
+          test "$(ls dist/ficha/*.html | wc -l)" -gt 0
+          grep -q 'class="lista-terminos"' dist/ontologia/index.html
+
+      - uses: actions/configure-pages@v6
+
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: dist
+
+  publicar:
+    needs: compilar
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.despliegue.outputs.page_url }}
+    steps:
+      - id: despliegue
+        uses: actions/deploy-pages@v5

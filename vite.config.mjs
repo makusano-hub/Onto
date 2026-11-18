@@ -62,7 +62,8 @@ export default defineConfig({
         atraccion: 'atraccion.html',
         grafo: 'grafo.html',
         panel: 'panel.html',
-        datos: 'datos.html'
+        datos: 'datos.html',
+        vocabulario: 'ontologia/index.html'
       }
     }
   }

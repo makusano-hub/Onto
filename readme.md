@@ -10,6 +10,7 @@ este programa es para poder realizar ontologias a una web, para proyecto de ramo
 | `panel.html` | Panel interno: **Explorar**, **Validación**, **Consultas SPARQL** y **Nuevo individuo**. |
 | `grafo.html` | Carta 3D de la región. |
 | `datos.html` | Datos abiertos: descarga del grafo en RDF/XML, Turtle y JSON-LD, y las reglas SHACL. |
+| `ontologia/` | Vocabulario: el documento al que llevan los IRIs de la ontología, con una entrada por clase, propiedad e individuo. |
 | `ficha/<id>.html` | Solo en el sitio compilado: una ficha por atracción con sus datos y su JSON-LD ya incrustados. |
 
 Código compartido en `js/`:
@@ -62,12 +63,32 @@ Además de las páginas, `scripts/publicacion.mjs` deja en `dist/` lo que una m�
 | `ficha/<id>.html` | Una página por atracción con el texto, el JSON-LD de schema.org y los datos del visor 3D incrustados. |
 | `index.html` | La lista de atracciones ya escrita, con enlaces a esas fichas y un `ItemList` en JSON-LD. |
 | `datos.html` | La descripción del conjunto de datos (`schema:Dataset`) con sus descargas. |
+| `ontologia/index.html` | El vocabulario, con el grafo completo incrustado en JSON-LD. |
+| `sitemap.xml` | Las páginas publicadas con su dirección definitiva; cada una lleva además su enlace canónico. |
 
 Los datos se publican con licencia CC BY 4.0, declarada en la ontología (`dcterms:license`), en `datos.html` y en `scripts/publicacion.mjs`; no cubre los modelos 3D.
 
 El sitio compilado se puede servir como archivos estáticos: las fichas y la lista funcionan sin Fuseki; los filtros de la portada, la carta 3D en vivo y el panel sí lo necesitan.
 
 Si Fuseki no responde al compilar, la compilación termina igual con un aviso, pero solo publica `turismo.rdf` y las reglas SHACL.
+
+### Dirección del sitio e IRIs
+
+El sitio se publica en GitHub Pages, en `https://makusano-hub.github.io/Onto/`. Esa dirección está en `js/catalogo.js` (`SITIO`) y de ella cuelgan los IRIs de la ontología:
+
+```
+https://makusano-hub.github.io/Onto/ontologia#FuerteBulnes
+```
+
+Al abrir un IRI, el navegador llega al vocabulario (`ontologia/`) y salta a la entrada de ese término. Así los identificadores se pueden consultar, que es lo que pide la web de datos enlazados.
+
+Para publicar en otro dominio hay que cambiar tres cosas a la vez: `SITIO` en `js/catalogo.js`, la base de los IRIs en `ontologia/turismo.rdf` (buscar y reemplazar `https://makusano-hub.github.io/Onto/`) y los prefijos y el patrón de `ontologia/turismo.shacl.ttl`.
+
+### Despliegue en GitHub Pages
+
+`.github/workflows/pages.yml` publica el sitio en cada cambio de la rama `main`: valida la ontología con SHACL, inicia Fuseki con `fuseki/config.ttl`, compila y sube `dist/`. Si la ontología tiene errores SHACL o la publicación queda incompleta, no se despliega.
+
+Solo hay que activarlo una vez en GitHub: *Settings → Pages → Source → GitHub Actions*.
 
 ## Agregar contenido sin tocar el código
 

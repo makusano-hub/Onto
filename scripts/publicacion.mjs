@@ -5,11 +5,14 @@
 //   ficha/<id>.html                     una página por atracción con su JSON-LD y sus datos incrustados
 //   index.html                          la lista de atracciones ya escrita, con enlaces a esas fichas
 //   datos.html                          la descripción del conjunto de datos (schema:Dataset)
+//   ontologia/                          el documento del vocabulario: a él llevan los IRIs de la ontología
+//   sitemap.xml                         las páginas publicadas, con su dirección definitiva
 //
-// Las fichas, la lista y los formatos Turtle y JSON-LD salen de Fuseki: tiene que estar en marcha
-// al compilar. Sin Fuseki la compilación termina igual, solo con turismo.rdf y las reglas SHACL.
+// Las fichas, la lista, el vocabulario y los formatos Turtle y JSON-LD salen de Fuseki: tiene que estar
+// en marcha al compilar. Sin Fuseki la compilación termina igual, solo con turismo.rdf y las reglas SHACL.
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
-import { resolve, basename } from 'node:path';
+import { resolve, relative } from 'node:path';
+import { SITIO, NS, SCHEMA, nombreLegible } from '../js/catalogo.js';
 
 // Archivos del repositorio que se publican tal cual
 const FUENTES = {
@@ -23,14 +26,29 @@ const FORMATOS = {
   'turismo.jsonld': { tipo: 'application/ld+json', nombre: 'JSON-LD' }
 };
 
+// Páginas con dirección propia: ruta del archivo -> ruta pública (para el enlace canónico y el sitemap).
+// atraccion.html y panel.html no están: una depende de ?id= y el otro es una herramienta interna.
+const PAGINAS = { 'index.html': '', 'datos.html': 'datos.html', 'grafo.html': 'grafo.html', 'ontologia/index.html': 'ontologia/' };
+
 // Licencia de los datos: la misma que declara la ontología (dcterms:license) y que muestra datos.html
 const LICENCIA = 'https://creativecommons.org/licenses/by/4.0/';
+
+const RDF = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#';
+const RDFS = 'http://www.w3.org/2000/01/rdf-schema#';
+const OWL = 'http://www.w3.org/2002/07/owl#';
+const XSD = 'http://www.w3.org/2001/XMLSchema#';
+const WIKIDATA = 'http://www.wikidata.org/entity/';
 
 const esc = (texto) => String(texto).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
 // JSON dentro de <script>: "<" escapado para que ningún texto pueda cerrar la etiqueta
-const script = (tipo, datos, id) =>
-  `<script type="${tipo}"${id ? ` id="${id}"` : ''}>${JSON.stringify(datos).replace(/</g, '\\u003c')}</script>\n`;
+const incrustar = (tipo, json, id) => `<script type="${tipo}"${id ? ` id="${id}"` : ''}>${json.replace(/</g, '\\u003c')}</script>\n`;
+const script = (tipo, datos, id) => incrustar(tipo, JSON.stringify(datos), id);
+
+const canonico = (ruta) => `<link rel="canonical" href="${SITIO}${ruta}">\n`;
+const rutaFicha = (id) => `ficha/${encodeURIComponent(id)}.html`;
+
+// ---------- Lectura de Fuseki, con las mismas consultas y funciones que usa el sitio
 
 async function volcado(fuseki, tipo) {
   const respuesta = await fetch(`${fuseki}/turismo/get?default`, { headers: { Accept: tipo } });
@@ -38,16 +56,34 @@ async function volcado(fuseki, tipo) {
   return respuesta.text();
 }
 
-// Todo lo que se necesita de Fuseki, con las mismas consultas y funciones que usa el sitio
-async function leerFuseki(fuseki) {
+async function leerAtracciones(fuseki) {
   const { obtenerInventario } = await import('../js/ontologia.js');
+  return obtenerInventario(`${fuseki}/turismo/query`);
+}
+
+// Términos propios de la ontología: { id, p: { IRI de la propiedad: [valores] } }
+async function leerTerminos(fuseki) {
+  const { consultarSPARQLDetallado } = await import('../js/fuseki.js');
+  const { construir } = await import('../js/consultas.js');
+  const { filas } = await consultarSPARQLDetallado(construir.vocabulario(), `${fuseki}/turismo/query`);
+
+  const terminos = new Map();
+  filas.forEach(({ termino, propiedad, valor }) => {
+    const id = termino.value.slice(NS.length);
+    if (!terminos.has(id)) terminos.set(id, { id, p: {} });
+    (terminos.get(id).p[propiedad.value] ||= []).push(valor);
+  });
+  return [...terminos.values()].sort((a, b) => a.id.localeCompare(b.id, 'es'));
+}
+
+async function leerFuseki(fuseki) {
   const { CAMPOS, datosEstructurados } = await import('../js/ficha-datos.js');
-  const atracciones = await obtenerInventario(`${fuseki}/turismo/query`);
+  const atracciones = await leerAtracciones(fuseki);
   if (!atracciones.length) throw new Error('el dataset turismo no tiene atracciones');
 
   const volcados = {};
   for (const [archivo, { tipo }] of Object.entries(FORMATOS)) volcados[archivo] = await volcado(fuseki, tipo);
-  return { atracciones, volcados, CAMPOS, datosEstructurados };
+  return { atracciones, volcados, terminos: await leerTerminos(fuseki), CAMPOS, datosEstructurados };
 }
 
 // ---------- Páginas
@@ -56,6 +92,8 @@ function paginaFicha(plantilla, atraccion, { CAMPOS, datosEstructurados }) {
   const { id, nombre, tipo, comuna, descripcion, enlaces, equivalentes } = atraccion;
   const campos = CAMPOS.map(([, etiqueta, valor]) => [etiqueta, valor(atraccion)]).filter(([, texto]) => texto);
   const vinculos = [...enlaces, ...equivalentes];
+  // Con la dirección del sitio, las rutas de modelos e imágenes del JSON-LD quedan completas
+  const estructurados = { ...datosEstructurados(atraccion, SITIO), url: `${SITIO}${rutaFicha(id)}` };
 
   // Lo que ve quien no ejecuta JavaScript; js/script.js lo sustituye por la ficha completa con el visor 3D
   const cuerpo = `
@@ -75,13 +113,13 @@ function paginaFicha(plantilla, atraccion, { CAMPOS, datosEstructurados }) {
     .replace(/<title>[\s\S]*?<\/title>/, () => `<title>${esc(nombre)} | Atracciones turísticas de Magallanes</title>`)
     .replace(/(<meta name="description" content=")[^"]*(")/, (_, antes, despues) =>
       `${antes}${esc(descripcion || `${nombre}: ${tipo} de la Región de Magallanes.`)}${despues}`)
-    .replace('</head>', () => `${script('application/ld+json', datosEstructurados(atraccion))}${script('application/json', atraccion, 'datos-atraccion')}</head>`)
+    .replace('</head>', () => `${canonico(rutaFicha(id))}${script('application/ld+json', estructurados)}${script('application/json', atraccion, 'datos-atraccion')}</head>`)
     .replace(/(<div id="ficha">)[\s\S]*?(<\/div>)/, (_, antes, despues) => `${antes}${cuerpo}${despues}`);
 }
 
 function paginaIndice(html, atracciones) {
   const tarjetas = atracciones.map(({ id, nombre, tipo, comuna, modelos }) => `
-				<li><a class="card tarjeta-atraccion" href="ficha/${encodeURIComponent(id)}.html"><h3>${esc(nombre)}</h3><p>${esc(comuna ? `${tipo} · ${comuna}` : tipo)}</p>${
+				<li><a class="card tarjeta-atraccion" href="${rutaFicha(id)}"><h3>${esc(nombre)}</h3><p>${esc(comuna ? `${tipo} · ${comuna}` : tipo)}</p>${
   modelos.length ? `<span class="etiqueta-3d">${modelos.length > 1 ? `${modelos.length} modelos 3D` : 'Modelo 3D'}</span>` : ''}</a></li>`).join('');
 
   const lista = {
@@ -90,7 +128,7 @@ function paginaIndice(html, atracciones) {
     name: 'Atracciones turísticas de la Región de Magallanes',
     numberOfItems: atracciones.length,
     itemListElement: atracciones.map(({ id, nombre }, indice) => ({
-      '@type': 'ListItem', position: indice + 1, name: nombre, url: `ficha/${encodeURIComponent(id)}.html`
+      '@type': 'ListItem', position: indice + 1, name: nombre, url: `${SITIO}${rutaFicha(id)}`
     }))
   };
 
@@ -110,18 +148,98 @@ function paginaDatos(html, disponibles) {
   const conjunto = {
     '@context': 'https://schema.org',
     '@type': 'Dataset',
+    '@id': `${SITIO}ontologia`,
     name: 'Ontología de turismo de la Región de Magallanes',
     description: 'Lugares, actividades, ciudades y comunas de la Región de Magallanes y de la Antártica Chilena, con sus modelos 3D, enlazados con Wikidata y alineados con schema.org.',
+    url: `${SITIO}datos.html`,
     inLanguage: 'es',
     license: LICENCIA,
     keywords: ['turismo', 'Magallanes', 'ontología', 'OWL', 'datos enlazados'],
-    distribution: grafo.map(([archivo, { tipo }]) => ({ '@type': 'DataDownload', encodingFormat: tipo, contentUrl: `datos/${archivo}` }))
+    distribution: grafo.map(([archivo, { tipo }]) => ({ '@type': 'DataDownload', encodingFormat: tipo, contentUrl: `${SITIO}datos/${archivo}` }))
   };
 
   return html
     .replace(/(<ul class="ficha-enlaces" id="descargas">)[\s\S]*?(<\/ul>)/, (_, antes, fin) =>
       `${antes}${descargas.map(([archivo, { nombre }]) => `<li><a href="datos/${archivo}" download>${esc(nombre)} · ${archivo}</a></li>`).join('')}${fin}`)
     .replace('</head>', () => `${script('application/ld+json', conjunto)}</head>`);
+}
+
+// ontologia/: el documento al que llevan los IRIs. Cada término tiene un ancla con su identificador,
+// así <SITIO>ontologia#FuerteBulnes abre la página en ese individuo; el grafo completo va incrustado en JSON-LD.
+function paginaVocabulario(html, { terminos, jsonld, enlaceFicha }) {
+  if (!terminos) {
+    return html.replace(/(<div id="terminos">)[\s\S]*?(<\/div>)/, (_, antes, fin) =>
+      `${antes}<p>La lista de términos se escribe con Fuseki en marcha. El grafo completo está en <a href="../datos/turismo.rdf">turismo.rdf</a>.</p>${fin}`);
+  }
+
+  const porId = new Map(terminos.map((termino) => [termino.id, termino]));
+  const iris = (termino, propiedad) => (termino.p[propiedad] ?? []).filter(({ type }) => type === 'uri').map(({ value }) => value);
+  const texto = (termino, propiedad) => (termino.p[propiedad] ?? []).find(({ type }) => type !== 'uri')?.value;
+  const es = (termino, clase) => iris(termino, `${RDF}type`).includes(`${OWL}${clase}`);
+  const etiqueta = (id) => {
+    const termino = porId.get(id);
+    return (termino && (texto(termino, `${RDFS}label`) ?? texto(termino, `${NS}Nombre`))) ?? nombreLegible(id);
+  };
+
+  const referencia = (iri) => {
+    if (iri.startsWith(NS)) return `<a href="#${encodeURIComponent(iri.slice(NS.length))}">${esc(etiqueta(iri.slice(NS.length)))}</a>`;
+    if (iri.startsWith(SCHEMA)) return `<a href="${esc(iri)}">schema:${esc(iri.slice(SCHEMA.length))}</a>`;
+    if (iri.startsWith(WIKIDATA)) return `<a href="${esc(iri)}">Wikidata ${esc(iri.slice(WIKIDATA.length))}</a>`;
+    if (iri.startsWith(XSD)) return `xsd:${esc(iri.slice(XSD.length))}`;
+    return `<a href="${esc(iri)}">${esc(iri)}</a>`;
+  };
+  // "Etiqueta: a, b" con los valores de una propiedad; vacío si no tiene (o solo apunta a términos de OWL)
+  const relacion = (nombre, termino, propiedad) => {
+    const valores = iris(termino, propiedad).filter((iri) => !iri.startsWith(OWL));
+    return valores.length ? `${nombre}: ${valores.map(referencia).join(', ')}` : '';
+  };
+  const fila = (termino, detalles) => `
+			<li id="${esc(termino.id)}"><span><strong>${esc(etiqueta(termino.id))}</strong> <code>t:${esc(termino.id)}</code></span>${
+  detalles.filter(Boolean).map((detalle) => `<small>${detalle}</small>`).join('')}</li>`;
+  const seccion = (titulo, filas) => `
+		<h2 class="titulo-seccion">${titulo} (${filas.length})</h2>
+		<ul class="lista-terminos">${filas.join('')}
+		</ul>`;
+
+  const clases = terminos.filter((termino) => es(termino, 'Class')).map((termino) => fila(termino, [
+    relacion('Subclase de', termino, `${RDFS}subClassOf`)
+  ]));
+
+  const propiedades = terminos.filter((termino) => es(termino, 'ObjectProperty') || es(termino, 'DatatypeProperty')).map((termino) => fila(termino, [
+    esc(texto(termino, `${RDFS}comment`) ?? ''),
+    [
+      es(termino, 'ObjectProperty') ? 'Relaciona dos individuos' : 'Tiene un valor',
+      relacion('Dominio', termino, `${RDFS}domain`),
+      relacion('Rango', termino, `${RDFS}range`),
+      relacion('Inversa de', termino, `${OWL}inverseOf`),
+      relacion('Subpropiedad de', termino, `${RDFS}subPropertyOf`)
+    ].filter(Boolean).join(' · ')
+  ]));
+
+  const individuos = terminos.filter((termino) => es(termino, 'NamedIndividual')).map((termino) => fila(termino, [
+    [
+      relacion('Tipo', termino, `${RDF}type`),
+      relacion('Mismo que', termino, `${OWL}sameAs`),
+      enlaceFicha(termino.id) ? `<a href="${esc(enlaceFicha(termino.id))}">Ver ficha</a>` : ''
+    ].filter(Boolean).join(' · ')
+  ]));
+
+  const alternativas = Object.entries({ ...FUENTES, ...FORMATOS }).filter(([archivo]) => archivo !== 'turismo.shacl.ttl')
+    .map(([archivo, { tipo }]) => `<link rel="alternate" type="${tipo}" href="../datos/${archivo}">\n`).join('');
+
+  return html
+    .replace(/(<div id="terminos">)[\s\S]*?(<\/div>)/, (_, antes, fin) =>
+      `${antes}${seccion('Clases', clases)}${seccion('Propiedades', propiedades)}${seccion('Individuos', individuos)}\n\t\t${fin}`)
+    .replace('</head>', () => `${alternativas}${jsonld ? incrustar('application/ld+json', jsonld) : ''}</head>`);
+}
+
+function sitemap(atracciones) {
+  const rutas = [...Object.values(PAGINAS), ...atracciones.map(({ id }) => rutaFicha(id))];
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${rutas.map((ruta) => `  <url><loc>${esc(SITIO + ruta)}</loc></url>`).join('\n')}
+</urlset>
+`;
 }
 
 // ---------- Complemento
@@ -133,6 +251,29 @@ export function publicacion({ fuseki }) {
   let datos = null; // lo leído de Fuseki al compilar; null si no respondió
 
   const fuente = (archivo) => readFileSync(resolve(raiz, FUENTES[archivo].origen));
+
+  // El vocabulario se escribe igual al compilar y en desarrollo; en desarrollo se pide a Fuseki en cada visita
+  async function vocabulario(html) {
+    if (compilando) {
+      if (!datos) return paginaVocabulario(html, {});
+      const conFicha = new Set(datos.atracciones.map(({ id }) => id));
+      return paginaVocabulario(html, {
+        terminos: datos.terminos,
+        jsonld: datos.volcados['turismo.jsonld'],
+        enlaceFicha: (id) => (conFicha.has(id) ? `../${rutaFicha(id)}` : null)
+      });
+    }
+    try {
+      const conFicha = new Set((await leerAtracciones(fuseki)).map(({ id }) => id));
+      return paginaVocabulario(html, {
+        terminos: await leerTerminos(fuseki),
+        jsonld: await volcado(fuseki, FORMATOS['turismo.jsonld'].tipo),
+        enlaceFicha: (id) => (conFicha.has(id) ? `../atraccion.html?id=${encodeURIComponent(id)}` : null)
+      });
+    } catch {
+      return paginaVocabulario(html, {});
+    }
+  }
 
   return {
     name: 'publicacion',
@@ -167,26 +308,33 @@ export function publicacion({ fuseki }) {
         datos = await leerFuseki(fuseki);
       } catch (error) {
         datos = null;
-        this.warn(`Fuseki no responde en ${fuseki} (${error.message}). No se generan las fichas estáticas, la lista de la portada ni los formatos Turtle y JSON-LD. Inicia Fuseki y vuelve a compilar.`);
+        this.warn(`Fuseki no responde en ${fuseki} (${error.message}). No se generan las fichas estáticas, la lista de la portada, el vocabulario ni los formatos Turtle y JSON-LD. Inicia Fuseki y vuelve a compilar.`);
       }
     },
 
+    // "post": lo que se escribe aquí queda tal cual, sin que Vite intente resolver sus enlaces
     transformIndexHtml: {
-      order: 'pre',
-      handler(html, { filename }) {
-        const pagina = basename(filename);
+      order: 'post',
+      async handler(html, { filename }) {
+        const pagina = relative(raiz, filename).replace(/\\/g, '/');
+        let resultado = html;
         if (pagina === 'datos.html') {
-          return paginaDatos(html, [...Object.keys(FUENTES), ...(compilando && !datos ? [] : Object.keys(FORMATOS))]);
+          resultado = paginaDatos(html, [...Object.keys(FUENTES), ...(compilando && !datos ? [] : Object.keys(FORMATOS))]);
+        } else if (pagina === 'ontologia/index.html') {
+          resultado = await vocabulario(html);
+        } else if (pagina === 'index.html' && compilando && datos) {
+          resultado = paginaIndice(html, datos.atracciones);
         }
-        if (pagina === 'index.html' && compilando && datos) return paginaIndice(html, datos.atracciones);
-        return html;
+        // El enlace canónico solo tiene sentido en el sitio publicado
+        return compilando && pagina in PAGINAS ? resultado.replace('</head>', () => `${canonico(PAGINAS[pagina])}</head>`) : resultado;
       }
     },
 
-    // Con el sitio ya escrito: las descargas y una copia de atraccion.html por cada atracción
+    // Con el sitio ya escrito: las descargas, el sitemap y una copia de atraccion.html por cada atracción
     writeBundle() {
       mkdirSync(resolve(salida, 'datos'), { recursive: true });
       Object.keys(FUENTES).forEach((archivo) => writeFileSync(resolve(salida, 'datos', archivo), fuente(archivo)));
+      writeFileSync(resolve(salida, 'sitemap.xml'), sitemap(datos?.atracciones ?? []));
       if (!datos) return;
 
       Object.entries(datos.volcados).forEach(([archivo, contenido]) => writeFileSync(resolve(salida, 'datos', archivo), contenido));
@@ -196,7 +344,7 @@ export function publicacion({ fuseki }) {
       datos.atracciones.forEach((atraccion) => {
         writeFileSync(resolve(salida, 'ficha', `${atraccion.id}.html`), paginaFicha(plantilla, atraccion, datos));
       });
-      console.log(`publicacion: ${datos.atracciones.length} fichas estáticas y ${Object.keys(FUENTES).length + Object.keys(datos.volcados).length} archivos de datos`);
+      console.log(`publicacion: ${datos.atracciones.length} fichas estáticas, ${datos.terminos.length} términos en el vocabulario y ${Object.keys(FUENTES).length + Object.keys(datos.volcados).length} archivos de datos`);
     }
   };
 }

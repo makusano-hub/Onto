@@ -99,7 +99,7 @@ export function validarAtraccion(a, { padres, tiposPorIndividuo, comunaDeCiudad,
     h.push(hallazgo('ontologia', 'aviso', 'No pertenece a ninguna categoría del sitio: ningún botón la muestra.', `Añade su clase (${a.clases.join(', ')}) a CATEGORIAS en js/catalogo.js.`));
   }
   if (!a.enEspacioPrincipal) {
-    h.push(hallazgo('ontologia', 'aviso', `Su IRI usa otro espacio de nombres (${a.uri.replace(/[#/][^#/]*$/, '')}).`, 'Renómbralo en Protégé para que use el espacio de Ontologia2.'));
+    h.push(hallazgo('ontologia', 'aviso', `Su IRI usa otro espacio de nombres (${a.uri.replace(/[#/][^#/]*$/, '')}).`, 'Renómbralo en Protégé para que use el espacio de nombres de la ontología.'));
   }
 
   if (a.esActividad) {

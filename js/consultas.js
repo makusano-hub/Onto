@@ -113,6 +113,13 @@ SELECT ?ciudad ${agrupar('comuna')} WHERE {
 }
 GROUP BY ?ciudad`,
 
+  // Todo lo que la ontología dice de sus propios términos: con ello se escribe el documento del vocabulario
+  vocabulario: () => `${PREFIJOS}
+SELECT ?termino ?propiedad ?valor WHERE {
+  ?termino ?propiedad ?valor .
+  FILTER(STRSTARTS(STR(?termino), STR(t:)))
+}`,
+
   // Individuos con datos de atracción cuya clase no cuelga de ninguna raíz: no se verían en el sitio
   huerfanos: () => `${PREFIJOS}
 SELECT DISTINCT ?individuo ?tipo WHERE {
@@ -182,6 +189,13 @@ export const CONSULTAS = [
     usadaEn: 'Validación',
     descripcion: 'Tienen datos de atracción pero su clase no desciende de ninguna raíz, así que el sitio no los muestra.',
     texto: construir.huerfanos
+  },
+  {
+    id: 'vocabulario',
+    titulo: 'Vocabulario completo',
+    usadaEn: 'Documento del vocabulario (ontologia/)',
+    descripcion: 'Todas las tripletas de las clases, propiedades e individuos propios. Con ellas se escribe la página a la que llevan los IRIs de la ontología.',
+    texto: construir.vocabulario
   },
   // Estas dos solo dan resultado completo con el razonador (endpoint /turismo-inferido de fuseki/config.ttl)
   {
