@@ -63,6 +63,8 @@ Además de las páginas, `scripts/publicacion.mjs` deja en `dist/` lo que una m�
 | `index.html` | La lista de atracciones ya escrita, con enlaces a esas fichas y un `ItemList` en JSON-LD. |
 | `datos.html` | La descripción del conjunto de datos (`schema:Dataset`) con sus descargas. |
 
+Los datos se publican con licencia CC BY 4.0, declarada en la ontología (`dcterms:license`), en `datos.html` y en `scripts/publicacion.mjs`; no cubre los modelos 3D.
+
 El sitio compilado se puede servir como archivos estáticos: las fichas y la lista funcionan sin Fuseki; los filtros de la portada, la carta 3D en vivo y el panel sí lo necesitan.
 
 Si Fuseki no responde al compilar, la compilación termina igual con un aviso, pero solo publica `turismo.rdf` y las reglas SHACL.

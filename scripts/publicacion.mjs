@@ -23,6 +23,9 @@ const FORMATOS = {
   'turismo.jsonld': { tipo: 'application/ld+json', nombre: 'JSON-LD' }
 };
 
+// Licencia de los datos: la misma que declara la ontología (dcterms:license) y que muestra datos.html
+const LICENCIA = 'https://creativecommons.org/licenses/by/4.0/';
+
 const esc = (texto) => String(texto).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
 // JSON dentro de <script>: "<" escapado para que ningún texto pueda cerrar la etiqueta
@@ -110,6 +113,7 @@ function paginaDatos(html, disponibles) {
     name: 'Ontología de turismo de la Región de Magallanes',
     description: 'Lugares, actividades, ciudades y comunas de la Región de Magallanes y de la Antártica Chilena, con sus modelos 3D, enlazados con Wikidata y alineados con schema.org.',
     inLanguage: 'es',
+    license: LICENCIA,
     keywords: ['turismo', 'Magallanes', 'ontología', 'OWL', 'datos enlazados'],
     distribution: grafo.map(([archivo, { tipo }]) => ({ '@type': 'DataDownload', encodingFormat: tipo, contentUrl: `datos/${archivo}` }))
   };

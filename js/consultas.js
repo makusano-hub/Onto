@@ -102,7 +102,7 @@ SELECT ?clase ?padre WHERE {
   tipos: () => `${PREFIJOS}
 SELECT ?individuo ${agrupar('tipo')} WHERE {
   ?individuo a ?tipo .
-  FILTER(?tipo NOT IN (owl:NamedIndividual, owl:Class, owl:ObjectProperty, owl:DatatypeProperty, owl:Ontology))
+  FILTER(?tipo NOT IN (owl:NamedIndividual, owl:Class, owl:ObjectProperty, owl:DatatypeProperty, owl:AnnotationProperty, owl:Ontology))
 }
 GROUP BY ?individuo`,
 

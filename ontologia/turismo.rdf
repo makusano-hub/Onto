@@ -1,6 +1,7 @@
 <?xml version="1.0"?>
 <rdf:RDF xmlns="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2/"
      xml:base="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2/"
+     xmlns:dcterms="http://purl.org/dc/terms/"
      xmlns:owl="http://www.w3.org/2002/07/owl#"
      xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
      xmlns:xml="http://www.w3.org/XML/1998/namespace"
@@ -8,9 +9,27 @@
      xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
      xmlns:Ontologia2="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#">
     <owl:Ontology rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2">
+        <dcterms:license rdf:resource="https://creativecommons.org/licenses/by/4.0/"/>
         <rdfs:comment xml:lang="es">Lugares, actividades, ciudades y comunas de la Región de Magallanes y de la Antártica Chilena, con sus modelos 3D.</rdfs:comment>
         <rdfs:label xml:lang="es">Ontología de turismo de la Región de Magallanes</rdfs:label>
     </owl:Ontology>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Annotation properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://purl.org/dc/terms/license -->
+
+    <owl:AnnotationProperty rdf:about="http://purl.org/dc/terms/license"/>
     
 
 
@@ -787,14 +806,6 @@
     
 
 
-    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Gimnasio -->
-
-    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Gimnasio">
-        <rdf:type rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#PanoramaCiudad"/>
-    </owl:NamedIndividual>
-    
-
-
     <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Hernando_de_Magallanes -->
 
     <owl:NamedIndividual rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Hernando_de_Magallanes">
@@ -1030,6 +1041,7 @@
 
     <owl:NamedIndividual rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Parrillar">
         <rdf:type rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Lago"/>
+        <Ontologia2:ubicadoEnComuna rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#PuntaArenas"/>
         <owl:sameAs rdf:resource="http://www.wikidata.org/entity/Q23645951"/>
         <Ontologia2:Latitud rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">-53.40</Ontologia2:Latitud>
         <Ontologia2:Longitud rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">-71.25</Ontologia2:Longitud>
@@ -1271,14 +1283,6 @@
     <owl:NamedIndividual rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Tren_Mclelland">
         <rdf:type rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Estatua"/>
         <Ontologia2:ubicadoEnCiudad rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Puerto_Natales"/>
-    </owl:NamedIndividual>
-    
-
-
-    <!-- http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Vida_nocturna -->
-
-    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#Vida_nocturna">
-        <rdf:type rdf:resource="http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#PanoramaCiudad"/>
     </owl:NamedIndividual>
     
 
