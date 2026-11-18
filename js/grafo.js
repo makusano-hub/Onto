@@ -40,7 +40,11 @@ const local = iri => { const s=String(iri); return s.includes("#") ? s.slice(s.l
 // Un IRI de otro sitio (owl:sameAs hacia Wikidata) se conserva entero para poder enlazarlo
 const externo = v => /^https?:\/\//.test(v);
 const nodo = iri => iri.includes("#") ? local(iri) : iri;
-const sitio = url => { try{ return new URL(url).hostname.replace(/^www\./,""); }catch(e){ return url; } };
+// Texto de un enlace externo: los sitios conocidos por su nombre, el resto por su dominio
+const SITIOS = {"wikipedia.org":"Wikipedia", "wikidata.org":"Wikidata"};
+const sitio = url => { try{ const h=new URL(url).hostname.replace(/^www\./,""); const d=Object.keys(SITIOS).find(k => h===k || h.endsWith("."+k)); return d ? SITIOS[d] : h; }catch(e){ return url; } };
+// Búsqueda de Google Maps por nombre (formato documentado de Maps URLs): abre la ciudad con su ficha
+const mapa = x => "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(x.nombre + ", Región de Magallanes, Chile");
 const $ = id => document.getElementById(id);
 const esc = s => String(s).replace(/[&<>"]/g, ch => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[ch]));
 
@@ -286,8 +290,10 @@ function elegir(id, opt={}){
   if(datos.length) h += `<div class="datos">${datos.map(d=>`<span class="dato">${esc(d)}</span>`).join("")}</div>`;
   if(modelos.length) h += `<div class="grupo"><h3>Modelo 3D</h3><div class="lista">${modelos.map(m=>`<button type="button" class="ir m3d" data-modelo="${esc(m)}">Ver ${esc(m.split("/").pop())}</button>`).join("")}</div></div>`;
   if((x.p.ubicadoEnCiudad||[]).length || comunas.length) h += `<div class="grupo"><h3>Ubicación</h3><div class="lista">${(x.p.ubicadoEnCiudad||[]).map(enlace).join("")}${comunas.map(c=>`<span class="dato">Comuna de ${esc(bonito(c))}</span>`).join("")}</div></div>`;
-  const enlazados=(x.p.sameAs||[]).filter(externo);
-  if(enlazados.length) h += `<div class="grupo"><h3>Datos enlazados</h3><div class="lista">${enlazados.map(u=>`<a class="ir" href="${esc(u)}" target="_blank" rel="noopener noreferrer">${esc(sitio(u))} ↗</a>`).join("")}</div></div>`;
+  // Enlaces externos: páginas (t:tieneEnlace), el mismo lugar en otras bases (owl:sameAs) y, en las ciudades, su mapa
+  const vinculos=[...(x.p.tieneEnlace||[]), ...(x.p.sameAs||[])].filter(externo).map(u => [sitio(u), u]);
+  if(x.grupo==="Ciudad") vinculos.push(["Google Maps", mapa(x)]);
+  if(vinculos.length) h += `<div class="grupo"><h3>Enlaces</h3><div class="lista">${vinculos.map(([t,u])=>`<a class="ir" href="${esc(u)}" target="_blank" rel="noopener noreferrer">${esc(t)} ↗</a>`).join("")}</div></div>`;
   if(x.acts.length) h += `<div class="grupo"><h3>Actividades aquí</h3><div class="lista">${x.acts.map(a=>{const y=IND.get(a); return `<span class="ir">${esc(y.nombre)}<small>${esc(nomClase(y.clase))}</small></span>`;}).join("")}</div></div>`;
   if(x.contiene.length) h += `<div class="grupo"><h3>Lugares en esta ciudad</h3><div class="lista">${x.contiene.map(enlace).join("")}</div></div>`;
   h += `<details><summary>Tripletas RDF (${x.tri.length})</summary><div class="triplas"><div>:${esc(x.id)}</div>${x.tri.map(([p,o])=>`<div>&nbsp;&nbsp;<b>${esc(p)}</b> <span>${esc(o)}</span></div>`).join("")}</div></details>`;

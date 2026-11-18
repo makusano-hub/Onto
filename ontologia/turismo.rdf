@@ -1166,6 +1166,7 @@
         <owl:sameAs rdf:resource="http://www.wikidata.org/entity/Q1001339"/>
         <Ontologia2:Latitud rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">-51.73</Ontologia2:Latitud>
         <Ontologia2:Longitud rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">-72.51</Ontologia2:Longitud>
+        <Ontologia2:tieneEnlace rdf:datatype="http://www.w3.org/2001/XMLSchema#anyURI">https://es.wikipedia.org/wiki/Puerto_Natales</Ontologia2:tieneEnlace>
     </owl:NamedIndividual>
     
 
@@ -1178,6 +1179,7 @@
         <owl:sameAs rdf:resource="http://www.wikidata.org/entity/Q1251087"/>
         <Ontologia2:Latitud rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">-54.93</Ontologia2:Latitud>
         <Ontologia2:Longitud rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">-67.61</Ontologia2:Longitud>
+        <Ontologia2:tieneEnlace rdf:datatype="http://www.w3.org/2001/XMLSchema#anyURI">https://es.wikipedia.org/wiki/Puerto_Williams</Ontologia2:tieneEnlace>
     </owl:NamedIndividual>
     
 
@@ -1201,6 +1203,7 @@
         <owl:sameAs rdf:resource="http://www.wikidata.org/entity/Q51599"/>
         <Ontologia2:Latitud rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">-53.16</Ontologia2:Latitud>
         <Ontologia2:Longitud rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">-70.91</Ontologia2:Longitud>
+        <Ontologia2:tieneEnlace rdf:datatype="http://www.w3.org/2001/XMLSchema#anyURI">https://es.wikipedia.org/wiki/Punta_Arenas</Ontologia2:tieneEnlace>
     </owl:NamedIndividual>
     
 
@@ -1375,6 +1378,7 @@
         <owl:sameAs rdf:resource="http://www.wikidata.org/entity/Q55983556"/>
         <Ontologia2:Latitud rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">-53.30</Ontologia2:Latitud>
         <Ontologia2:Longitud rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">-70.37</Ontologia2:Longitud>
+        <Ontologia2:tieneEnlace rdf:datatype="http://www.w3.org/2001/XMLSchema#anyURI">https://es.wikipedia.org/wiki/Porvenir</Ontologia2:tieneEnlace>
     </owl:NamedIndividual>
     
 

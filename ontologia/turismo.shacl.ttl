@@ -92,7 +92,12 @@ f:Atraccion
         sh:path t:tieneImagen ;
         sh:datatype xsd:anyURI ;
         sh:message "t:tieneImagen debe ser un xsd:anyURI."@es
-    ] ;
+    ] .
+
+# Los enlaces se validan en cualquier individuo que los tenga: las ciudades también llevan el de Wikipedia
+f:Enlace
+    a sh:NodeShape ;
+    sh:targetSubjectsOf t:tieneEnlace ;
     sh:property [
         sh:path t:tieneEnlace ;
         sh:datatype xsd:anyURI ;
