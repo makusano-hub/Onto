@@ -50,8 +50,10 @@ PREFIX rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 :datosInferidos  rdf:type  ja:RDFDataset ;
         ja:defaultGraph  :grafoInferido .
 
-# OWL Micro aplica rdfs:subClassOf, rdfs:subPropertyOf, rdfs:domain, rdfs:range y owl:inverseOf.
+# OWL Micro aplica rdfs:subClassOf, rdfs:subPropertyOf, rdfs:domain, rdfs:range, owl:inverseOf y
+# owl:TransitiveProperty (con t:ubicadoEn deduce la comuna de un lugar que solo declara su ciudad).
 # No aplica owl:sameAs: así las entidades de Wikidata no se mezclan con los individuos propios.
+# Tampoco busca contradicciones (clases disjuntas, propiedades funcionales): eso lo hace HermiT en Protégé.
 :grafoInferido  rdf:type  ja:InfModel ;
         ja:baseModel  [ rdf:type  ja:MemoryModel ;
                         ja:content  [ ja:externalContent  <../ontologia/turismo.rdf> ] ] ;

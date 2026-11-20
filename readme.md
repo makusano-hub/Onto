@@ -40,7 +40,7 @@ No quites `--localhost`: `/turismo/update` y `/turismo/data` aceptan cambios sin
 | Endpoint | Qué ofrece |
 | --- | --- |
 | `/turismo` | Los datos tal como están en el archivo. Es el que usa el sitio. |
-| `/turismo-inferido` | Los mismos datos más lo que deduce el razonador (OWL Micro): tipos por `rdfs:subClassOf`, propiedades por `rdfs:subPropertyOf` e inversas por `owl:inverseOf`. En el panel: casilla *Con inferencia* de la pestaña *Consultas SPARQL*. |
+| `/turismo-inferido` | Los mismos datos más lo que deduce el razonador (OWL Micro): tipos por `rdfs:subClassOf`, `rdfs:domain` y `rdfs:range`, propiedades por `rdfs:subPropertyOf`, inversas por `owl:inverseOf` y la comuna de cada lugar por la transitividad de `t:ubicadoEn`. En el panel: casilla *Con inferencia* de la pestaña *Consultas SPARQL*. |
 | `/turismo/shacl` | Validación con las reglas de `ontologia/turismo.shacl.ttl`. En el panel: bloque *Reglas SHACL* de la pestaña *Validación*. |
 
 Las reglas SHACL también se pueden aplicar sin Fuseki en marcha:
@@ -50,6 +50,25 @@ java -cp C:\apache-jena-fuseki-6.2.0\fuseki-server.jar shacl.shacl validate --sh
 ```
 
 Si inicias Fuseki de otra forma (un dataset `turismo` vacío al que subes el archivo), el sitio funciona igual, pero el panel avisa de que faltan la inferencia y SHACL.
+
+### Qué afirma la ontología
+
+Además de las clases, las propiedades y su alineación con schema.org, `ontologia/turismo.rdf` declara estos axiomas:
+
+| Axioma | Qué dice | Para qué sirve |
+| --- | --- | --- |
+| Clases disjuntas (`owl:disjointWith`) | Nada es a la vez actividad, lugar, ciudad o comuna. Tampoco actividad cotidiana y turística, ni establecimiento y naturaleza, ni dos de lago, montaña, río, parque y reserva. | Un individuo con dos tipos incompatibles es una contradicción. |
+| Propiedades funcionales (`owl:FunctionalProperty`) | Un solo valor para `t:ubicadoEnCiudad`, `t:ubicadoEnComuna`, `t:perteneceAComuna`, `t:Latitud`, `t:Longitud`, `t:Precio`, `t:requierePermisoAutoridad` y `t:tieneTemporada`. | Dos valores distintos son una contradicción. |
+| Individuos distintos (`owl:AllDifferent`) | Las comunas y las ciudades son todas distintas entre sí. | Sin esto, dos comunas para una ciudad se leerían como «son la misma comuna». |
+| Propiedad transitiva (`owl:TransitiveProperty`) | `t:ubicadoEn` reúne a `t:ubicadoEnCiudad`, `t:ubicadoEnComuna` y `t:perteneceAComuna`. | El razonador deduce la comuna de un lugar que solo declara su ciudad. |
+| Condiciones necesarias (`owl:someValuesFrom`) | Toda actividad se realiza en algún lugar, toda ciudad pertenece a alguna comuna y todo lugar está en alguna comuna. | Dejan escrito en OWL lo que SHACL exige. |
+| Dominios | `t:Latitud` y `t:Longitud` son de lugares, ciudades o comunas; `t:Precio`, `t:Calificacion`, `t:requierePermisoAutoridad` y `t:tieneTemporada`, de lugares o actividades. | Una actividad con coordenadas o una comuna con precio son contradicciones. |
+
+La cabecera lleva la versión (`owl:versionInfo`) y las fechas de creación y de última modificación (`dcterms:created`, `dcterms:modified`). El vocabulario (`ontologia/`) y `datos.html` las muestran: al cambiar la ontología, actualiza la versión y la fecha de modificación.
+
+El razonador de Fuseki (OWL Micro) aplica la transitividad, los dominios y las inversas, pero no busca contradicciones. Para eso está HermiT, que viene con Protégé: abre `turismo.rdf` y elige *Reasoner → HermiT → Start reasoner*. Si la ontología se contradice, Protégé lo indica; si no, clasifica las clases. Las reglas SHACL siguen siendo lo que bloquea el despliegue.
+
+Al añadir una comuna o una ciudad, inclúyela en la lista de individuos distintos (en Protégé, *Different individuals*).
 
 ### Sin Fuseki: SPARQL en el navegador
 
