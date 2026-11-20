@@ -2,14 +2,7 @@
 // La carta completa, con los lugares de la ontología, está en grafo.html.
 import * as THREE from 'three';
 import { gx, gz, suelo, construirRegion, REGION } from './mapa-region.js';
-
-// Ciudades principales [nombre, lat, lon]
-const CIUDADES = [
-  ['Punta Arenas', -53.16, -70.91],
-  ['Puerto Natales', -51.73, -72.51],
-  ['Porvenir', -53.30, -70.37],
-  ['Puerto Williams', -54.93, -67.61]
-];
+import { obtenerCiudades } from './ontologia.js';
 
 const contenedor = document.getElementById('mapa-portada');
 const lienzo = document.getElementById('mapa-portada-lienzo');
@@ -32,7 +25,12 @@ function iniciar() {
   const camara = new THREE.PerspectiveCamera(36, 1, 1, 400);
 
   construirRegion(escena);
-  CIUDADES.forEach(([nombre, lat, lon]) => agregarCiudad(escena, nombre, lat, lon));
+  // Las ciudades salen de la ontología (t:Ciudad con t:Latitud y t:Longitud), como en la carta 3D:
+  // una ciudad nueva o una coordenada corregida se ven aquí sin tocar el código.
+  // Llegan con la primera consulta; si no hay quien responda, el mapa queda sin marcas.
+  obtenerCiudades()
+    .then((ciudades) => ciudades.forEach(({ nombre, latitud, longitud }) => agregarCiudad(escena, nombre, latitud, longitud)))
+    .catch((error) => console.error('No se pudieron leer las ciudades del mapa:', error));
 
   // Arrastrar para girar
   let arrastre = 0;

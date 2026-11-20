@@ -21,7 +21,7 @@ async function informePublicado() {
   return leerInforme(await respuesta.text());
 }
 
-// Resultados del informe: { nivel, mensaje, individuo, propiedad, valor }
+// Resultados del informe: { nivel, mensaje, individuo, iri, propiedad, valor }
 export async function validarSHACL() {
   if ((await origenDeDatos()) === 'navegador') return informePublicado();
 
@@ -72,6 +72,9 @@ export function leerInforme(ntriples) {
       nivel: NIVELES[nodo.resultSeverity.iri.slice(SH.length)] ?? 'aviso',
       mensaje: nodo.resultMessage?.literal ?? 'No cumple una regla SHACL.',
       individuo: corto(nodo.focusNode.iri ?? nodo.focusNode.nodo),
+      // El IRI completo: el panel lo usa para saber de qué atracción es el resultado, también cuando
+      // el individuo está en otro espacio de nombres y "individuo" no coincide con su identificador
+      iri: nodo.focusNode.iri ?? null,
       propiedad: nodo.resultPath?.iri ? corto(nodo.resultPath.iri) : null,
       valor: nodo.value ? nodo.value.literal ?? corto(nodo.value.iri ?? '') : null
     }))

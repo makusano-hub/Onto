@@ -16,13 +16,22 @@ const GRAFOS = {
 let motor; // promesa: el WebAssembly se compila una sola vez
 const almacenes = new Map(); // grafo → promesa de su almacén, ya cargado
 
+// Si la descarga o la compilación fallan, la promesa se descarta: guardada, cada consulta posterior
+// recibiría el mismo error hasta recargar la página aunque el fallo hubiera sido pasajero.
+function iniciarMotor() {
+  motor ??= init().catch((error) => {
+    motor = undefined;
+    throw error;
+  });
+  return motor;
+}
+
 async function cargar(grafo) {
   const { archivo, formato, nombre } = GRAFOS[grafo];
   const direccion = new URL(rutaPublica(archivo), document.baseURI);
-  motor ??= init();
 
   // Accept: sin él, un servidor de desarrollo puede responder con la portada en vez de un 404
-  const [respuesta] = await Promise.all([fetch(direccion, { headers: { Accept: formato } }), motor]);
+  const [respuesta] = await Promise.all([fetch(direccion, { headers: { Accept: formato } }), iniciarMotor()]);
   if (!respuesta.ok) {
     const error = new Error(`No se pudo leer ${nombre} (${archivo}: ${respuesta.status})`);
     error.estado = respuesta.status;

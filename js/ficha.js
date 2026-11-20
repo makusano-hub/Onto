@@ -68,7 +68,9 @@ export function renderizarFicha(contenedor, atraccion, { visor = true, nivelTitu
     visor3d = crearVisor(lienzo, { estado, selector });
     visor3d.mostrar(modelos);
   } else {
-    estado.textContent = modelos.length ? 'Vista previa sin visor 3D.' : 'Esta atracción aún no tiene modelo 3D.';
+    // Una actividad nunca lleva modelo (t:tieneModelo3D es solo de los lugares): no se promete uno
+    estado.textContent = modelos.length ? 'Vista previa sin visor 3D.'
+      : atraccion.esActividad ? 'Las actividades no tienen modelo 3D.' : 'Esta atracción aún no tiene modelo 3D.';
     lienzo.classList.add('sin-modelo');
   }
 

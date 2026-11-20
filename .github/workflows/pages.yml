@@ -1,5 +1,8 @@
 # Compila el sitio con Fuseki y lo publica en GitHub Pages.
 #
+# En un pull request hace lo mismo menos publicar: valida la ontología y compila, para que un error
+# se vea antes de fusionar y no cuando el despliegue de main ya ha fallado.
+#
 # Antes de la primera ejecución, en GitHub: Settings → Pages → Source → "GitHub Actions".
 # La dirección del sitio (https://makusano-hub.github.io/Onto/) está en js/catalogo.js (SITIO):
 # de ella cuelgan los IRIs de la ontología, los enlaces canónicos y el sitemap.
@@ -9,6 +12,7 @@ name: Publicar en GitHub Pages
 on:
   push:
     branches: [main]
+  pull_request:
   workflow_dispatch:
 
 permissions:
@@ -16,10 +20,12 @@ permissions:
   pages: write
   id-token: write
 
-# Una publicación a la vez; la que está en curso termina antes de empezar la siguiente
+# Una publicación a la vez; la que está en curso termina antes de empezar la siguiente.
+# Las revisiones de pull requests van en su propio grupo, uno por pull request: así no esperan a una
+# publicación ni desplazan a la que esté en cola, y un commit nuevo cancela la revisión del anterior.
 concurrency:
-  group: pages
-  cancel-in-progress: false
+  group: ${{ github.event_name == 'pull_request' && format('revision-{0}', github.event.pull_request.number) || 'pages' }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 env:
   FUSEKI_VERSION: 6.2.0
@@ -48,7 +54,8 @@ jobs:
           tar -xzf "apache-jena-fuseki-${FUSEKI_VERSION}.tar.gz" -C "$RUNNER_TEMP"
           echo "FUSEKI_JAR=$RUNNER_TEMP/apache-jena-fuseki-${FUSEKI_VERSION}/fuseki-server.jar" >> "$GITHUB_ENV"
 
-      # No se publica una ontología que incumple sus propias reglas (los avisos no bloquean)
+      # No se publica una ontología que incumple sus propias reglas (los avisos no bloquean).
+      # Las reglas incluyen los axiomas OWL: clases disjuntas, propiedades funcionales y dominios.
       - name: Validar la ontología con SHACL
         run: |
           java -cp "$FUSEKI_JAR" riotcmd.riot --validate ontologia/turismo.rdf
@@ -95,13 +102,17 @@ jobs:
           grep -q 'class="lista-terminos"' dist/ontologia/index.html
           grep -q 'data-estatica' dist/index.html
 
+      # Solo se sube y se publica desde main: un pull request termina en la comprobación anterior
       - uses: actions/configure-pages@v6
+        if: github.event_name != 'pull_request'
 
       - uses: actions/upload-pages-artifact@v5
+        if: github.event_name != 'pull_request'
         with:
           path: dist
 
   publicar:
+    if: github.event_name != 'pull_request'
     needs: compilar
     runs-on: ubuntu-latest
     environment:

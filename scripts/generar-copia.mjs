@@ -11,6 +11,11 @@ const texto = (s) => s.replace(/\r\n/g, '\n').replace(/&lt;/g, '<').replace(/&gt
 // Espacio de nombres propio: las superclases de schema.org no forman parte de la jerarquía de la carta
 const NS = `${xml.match(/<owl:Ontology rdf:about="([^"]+)"/)[1]}#`;
 
+// Valor de una relación: los términos propios y los de OWL se acortan; un IRI externo (owl:sameAs hacia
+// Wikidata o GeoNames) se conserva entero aunque lleve "#", igual que hace nodo() en js/grafo.js
+const OWL = 'http://www.w3.org/2002/07/owl#';
+const nodo = (iri) => (iri.startsWith(NS) || iri.startsWith(OWL) ? local(iri) : texto(iri));
+
 // Jerarquía de clases: clase -> superclase
 const sub = {};
 for (const [, clase, cuerpo] of xml.matchAll(/<owl:Class rdf:about="([^"]+)">([\s\S]*?)<\/owl:Class>/g)) {
@@ -24,7 +29,7 @@ for (const [, sujeto, cuerpo] of xml.matchAll(/<owl:NamedIndividual rdf:about="(
   const s = local(sujeto);
   for (const [, etiqueta, recurso, , valor] of cuerpo.matchAll(/<([\w:]+)(?:\s+rdf:resource="([^"]+)"\/>|(\s+[^>]*)?>([\s\S]*?)<\/\1>)/g)) {
     const p = etiqueta.split(':')[1];
-    if (recurso !== undefined) tri.push([s, p, local(recurso), 1]);
+    if (recurso !== undefined) tri.push([s, p, nodo(recurso), 1]);
     else tri.push([s, p, texto(valor), 0]);
   }
 }
