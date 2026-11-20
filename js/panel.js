@@ -1,5 +1,5 @@
 // Panel interno: explorar atracciones, probar consultas, validar y preparar individuos nuevos
-import { consultarSPARQLDetallado, ENDPOINT, ENDPOINT_INFERIDO } from './fuseki.js';
+import { consultarSPARQLDetallado, origenDeDatos, ENDPOINT, ENDPOINT_INFERIDO } from './fuseki.js';
 import { validarSHACL } from './shacl.js';
 import { CONSULTAS } from './consultas.js';
 import { renderizarFicha } from './ficha.js';
@@ -62,15 +62,18 @@ function mostrarVista() {
 }
 // ---------- Inicio (las llamadas están al final del archivo)
 
+// Quién responde las consultas de esta página: Fuseki o, si no está, el motor SPARQL del navegador
 async function comprobarFuseki() {
   const indicador = $('estado-fuseki');
+  const enNavegador = (await origenDeDatos()) === 'navegador';
   try {
     const { ms } = await consultarSPARQLDetallado('ASK {}');
-    indicador.dataset.estado = 'ok';
-    indicador.textContent = `Fuseki conectado · ${ms} ms`;
+    indicador.dataset.estado = enNavegador ? 'navegador' : 'ok';
+    indicador.textContent = enNavegador ? 'Sin Fuseki · SPARQL en el navegador' : `Fuseki conectado · ${ms} ms`;
+    if (enNavegador) indicador.title = 'Fuseki no responde: las consultas se resuelven en el navegador (Oxigraph) sobre datos/turismo.rdf.';
   } catch (error) {
     indicador.dataset.estado = 'error';
-    indicador.textContent = 'Fuseki sin conexión';
+    indicador.textContent = enNavegador ? 'Sin datos' : 'Fuseki sin conexión';
     indicador.title = error.message;
   }
 }
@@ -78,13 +81,15 @@ async function comprobarFuseki() {
 async function iniciar() {
   const aviso = $('aviso-carga');
   aviso.hidden = false;
-  aviso.textContent = 'Cargando datos desde Fuseki…';
+  aviso.textContent = 'Cargando datos…';
 
   try {
     estado.datos = await cargarDatos();
   } catch (error) {
     console.error(error);
-    aviso.textContent = `No se pudo cargar la ontología desde Fuseki (${ENDPOINT}). Comprueba que esté en ejecución con el dataset "turismo" y recarga. ${error.message}`;
+    aviso.textContent = (await origenDeDatos()) === 'navegador'
+      ? `Fuseki no responde y el motor SPARQL del navegador no pudo cargar la ontología. Recarga la página o inicia Fuseki. ${error.message}`
+      : `No se pudo cargar la ontología desde Fuseki (${ENDPOINT}). Comprueba que esté en ejecución con el dataset "turismo" y recarga. ${error.message}`;
     aviso.dataset.nivel = 'error';
     return;
   }
@@ -121,7 +126,8 @@ async function comprobarPresencia() {
   refrescar();
 }
 
-// Reglas de ontologia/turismo.shacl.ttl, aplicadas por Fuseki. Los resultados con el mismo mensaje van en una línea.
+// Reglas de ontologia/turismo.shacl.ttl, aplicadas por Fuseki: en vivo o, sin Fuseki, al compilar el sitio.
+// Los resultados con el mismo mensaje van en una línea.
 async function comprobarSHACL() {
   const aviso = $('v-shacl-estado');
   const lista = $('v-shacl');
@@ -129,13 +135,16 @@ async function comprobarSHACL() {
   lista.replaceChildren();
   $('v-shacl-total').textContent = '';
 
+  const enNavegador = (await origenDeDatos()) === 'navegador';
   let resultados;
   try {
     resultados = await validarSHACL();
   } catch (error) {
-    aviso.textContent = `${[404, 405].includes(error.estado)
-      ? 'Este Fuseki no tiene el endpoint /turismo/shacl. Inícialo con fuseki/config.ttl (ver readme.md).'
-      : `No se pudo validar con SHACL: ${error.message}`} La tabla usa las reglas de respaldo de js/validacion.js.`;
+    aviso.textContent = `${error.sinInforme
+      ? 'Las reglas SHACL las aplica Fuseki, que no responde, y este sitio no trae el informe que se guarda al compilar. Inicia Fuseki con fuseki/config.ttl (ver readme.md).'
+      : [404, 405].includes(error.estado)
+        ? 'Este Fuseki no tiene el endpoint /turismo/shacl. Inícialo con fuseki/config.ttl (ver readme.md).'
+        : `No se pudo validar con SHACL: ${error.message}`} La tabla usa las reglas de respaldo de js/validacion.js.`;
     estado.shacl = null;
     refrescar();
     return;
@@ -158,9 +167,10 @@ async function comprobarSHACL() {
 
   const cuenta = (nivel) => resultados.filter((resultado) => resultado.nivel === nivel).length;
   $('v-shacl-total').textContent = `(${cuenta('error')} errores, ${cuenta('aviso')} avisos)`;
+  const cuando = enNavegador ? 'al compilar el sitio' : 'a los datos cargados';
   aviso.textContent = resultados.length
-    ? 'Reglas de ontologia/turismo.shacl.ttl, aplicadas por Fuseki a los datos cargados.'
-    : 'Los datos cumplen todas las reglas de ontologia/turismo.shacl.ttl.';
+    ? `Reglas de ontologia/turismo.shacl.ttl, aplicadas por Fuseki ${cuando}.`
+    : `Los datos cumplen todas las reglas de ontologia/turismo.shacl.ttl (aplicadas por Fuseki ${cuando}).`;
   lista.replaceChildren(...[...grupos.values()].map(({ nivel, mensaje, individuos }) =>
     el('li', { 'data-nivel': nivel },
       el('span', { class: 'etiqueta-grupo', texto: individuos.length === 1 ? '1 individuo' : `${individuos.length} individuos` }),
@@ -508,9 +518,11 @@ async function ejecutarConsulta() {
   const salida = $('c-resultado');
   const error = $('c-error');
   const aviso = $('c-estado');
-  // Con inferencia se consulta /turismo-inferido: los mismos datos más lo que deduce el razonador
+  // Con inferencia se consulta /turismo-inferido: los mismos datos más lo que deduce el razonador.
+  // Sin Fuseki, el motor del navegador consulta el grafo inferido que Fuseki dejó al compilar.
   const inferencia = $('c-inferencia').checked;
-  const origen = inferencia ? ' · con inferencia' : '';
+  const enNavegador = (await origenDeDatos()) === 'navegador';
+  const origen = `${inferencia ? ' · con inferencia' : ''}${enNavegador ? ' · en el navegador' : ''}`;
   error.hidden = true;
   aviso.textContent = 'Ejecutando…';
 
@@ -535,7 +547,7 @@ async function ejecutarConsulta() {
   } catch (fallo) {
     aviso.textContent = '';
     error.hidden = false;
-    error.textContent = inferencia && fallo.estado === 404
+    error.textContent = inferencia && fallo.estado === 404 && !enNavegador
       ? 'Este Fuseki no tiene el endpoint /turismo-inferido. Inícialo con fuseki/config.ttl (ver readme.md) o desmarca "Con inferencia".'
       : `${fallo.message}\n\n${fallo.detalle ?? ''}`.trim();
     salida.replaceChildren();

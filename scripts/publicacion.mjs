@@ -2,6 +2,8 @@
 // puede leer sin ejecutar JavaScript ni consultar Fuseki.
 //
 //   datos/turismo.rdf, .ttl y .jsonld   el grafo para descargar, más las reglas SHACL
+//   datos/turismo-inferido.ttl          el grafo con lo que deduce el razonador de Fuseki
+//   datos/informe-shacl.nt              el resultado de validar el grafo con las reglas SHACL
 //   ficha/<id>.html                     una página por atracción con su JSON-LD y sus datos incrustados
 //   index.html                          la lista de atracciones ya escrita, con enlaces a esas fichas
 //   datos.html                          la descripción del conjunto de datos (schema:Dataset)
@@ -10,6 +12,10 @@
 //
 // Las fichas, la lista, el vocabulario y los formatos Turtle y JSON-LD salen de Fuseki: tiene que estar
 // en marcha al compilar. Sin Fuseki la compilación termina igual, solo con turismo.rdf y las reglas SHACL.
+//
+// El sitio publicado no tiene Fuseki: allí las consultas las responde el navegador (js/motor-local.js) sobre
+// datos/turismo.rdf. Lo que el navegador no sabe calcular (la inferencia y la validación SHACL) lo calcula
+// Fuseki aquí, al compilar, y se publica como dos archivos más.
 import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync, statSync, rmSync } from 'node:fs';
 import { resolve, relative } from 'node:path';
 import { SITIO, NS, SCHEMA, nombreLegible } from '../js/catalogo.js';
@@ -24,6 +30,31 @@ const FUENTES = {
 const FORMATOS = {
   'turismo.ttl': { tipo: 'text/turtle', nombre: 'Turtle' },
   'turismo.jsonld': { tipo: 'application/ld+json', nombre: 'JSON-LD' }
+};
+
+// Lo que Fuseki calcula a partir del grafo. Si este Fuseki no tiene el servicio (no se inició con
+// fuseki/config.ttl), el archivo no se publica y la compilación avisa.
+const DERIVADOS = {
+  'turismo-inferido.ttl': {
+    tipo: 'text/turtle',
+    nombre: 'Grafo con inferencia (Turtle)',
+    servicio: '/turismo-inferido',
+    // El servicio con razonador solo admite consultas: el grafo entero se pide con un CONSTRUCT
+    leer: (fuseki) => fetch(`${fuseki}/turismo-inferido/query?${new URLSearchParams({ query: 'CONSTRUCT { ?s ?p ?o } WHERE { ?s ?p ?o }' })}`, {
+      headers: { Accept: 'text/turtle' }
+    })
+  },
+  'informe-shacl.nt': {
+    tipo: 'application/n-triples',
+    nombre: 'Informe de validación SHACL (N-Triples)',
+    servicio: '/turismo/shacl',
+    // La misma petición que hace js/shacl.js desde el panel
+    leer: (fuseki, reglas) => fetch(`${fuseki}/turismo/shacl?graph=default`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/turtle', Accept: 'application/n-triples' },
+      body: reglas
+    })
+  }
 };
 
 // Páginas con dirección propia: ruta del archivo -> ruta pública (para el enlace canónico y el sitemap).
@@ -92,14 +123,33 @@ async function leerTerminos(fuseki) {
   return [...terminos.values()].sort((a, b) => a.id.localeCompare(b.id, 'es'));
 }
 
-async function leerFuseki(fuseki) {
+async function derivado(fuseki, archivo, reglas) {
+  const { leer, servicio } = DERIVADOS[archivo];
+  const respuesta = await leer(fuseki, reglas);
+  if (!respuesta.ok) throw new Error(`Fuseki respondió ${respuesta.status} en ${servicio}`);
+  return respuesta.text();
+}
+
+async function leerFuseki(fuseki, reglas) {
   const { CAMPOS, datosEstructurados } = await import('../js/ficha-datos.js');
   const atracciones = await leerAtracciones(fuseki);
   if (!atracciones.length) throw new Error('el dataset turismo no tiene atracciones');
 
   const volcados = {};
   for (const [archivo, { tipo }] of Object.entries(FORMATOS)) volcados[archivo] = await volcado(fuseki, tipo);
-  return { atracciones, volcados, terminos: await leerTerminos(fuseki), CAMPOS, datosEstructurados };
+
+  // Un Fuseki sin razonador o sin SHACL no impide publicar el resto
+  const derivados = {};
+  const sinDerivar = [];
+  for (const archivo of Object.keys(DERIVADOS)) {
+    try {
+      derivados[archivo] = await derivado(fuseki, archivo, reglas);
+    } catch (error) {
+      sinDerivar.push(`${archivo} (${error.message})`);
+    }
+  }
+
+  return { atracciones, volcados, derivados, sinDerivar, terminos: await leerTerminos(fuseki), CAMPOS, datosEstructurados };
 }
 
 // ---------- Páginas
@@ -158,8 +208,9 @@ function paginaIndice(html, atracciones) {
 
 // datos.html: solo enlaza los archivos que existen y describe el conjunto con schema:Dataset
 function paginaDatos(html, disponibles) {
-  const descargas = Object.entries({ ...FUENTES, ...FORMATOS }).filter(([archivo]) => disponibles.includes(archivo));
-  const grafo = descargas.filter(([archivo]) => archivo !== 'turismo.shacl.ttl');
+  const descargas = Object.entries({ ...FUENTES, ...FORMATOS, ...DERIVADOS }).filter(([archivo]) => disponibles.includes(archivo));
+  // Distribuciones del conjunto de datos: solo el grafo declarado, en sus formatos
+  const grafo = descargas.filter(([archivo]) => archivo !== 'turismo.shacl.ttl' && !(archivo in DERIVADOS));
 
   const conjunto = {
     '@context': 'https://schema.org',
@@ -328,10 +379,12 @@ export function publicacion({ fuseki }) {
     configureServer(servidor) {
       servidor.middlewares.use(async (peticion, respuesta, siguiente) => {
         const archivo = (peticion.url ?? '').split('?')[0].match(/^\/datos\/([\w.-]+)$/)?.[1];
-        const descrito = FUENTES[archivo] ?? FORMATOS[archivo];
+        const descrito = FUENTES[archivo] ?? FORMATOS[archivo] ?? DERIVADOS[archivo];
         if (!descrito) return siguiente();
         try {
-          const contenido = FUENTES[archivo] ? fuente(archivo) : await volcado(fuseki, descrito.tipo);
+          const contenido = FUENTES[archivo] ? fuente(archivo)
+            : DERIVADOS[archivo] ? await derivado(fuseki, archivo, fuente('turismo.shacl.ttl'))
+              : await volcado(fuseki, descrito.tipo);
           respuesta.setHeader('Content-Type', `${descrito.tipo}; charset=utf-8`);
           respuesta.end(contenido);
         } catch (error) {
@@ -345,7 +398,10 @@ export function publicacion({ fuseki }) {
     async buildStart() {
       if (!compilando) return;
       try {
-        datos = await leerFuseki(fuseki);
+        datos = await leerFuseki(fuseki, fuente('turismo.shacl.ttl'));
+        if (datos.sinDerivar.length) {
+          this.warn(`Este Fuseki no ofrece la inferencia o la validación SHACL: no se publica ${datos.sinDerivar.join(' ni ')}. Sin esos archivos, el panel del sitio publicado no tendrá "Con inferencia" ni las reglas SHACL. Inicia Fuseki con fuseki/config.ttl y vuelve a compilar.`);
+        }
       } catch (error) {
         datos = null;
         this.warn(`Fuseki no responde en ${fuseki} (${error.message}). No se generan las fichas estáticas, la lista de la portada, el vocabulario ni los formatos Turtle y JSON-LD. Inicia Fuseki y vuelve a compilar.`);
@@ -359,7 +415,10 @@ export function publicacion({ fuseki }) {
         const pagina = relative(raiz, filename).replace(/\\/g, '/');
         let resultado = html;
         if (pagina === 'datos.html') {
-          resultado = paginaDatos(html, [...Object.keys(FUENTES), ...(compilando && !datos ? [] : Object.keys(FORMATOS))]);
+          // En desarrollo se enlazan todos: los que escribe Fuseki se piden al abrirlos
+          const deFuseki = !compilando ? [...Object.keys(FORMATOS), ...Object.keys(DERIVADOS)]
+            : datos ? [...Object.keys(FORMATOS), ...Object.keys(datos.derivados)] : [];
+          resultado = paginaDatos(html, [...Object.keys(FUENTES), ...deFuseki]);
         } else if (pagina === 'ontologia/index.html') {
           resultado = await vocabulario(html);
         } else if (pagina === 'index.html' && compilando && datos) {
@@ -379,14 +438,14 @@ export function publicacion({ fuseki }) {
       writeFileSync(resolve(salida, 'sitemap.xml'), sitemap(datos?.atracciones ?? []));
       if (!datos) return;
 
-      Object.entries(datos.volcados).forEach(([archivo, contenido]) => writeFileSync(resolve(salida, 'datos', archivo), contenido));
+      Object.entries({ ...datos.volcados, ...datos.derivados }).forEach(([archivo, contenido]) => writeFileSync(resolve(salida, 'datos', archivo), contenido));
 
       const plantilla = readFileSync(resolve(salida, 'atraccion.html'), 'utf8');
       mkdirSync(resolve(salida, 'ficha'), { recursive: true });
       datos.atracciones.forEach((atraccion) => {
         writeFileSync(resolve(salida, 'ficha', `${atraccion.id}.html`), paginaFicha(plantilla, atraccion, datos));
       });
-      console.log(`publicacion: ${datos.atracciones.length} fichas estáticas, ${datos.terminos.length} términos en el vocabulario y ${Object.keys(FUENTES).length + Object.keys(datos.volcados).length} archivos de datos`);
+      console.log(`publicacion: ${datos.atracciones.length} fichas estáticas, ${datos.terminos.length} términos en el vocabulario y ${Object.keys(FUENTES).length + Object.keys(datos.volcados).length + Object.keys(datos.derivados).length} archivos de datos`);
 
       const retirados = retirarModelosSinUso(salida, datos);
       if (retirados.length) {

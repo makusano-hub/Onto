@@ -13,7 +13,7 @@
 	<header><nav class="wrap" aria-label="Navegación principal">
 		<a class="brand" href="index.html"><span class="mark">o</span>onto <small class="brand-panel">panel</small></a>
 		<div class="links">
-			<span class="estado-fuseki" id="estado-fuseki" role="status" data-estado="comprobando">Fuseki…</span>
+			<span class="estado-fuseki" id="estado-fuseki" role="status" data-estado="comprobando">Datos…</span>
 			<a href="index.html">Sitio público</a>
 		</div>
 	</nav></header>
@@ -26,7 +26,7 @@
 			<a role="tab" href="#nuevo" id="tab-nuevo" aria-controls="vista-nuevo">Nuevo individuo</a>
 		</div>
 
-		<p class="aviso-carga" id="aviso-carga" role="status">Cargando datos desde Fuseki…</p>
+		<p class="aviso-carga" id="aviso-carga" role="status">Cargando datos…</p>
 
 		<!-- Explorar -->
 		<section class="vista" id="vista-explorar" role="tabpanel" aria-labelledby="tab-explorar" hidden>
@@ -93,7 +93,7 @@
 						<button type="button" class="button" id="c-ejecutar">Ejecutar <kbd>Ctrl</kbd>+<kbd>Enter</kbd></button>
 						<button type="button" class="button outline" id="c-restaurar">Restaurar</button>
 						<button type="button" class="button outline" id="c-copiar">Copiar</button>
-						<label class="interruptor" title="Consulta /turismo-inferido: los mismos datos más lo que deduce el razonador"><input type="checkbox" id="c-inferencia"> Con inferencia</label>
+						<label class="interruptor" title="Consulta /turismo-inferido: los mismos datos más lo que deduce el razonador. Sin Fuseki, el grafo inferido que se guardó al compilar."><input type="checkbox" id="c-inferencia"> Con inferencia</label>
 						<span class="progreso" id="c-estado" role="status"></span>
 					</div>
 					<pre class="error-consulta" id="c-error" hidden></pre>

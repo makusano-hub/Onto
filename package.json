@@ -1,6 +1,7 @@
 {
   "type": "module",
   "dependencies": {
+    "oxigraph": "^0.5.13",
     "three": "^0.186.1"
   },
   "devDependencies": {

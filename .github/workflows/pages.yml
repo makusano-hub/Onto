@@ -86,6 +86,10 @@ jobs:
         run: |
           test -f dist/datos/turismo.ttl
           test -f dist/datos/turismo.jsonld
+          # Sin Fuseki en Pages, el panel publicado depende de estos dos archivos y del motor SPARQL del navegador
+          test -s dist/datos/turismo-inferido.ttl
+          test -s dist/datos/informe-shacl.nt
+          test "$(ls dist/assets/*.wasm | wc -l)" -gt 0
           test -f dist/sitemap.xml
           test "$(ls dist/ficha/*.html | wc -l)" -gt 0
           grep -q 'class="lista-terminos"' dist/ontologia/index.html

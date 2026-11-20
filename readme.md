@@ -17,7 +17,9 @@ Código compartido en `js/`:
 
 - `catalogo.js`: registro central (categorías, clases raíz, nombres legibles). Una categoría nueva se añade solo aquí.
 - `consultas.js`: todas las consultas SPARQL, con nombre; el panel las muestra y permite ejecutarlas.
-- `ontologia.js`: convierte las respuestas de Fuseki en objetos de atracción.
+- `fuseki.js`: envía las consultas. Si Fuseki responde, a Fuseki; si no, al motor del navegador.
+- `motor-local.js`: motor SPARQL del navegador (Oxigraph en WebAssembly) sobre los archivos de `datos/`. Solo se descarga cuando no hay Fuseki.
+- `ontologia.js`: convierte las respuestas SPARQL en objetos de atracción.
 - `ficha.js` y `visor3d.js`: ficha y visor Three.js reutilizables (los usan la ficha pública y el panel).
 - `ficha-datos.js`: campos de la ficha y datos estructurados (JSON-LD); no necesita navegador, así que también se usa al compilar.
 - `validacion.js`: reglas de validación (ontología, datos, modelo/imágenes e interfaz).
@@ -49,6 +51,22 @@ java -cp C:\apache-jena-fuseki-6.2.0\fuseki-server.jar shacl.shacl validate --sh
 
 Si inicias Fuseki de otra forma (un dataset `turismo` vacío al que subes el archivo), el sitio funciona igual, pero el panel avisa de que faltan la inferencia y SHACL.
 
+### Sin Fuseki: SPARQL en el navegador
+
+Cada página pregunta primero a Fuseki (`ASK {}`). Si no responde, como ocurre en el sitio publicado en GitHub Pages, las mismas consultas las resuelve un motor SPARQL que corre en el navegador: [Oxigraph](https://github.com/oxigraph/oxigraph) compilado a WebAssembly (1,5 MB comprimido, se descarga solo en ese caso). Carga `datos/turismo.rdf`, el mismo archivo que el sitio ofrece para descargar.
+
+| | Con Fuseki | Sin Fuseki |
+| --- | --- | --- |
+| Portada, ficha, carta 3D y panel | Consultan `/turismo` | Consultan `datos/turismo.rdf` en el navegador |
+| *Con inferencia* (panel) | Consulta `/turismo-inferido` | Consulta `datos/turismo-inferido.ttl`, el grafo que el razonador de Fuseki dedujo al compilar |
+| Reglas SHACL (panel) | Las aplica `/turismo/shacl` | Lee `datos/informe-shacl.nt`, el informe que Fuseki dejó al compilar |
+
+El panel indica arriba quién responde: *Fuseki conectado* o *Sin Fuseki · SPARQL en el navegador*.
+
+En desarrollo (`npx vite`) sin Fuseki, el sitio también funciona con `ontologia/turismo.rdf`, pero sin *Con inferencia* ni SHACL: esos dos archivos los escribe Fuseki.
+
+Las respuestas de los dos motores se compararon consulta por consulta y dan las mismas atracciones. Dos diferencias no afectan al sitio: Oxigraph quita los ceros finales de los decimales (`-73.10` pasa a `-73.1`) y el orden dentro de una lista de valores no está definido, así que `js/ontologia.js` las ordena.
+
 ## Publicar el sitio
 
 Con Fuseki en marcha, compila:
@@ -62,6 +80,8 @@ Además de las páginas, `scripts/publicacion.mjs` deja en `dist/` lo que una m�
 | En `dist/` | Qué es |
 | --- | --- |
 | `datos/turismo.rdf`, `.ttl`, `.jsonld` | El grafo completo en tres formatos, más `turismo.shacl.ttl`. |
+| `datos/turismo-inferido.ttl` | El grafo con lo que deduce el razonador de Fuseki. Lo consulta el panel del sitio publicado. |
+| `datos/informe-shacl.nt` | El resultado de validar el grafo con las reglas SHACL. Lo muestra el panel del sitio publicado. |
 | `ficha/<id>.html` | Una página por atracción con el texto, el JSON-LD de schema.org y los datos del visor 3D incrustados. |
 | `index.html` | La lista de atracciones ya escrita, con enlaces a esas fichas y un `ItemList` en JSON-LD. |
 | `datos.html` | La descripción del conjunto de datos (`schema:Dataset`) con sus descargas. |
@@ -70,9 +90,9 @@ Además de las páginas, `scripts/publicacion.mjs` deja en `dist/` lo que una m�
 
 Los datos se publican con licencia CC BY 4.0, declarada en la ontología (`dcterms:license`), en `datos.html` y en `scripts/publicacion.mjs`; no cubre los modelos 3D.
 
-El sitio compilado se puede servir como archivos estáticos: las fichas y la lista funcionan sin Fuseki; los filtros de la portada, la carta 3D en vivo y el panel sí lo necesitan.
+El sitio compilado se puede servir como archivos estáticos y funciona entero sin Fuseki: las fichas y la lista ya vienen escritas, y los filtros de la portada, la carta 3D y el panel consultan el grafo en el navegador (ver *Sin Fuseki: SPARQL en el navegador*).
 
-Si Fuseki no responde al compilar, la compilación termina igual con un aviso, pero solo publica `turismo.rdf` y las reglas SHACL.
+Si Fuseki no responde al compilar, la compilación termina igual con un aviso, pero solo publica `turismo.rdf` y las reglas SHACL. Si responde pero no se inició con `fuseki/config.ttl`, avisa de que no puede publicar el grafo con inferencia ni el informe SHACL.
 
 Los modelos de `public/modelos3d/` que ningún individuo usa (y los originales en formatos que el visor no abre, como `.fbx`) no se copian al sitio compilado; la compilación indica cuáles dejó fuera.
 

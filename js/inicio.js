@@ -1,8 +1,13 @@
 import { obtenerFiltros, buscarAtracciones } from './ontologia.js';
+import { origenDeDatos } from './fuseki.js';
 
 const lista = document.getElementById('lista-atracciones');
 const total = document.getElementById('total-atracciones');
 const tarjetasCategoria = document.getElementById('categorias-portada');
+
+// El sitio compilado trae la lista ya escrita, con enlaces a las fichas estáticas (scripts/publicacion.mjs)
+const fichasEstaticas = new Set([...lista.querySelectorAll('a')].map((enlace) => enlace.getAttribute('href')));
+let sinFuseki = false; // las consultas las responde el navegador, con los mismos datos de la compilación
 
 const grupos = [
   { campo: 'comuna', contenedor: document.getElementById('filtro-comuna'), todas: 'Todas' },
@@ -13,7 +18,7 @@ const grupos = [
 const parametros = new URLSearchParams(window.location.search);
 const filtros = {};
 
-// Cada búsqueda es una consulta a Fuseki: solo se muestra la respuesta de la más reciente
+// Cada búsqueda es una consulta SPARQL: solo se muestra la respuesta de la más reciente
 let ultimaBusqueda = 0;
 
 mostrarIdentidad();
@@ -35,9 +40,13 @@ function mostrarIdentidad() {
 }
 
 async function iniciar() {
-  total.textContent = 'Buscando…';
+  // Con la lista ya escrita se conserva su total mientras llegan los filtros
+  // (sin Fuseki, antes hay que descargar el motor SPARQL del navegador)
+  if (lista.dataset.estatica === undefined) total.textContent = 'Buscando…';
+  else total.textContent = `${textoTotal(lista.children.length)} · preparando los filtros…`;
 
   try {
+    sinFuseki = (await origenDeDatos()) === 'navegador';
     const opciones = await obtenerFiltros();
 
     grupos.forEach((grupo) => {
@@ -122,7 +131,7 @@ function guardarFiltros() {
 
 async function mostrarAtracciones() {
   const busqueda = ++ultimaBusqueda;
-  total.textContent = 'Buscando…';
+  if (lista.dataset.estatica === undefined) total.textContent = 'Buscando…';
 
   try {
     const visibles = await buscarAtracciones(filtros);
@@ -135,7 +144,7 @@ async function mostrarAtracciones() {
     }
 
     lista.replaceChildren(...visibles.map(crearTarjeta));
-    delete lista.dataset.estatica; // desde aquí la lista viene de Fuseki, no de la compilación
+    delete lista.dataset.estatica; // desde aquí la lista viene de una consulta, no de la compilación
     total.textContent = textoTotal(visibles.length);
   } catch (error) {
     if (busqueda === ultimaBusqueda) mostrarError(error);
@@ -148,23 +157,23 @@ function textoTotal(cantidad) {
   return 'Aún no hay atracciones con estos filtros.';
 }
 
-const SIN_CONEXION = 'No se pudo conectar con Fuseki. Comprueba que esté en ejecución y recarga la página.';
+const SIN_CONEXION = 'No se pudieron consultar los datos: Fuseki no responde y el motor SPARQL del navegador no se pudo cargar. Recarga la página.';
 const SIN_ONTOLOGIA = 'Fuseki no tiene atracciones de esta ontología. Carga el turismo.rdf actual en el dataset turismo (sus identificadores cambiaron: una copia anterior no sirve) y recarga la página.';
 
 function mostrarError(error) {
-  console.error('Error consultando Fuseki:', error);
+  console.error('Error consultando los datos:', error);
   mostrarSinDatos(SIN_CONEXION);
 }
 
-// Fuseki no sirve los datos: se retiran los filtros y las tarjetas de categoría, que dependen de él,
-// para no dejar sus títulos sin nada debajo
+// No hay quien responda las consultas: se retiran los filtros y las tarjetas de categoría, que dependen
+// de ellas, para no dejar sus títulos sin nada debajo
 function mostrarSinDatos(motivo) {
   document.querySelector('.filtros').hidden = true;
   tarjetasCategoria.hidden = true;
 
   // El sitio compilado trae la lista ya escrita (scripts/publicacion.mjs): se conserva
   if (lista.dataset.estatica !== undefined && lista.children.length) {
-    total.textContent = `${textoTotal(lista.children.length)} · lista guardada al compilar; los filtros necesitan Fuseki con la ontología cargada.`;
+    total.textContent = `${textoTotal(lista.children.length)} · lista guardada al compilar; los filtros no están disponibles.`;
     return;
   }
 
@@ -179,7 +188,10 @@ function crearTarjeta({ id, nombre, comuna, tipo, modelos }) {
   const detalle = document.createElement('p');
 
   enlace.className = 'card tarjeta-atraccion';
-  enlace.href = `atraccion.html?id=${encodeURIComponent(id)}`;
+  // Sin Fuseki los datos son los de la compilación: se enlaza la ficha estática, que ya los trae escritos
+  // y tiene dirección propia. Con Fuseki, la ficha que consulta en vivo.
+  const estatica = `ficha/${encodeURIComponent(id)}.html`;
+  enlace.href = sinFuseki && fichasEstaticas.has(estatica) ? estatica : `atraccion.html?id=${encodeURIComponent(id)}`;
   titulo.textContent = nombre;
   detalle.textContent = comuna ? `${tipo} · ${comuna}` : tipo;
   enlace.append(titulo, detalle);

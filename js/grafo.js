@@ -4,12 +4,13 @@ import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { COPIA } from './grafo-datos.js';
 import { NS, nombreClase as nomClase } from './catalogo.js'; // los nombres de clase son los mismos que en el resto del sitio
+import { consultarSPARQLDetallado, origenDeDatos } from './fuseki.js'; // Fuseki o, si no responde, el motor SPARQL del navegador
 import { gx, gz, paso, suelo, construirRegion, REGION } from './mapa-region.js';
 
 /* ============ 1. CONFIGURACIÓN ============ */
 const CONFIG = {
-  endpoint: "/fuseki/turismo/query", // Vite lo reenvía a Fuseki (ver vite.config.mjs); null = usar siempre la copia
-  modelos: ""                        // los .glb se sirven desde public/modelos3d/
+  enVivo: true, // true = consultar con SPARQL (js/fuseki.js); false = usar siempre la copia
+  modelos: ""   // los .glb se sirven desde public/modelos3d/
 };
 const Q_INDIVIDUOS = `PREFIX owl: <http://www.w3.org/2002/07/owl#>
 SELECT ?s ?p ?o WHERE {
@@ -75,13 +76,9 @@ function construir(sub, tri){
   ACTS = [...IND.values()].filter(x => x.grupo==="Actividad");
 }
 
-async function sparql(q){
-  const r = await fetch(CONFIG.endpoint + "?query=" + encodeURIComponent(q), {headers:{Accept:"application/sparql-results+json"}});
-  if(!r.ok) throw new Error("HTTP " + r.status);
-  return (await r.json()).results.bindings;
-}
+async function sparql(q){ return (await consultarSPARQLDetallado(q)).filas; }
 async function cargar(){
-  if(!CONFIG.endpoint){ construir(COPIA.sub, COPIA.tri); return {modo:"copia"}; }
+  if(!CONFIG.enVivo){ construir(COPIA.sub, COPIA.tri); return {modo:"copia"}; }
   try{
     const [ti, tc] = await Promise.all([sparql(Q_INDIVIDUOS), sparql(Q_CLASES)]);
     const sub = {}; tc.forEach(b => { sub[local(b.clase.value)] = local(b.padre.value); });
@@ -89,9 +86,9 @@ async function cargar(){
     if(!tri.length) throw new Error("el dataset no devolvió individuos");
     // Un turismo.rdf anterior usa otros identificadores: sin la jerarquía de clases de esta ontología la carta quedaría vacía
     if(!tc.length || !ti.some(b => b.s.value.startsWith(NS))) throw new Error("el dataset no usa los identificadores de esta ontología; carga el turismo.rdf actual");
-    construir(sub, tri); return {modo:"vivo"};
+    construir(sub, tri); return {modo:"vivo", origen: await origenDeDatos()};
   }catch(e){
-    console.error("No se pudo consultar Fuseki:", e);
+    console.error("No se pudo consultar la ontología:", e);
     construir(COPIA.sub, COPIA.tri); return {modo:"error", error:e.message};
   }
 }
@@ -347,13 +344,13 @@ document.querySelectorAll("[data-copiar]").forEach(b => b.addEventListener("clic
 
 (async function(){
   try{ iniciar3D(); }catch(e){ console.error(e); tres=null; $("lienzo").style.display="none"; $("sinwebgl").style.display="grid"; }
-  const {modo, error} = await cargar();
+  const {modo, error, origen} = await cargar();
   ubicar();
   const nm=[...IND.values()].reduce((s,x)=>s+(x.p.tieneModelo3D && x.grupo!=="Comuna" ? x.p.tieneModelo3D.length : 0),0);
   const resumen=`${IND.size} individuos · ${LUGARES.length} lugares y ciudades · ${ACTS.length} actividades · ${nm} modelos 3D`;
   const es=$("estado"); es.dataset.modo=modo;
-  es.lastElementChild.textContent = modo==="vivo" ? `En vivo desde Fuseki · ${resumen}`
-    : modo==="error" ? `No se pudo leer de Fuseki (${error}). Copia de turismo.rdf · ${resumen}` : `Copia de turismo.rdf · ${resumen}`;
+  es.lastElementChild.textContent = modo==="vivo" ? `${origen==="navegador" ? "SPARQL en el navegador sobre turismo.rdf" : "En vivo desde Fuseki"} · ${resumen}`
+    : modo==="error" ? `No se pudo consultar la ontología (${error}). Copia de turismo.rdf · ${resumen}` : `Copia de turismo.rdf · ${resumen}`;
   pintar();
   if(tres) poblar3D();
   elegir(IND.has("ParqueTorresDelPaine") ? "ParqueTorresDelPaine" : (LUGARES[0]||{}).id);
