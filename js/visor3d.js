@@ -7,8 +7,9 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 // Los modelos de modelos3d/ están comprimidos con Meshopt
 const crearLoader = () => new GLTFLoader().setMeshoptDecoder(MeshoptDecoder);
 
-// Giro automático del modelo, en radianes por segundo
-const VELOCIDAD_GIRO = 0.001;
+// Giro automático del modelo, en radianes por segundo: una vuelta cada 50 s, como el visor de la carta 3D.
+// Quien pide menos movimiento en su sistema ve el modelo quieto (igual que en la carta).
+const VELOCIDAD_GIRO = globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches ? 0 : (2 * Math.PI) / 50;
 
 export function crearVisor(contenedor, { estado, selector, fondo = 0xeeeeee } = {}) {
   const escena = new THREE.Scene();

@@ -6,7 +6,7 @@ import { construir, SEP } from './consultas.js';
 import { obtenerInventario, buscarAtracciones, obtenerAtraccion } from './ontologia.js';
 import { renderizarFicha } from './ficha.js';
 import { probarModelo } from './visor3d.js';
-import { CATEGORIAS, RAICES, RAIZ_ACTIVIDAD, FORMATOS_MODELO, idDe, nombreLegible } from './catalogo.js';
+import { CATEGORIAS, RAICES, RAIZ_ACTIVIDAD, FORMATOS_MODELO, idDe, nombreLegible, nombreClase } from './catalogo.js';
 
 export const GRUPOS = {
   ontologia: 'Ontología',
@@ -45,10 +45,12 @@ export async function cargarDatos() {
   ]);
 
   const padres = new Map();
-  jerarquia.forEach(({ clase, padre }) => {
+  const etiquetas = new Map(); // clase → su rdfs:label en la ontología
+  jerarquia.forEach(({ clase, padre, etiqueta }) => {
     const id = idDe(clase);
     if (!padres.has(id)) padres.set(id, new Set());
     if (padre) padres.get(id).add(idDe(padre));
+    if (etiqueta) etiquetas.set(id, etiqueta);
   });
 
   const tiposPorIndividuo = new Map(tipos.map(({ individuo, tipos: lista }) =>
@@ -57,14 +59,17 @@ export async function cargarDatos() {
   const comunaDeCiudad = new Map(ciudades.map(({ ciudad, comunas }) =>
     [idDe(ciudad), comunas ? comunas.split(SEP).map(idDe) : []]));
 
-  const contexto = { padres, tiposPorIndividuo, comunaDeCiudad, huerfanos, recursos };
+  const contexto = { padres, etiquetas, tiposPorIndividuo, comunaDeCiudad, huerfanos, recursos };
   atracciones.forEach((atraccion) => {
     atraccion.ancestros = ancestros(atraccion.clases, padres);
     atraccion.categorias = CATEGORIAS
       .filter(({ clases }) => clases.some((clase) => atraccion.ancestros.has(clase)))
       .map(({ id }) => id);
     atraccion.esActividad = atraccion.ancestros.has(RAIZ_ACTIVIDAD);
-    atraccion.completitud = CAMPOS_COMPLETITUD.map(([id, nombre, presente]) => ({ id, nombre, presente: presente(atraccion) }));
+    // El modelo 3D no cuenta en una actividad: t:tieneModelo3D es solo de los lugares
+    atraccion.completitud = CAMPOS_COMPLETITUD
+      .filter(([id]) => !(id === 'modelo' && atraccion.esActividad))
+      .map(([id, nombre, presente]) => ({ id, nombre, presente: presente(atraccion) }));
   });
 
   return { atracciones, ...contexto };
@@ -86,6 +91,14 @@ function hallazgo(grupo, nivel, mensaje, consejo = '') {
   return { grupo, nivel, mensaje, consejo };
 }
 
+// Reglas que también están en ontologia/turismo.shacl.ttl, sobre el mismo individuo.
+// Cuando Fuseki puede aplicar SHACL, el panel muestra el resultado de SHACL y descarta estas (hallazgosDe en
+// js/panel.js): así las dos versiones de una regla no pueden dar resultados distintos en la misma pestaña.
+// Quedan como respaldo para un Fuseki iniciado sin el endpoint /turismo/shacl.
+function respaldo(...argumentos) {
+  return { ...hallazgo(...argumentos), respaldo: true };
+}
+
 // Reglas que solo necesitan los datos ya descargados
 export function validarAtraccion(a, { padres, tiposPorIndividuo, comunaDeCiudad, recursos: archivos }) {
   const h = [];
@@ -102,54 +115,58 @@ export function validarAtraccion(a, { padres, tiposPorIndividuo, comunaDeCiudad,
     h.push(hallazgo('ontologia', 'aviso', `Su IRI usa otro espacio de nombres (${a.uri.replace(/[#/][^#/]*$/, '')}).`, 'Renómbralo en Protégé para que use el espacio de nombres de la ontología.'));
   }
 
+  // "propia": la regla SHACL equivalente apunta a este mismo individuo. En una actividad, la comuna y la ciudad
+  // son las del lugar donde se realiza: SHACL avisa en el lugar y aquí se explica la consecuencia para la actividad.
+  const propia = a.esActividad ? hallazgo : respaldo;
+
   if (a.esActividad) {
     if (!a.lugarIds.length) {
-      h.push(hallazgo('ontologia', 'error', 'Es una actividad sin lugar (t:seRealizaEn): no tiene comuna ni ciudad.', 'Añade t:seRealizaEn hacia el lugar donde se realiza.'));
+      h.push(respaldo('ontologia', 'error', 'Es una actividad sin lugar (t:seRealizaEn): no tiene comuna ni ciudad.', 'Añade t:seRealizaEn hacia el lugar donde se realiza.'));
     }
     a.lugarIds.forEach((lugar) => {
-      if (!tiposPorIndividuo.has(lugar)) h.push(hallazgo('ontologia', 'error', `El lugar ${lugar} no existe como individuo con tipo.`, 'Crea el individuo o corrige el nombre.'));
+      if (!tiposPorIndividuo.has(lugar)) h.push(respaldo('ontologia', 'error', `El lugar ${lugar} no existe como individuo con tipo.`, 'Crea el individuo o corrige el nombre.'));
     });
   }
 
   const ciudadIds = a.crudo.ciudades.map(idDe);
   if (!a.crudo.comunas.length) {
-    h.push(hallazgo('ontologia', 'error', 'Sin comuna: no aparece al filtrar por comuna.',
+    h.push(propia('ontologia', 'error', 'Sin comuna: no aparece al filtrar por comuna.',
       a.esActividad ? 'El lugar donde se realiza necesita t:ubicadoEnCiudad o t:ubicadoEnComuna.' : 'Añade t:ubicadoEnCiudad (con una ciudad que tenga comuna) o t:ubicadoEnComuna.'));
   }
   if (!ciudadIds.length && !a.esActividad) {
     h.push(hallazgo('ontologia', 'aviso', 'Sin ciudad (t:ubicadoEnCiudad).'));
   }
   ciudadIds.forEach((ciudad) => {
-    if (!tiene(ciudad, 'Ciudad')) h.push(hallazgo('ontologia', 'error', `${ciudad} se usa como ciudad pero no es de tipo t:Ciudad.`));
+    if (!tiene(ciudad, 'Ciudad')) h.push(propia('ontologia', 'error', `${ciudad} se usa como ciudad pero no es de tipo t:Ciudad.`));
     else if (!comunaDeCiudad.get(ciudad)?.length) h.push(hallazgo('ontologia', 'error', `La ciudad ${ciudad} no tiene t:perteneceAComuna.`));
   });
   a.comunaIds.forEach((comuna) => {
     if (!tiene(comuna, 'Comuna')) h.push(hallazgo('ontologia', 'error', `${comuna} se usa como comuna pero no es de tipo t:Comuna.`));
   });
   if (a.comunaIds.length > 1 && !a.esActividad) {
-    h.push(hallazgo('ontologia', 'error', `Tiene ${a.comunaIds.length} comunas distintas (${a.comunaIds.join(', ')}).`, 'Revisa que t:ubicadoEnComuna coincida con la comuna de su ciudad.'));
+    h.push(respaldo('ontologia', 'error', `Tiene ${a.comunaIds.length} comunas distintas (${a.comunaIds.join(', ')}).`, 'Revisa que t:ubicadoEnComuna coincida con la comuna de su ciudad.'));
   }
 
   // --- Datos
-  if (!a.crudo.nombres.length) h.push(hallazgo('datos', 'aviso', `Sin t:Nombre: se muestra "${a.nombre}", generado desde el IRI.`));
-  if (a.crudo.nombres.length > 1) h.push(hallazgo('datos', 'aviso', `Tiene ${a.crudo.nombres.length} nombres; la interfaz muestra solo uno.`));
+  if (!a.crudo.nombres.length) h.push(respaldo('datos', 'aviso', `Sin t:Nombre: se muestra "${a.nombre}", generado desde el IRI.`));
+  if (a.crudo.nombres.length > 1) h.push(respaldo('datos', 'aviso', `Tiene ${a.crudo.nombres.length} nombres; la interfaz muestra solo uno.`));
   if (!a.crudo.descripciones.length) h.push(hallazgo('datos', 'aviso', 'Sin t:Descripcion.'));
-  if (a.crudo.descripciones.length > 1) h.push(hallazgo('datos', 'aviso', `Tiene ${a.crudo.descripciones.length} descripciones; la interfaz muestra solo una.`));
+  if (a.crudo.descripciones.length > 1) h.push(respaldo('datos', 'aviso', `Tiene ${a.crudo.descripciones.length} descripciones; la interfaz muestra solo una.`));
   if (!a.crudo.calificaciones.length) h.push(hallazgo('datos', 'aviso', 'Sin t:Calificacion.'));
   a.crudo.calificaciones.forEach((valor) => {
     const numero = Number(valor);
-    if (!Number.isFinite(numero) || numero < 0 || numero > 5) h.push(hallazgo('datos', 'error', `Calificación fuera de rango: ${valor} (debe estar entre 0 y 5).`));
+    if (!Number.isFinite(numero) || numero < 0 || numero > 5) h.push(respaldo('datos', 'error', `Calificación fuera de rango: ${valor} (debe estar entre 0 y 5).`));
   });
-  if (a.crudo.calificaciones.length > 1) h.push(hallazgo('datos', 'aviso', `Tiene ${a.crudo.calificaciones.length} calificaciones distintas.`));
+  if (a.crudo.calificaciones.length > 1) h.push(respaldo('datos', 'aviso', `Tiene ${a.crudo.calificaciones.length} calificaciones distintas.`));
   a.crudo.precios.forEach((valor) => {
-    if (!/^\d+$/.test(valor)) h.push(hallazgo('datos', 'error', `Precio no válido: ${valor} (debe ser un entero sin signo).`));
+    if (!/^\d+$/.test(valor)) h.push(respaldo('datos', 'error', `Precio no válido: ${valor} (debe ser un entero sin signo).`));
   });
 
   // --- Modelo, imágenes y enlaces
-  if (!a.modelos.length) h.push(hallazgo('medios', 'aviso', 'Sin modelo 3D (t:tieneModelo3D).', 'Copia el .glb a public/modelos3d/ y añade t:tieneModelo3D "modelos3d/archivo.glb".'));
+  if (!a.modelos.length && !a.esActividad) h.push(hallazgo('medios', 'aviso', 'Sin modelo 3D (t:tieneModelo3D).', 'Copia el .glb a public/modelos3d/ y añade t:tieneModelo3D "modelos3d/archivo.glb".'));
   a.crudo.modelos.forEach((ruta) => {
     if (!FORMATOS_MODELO.includes(extension(ruta))) {
-      h.push(hallazgo('medios', 'error', `El modelo ${ruta} es .${extension(ruta)}; el visor solo abre ${FORMATOS_MODELO.join(' y ')}.`, 'Conviértelo a .glb (por ejemplo con Blender).'));
+      h.push(respaldo('medios', 'error', `El modelo ${ruta} es .${extension(ruta)}; el visor solo abre ${FORMATOS_MODELO.join(' y ')}.`, 'Conviértelo a .glb (por ejemplo con Blender).'));
     } else if (esLocal(ruta) && !archivos.modelos3d.includes(ruta.replace(/^\/+/, ''))) {
       h.push(hallazgo('medios', 'error', `El archivo ${ruta} no existe en public/.`, 'Revisa el nombre (distingue mayúsculas) o copia el archivo.'));
     }
@@ -162,7 +179,7 @@ export function validarAtraccion(a, { padres, tiposPorIndividuo, comunaDeCiudad,
   });
   if (!a.enlaces.length) h.push(hallazgo('medios', 'aviso', 'Sin enlaces (t:tieneEnlace).'));
   a.crudo.enlaces.forEach((url) => {
-    if (!/^https?:\/\/[^\s/]+\.[^\s]+$/i.test(url)) h.push(hallazgo('medios', 'error', `Enlace mal formado: ${url}`));
+    if (!/^https?:\/\/[^\s/]+\.[^\s]+$/i.test(url)) h.push(respaldo('medios', 'error', `Enlace mal formado: ${url}`));
   });
 
   // --- Interfaz: se dibuja la ficha real (sin visor) y se compara con los datos
@@ -273,8 +290,15 @@ async function enParalelo(tareas, limite, alAvanzar) {
 }
 
 // Problemas que no son de una atracción concreta
-export function validarGlobal({ atracciones, huerfanos, comunaDeCiudad, recursos: archivos }) {
+export function validarGlobal({ atracciones, huerfanos, comunaDeCiudad, etiquetas, recursos: archivos }) {
   const h = [];
+
+  // El nombre que muestra el sitio (NOMBRES_CLASE en js/catalogo.js) debe ser el rdfs:label de la ontología
+  etiquetas.forEach((etiqueta, clase) => {
+    if (nombreClase(clase) !== etiqueta) {
+      h.push(hallazgo('ontologia', 'aviso', `La clase ${clase} se muestra como "${nombreClase(clase)}", pero su rdfs:label es "${etiqueta}".`, 'Iguala NOMBRES_CLASE en js/catalogo.js con la etiqueta de la ontología (o al revés).'));
+    }
+  });
 
   CATEGORIAS.forEach(({ id, nombre, clases }) => {
     if (!atracciones.some((a) => a.categorias.includes(id))) {

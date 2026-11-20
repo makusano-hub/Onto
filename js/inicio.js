@@ -128,6 +128,12 @@ async function mostrarAtracciones() {
     const visibles = await buscarAtracciones(filtros);
     if (busqueda !== ultimaBusqueda) return;
 
+    // Sin filtros y sin resultados: Fuseki responde, pero no con esta ontología (dataset vacío o un turismo.rdf anterior)
+    if (!visibles.length && !Object.values(filtros).some(Boolean)) {
+      mostrarSinDatos(SIN_ONTOLOGIA);
+      return;
+    }
+
     lista.replaceChildren(...visibles.map(crearTarjeta));
     delete lista.dataset.estatica; // desde aquí la lista viene de Fuseki, no de la compilación
     total.textContent = textoTotal(visibles.length);
@@ -139,23 +145,31 @@ async function mostrarAtracciones() {
 function textoTotal(cantidad) {
   if (cantidad === 1) return '1 atracción';
   if (cantidad > 1) return `${cantidad} atracciones`;
-
-  return Object.values(filtros).some(Boolean)
-    ? 'Aún no hay atracciones con estos filtros.'
-    : 'Fuseki no tiene atracciones. Comprueba que turismo.rdf esté cargado en el dataset turismo.';
+  return 'Aún no hay atracciones con estos filtros.';
 }
+
+const SIN_CONEXION = 'No se pudo conectar con Fuseki. Comprueba que esté en ejecución y recarga la página.';
+const SIN_ONTOLOGIA = 'Fuseki no tiene atracciones de esta ontología. Carga el turismo.rdf actual en el dataset turismo (sus identificadores cambiaron: una copia anterior no sirve) y recarga la página.';
 
 function mostrarError(error) {
   console.error('Error consultando Fuseki:', error);
+  mostrarSinDatos(SIN_CONEXION);
+}
 
-  // El sitio compilado trae la lista ya escrita (scripts/publicacion.mjs): se conserva si Fuseki no responde
+// Fuseki no sirve los datos: se retiran los filtros y las tarjetas de categoría, que dependen de él,
+// para no dejar sus títulos sin nada debajo
+function mostrarSinDatos(motivo) {
+  document.querySelector('.filtros').hidden = true;
+  tarjetasCategoria.hidden = true;
+
+  // El sitio compilado trae la lista ya escrita (scripts/publicacion.mjs): se conserva
   if (lista.dataset.estatica !== undefined && lista.children.length) {
-    total.textContent = `${textoTotal(lista.children.length)} · lista guardada al compilar; los filtros necesitan Fuseki.`;
+    total.textContent = `${textoTotal(lista.children.length)} · lista guardada al compilar; los filtros necesitan Fuseki con la ontología cargada.`;
     return;
   }
 
   lista.replaceChildren();
-  total.textContent = 'No se pudo conectar con Fuseki. Comprueba que esté en ejecución y recarga la página.';
+  total.textContent = motivo;
 }
 
 function crearTarjeta({ id, nombre, comuna, tipo, modelos }) {

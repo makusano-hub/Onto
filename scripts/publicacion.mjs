@@ -10,7 +10,7 @@
 //
 // Las fichas, la lista, el vocabulario y los formatos Turtle y JSON-LD salen de Fuseki: tiene que estar
 // en marcha al compilar. Sin Fuseki la compilación termina igual, solo con turismo.rdf y las reglas SHACL.
-import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync, statSync, rmSync } from 'node:fs';
 import { resolve, relative } from 'node:path';
 import { SITIO, NS, SCHEMA, nombreLegible } from '../js/catalogo.js';
 
@@ -47,6 +47,22 @@ const script = (tipo, datos, id) => incrustar(tipo, JSON.stringify(datos), id);
 
 const canonico = (ruta) => `<link rel="canonical" href="${SITIO}${ruta}">\n`;
 const rutaFicha = (id) => `ficha/${encodeURIComponent(id)}.html`;
+
+// Sustituye una parte de una página y falla si no la encuentra: si alguien cambia el marcado,
+// la compilación se detiene en vez de publicar una página a medias sin avisar.
+// "reemplazo" es una función: en un texto de reemplazo, "$1" de un precio se leería como un grupo.
+function sustituir(html, patron, reemplazo, descripcion) {
+  let hecho = false;
+  const resultado = html.replace(patron, (...partes) => {
+    hecho = true;
+    return reemplazo(...partes);
+  });
+  if (!hecho) throw new Error(`publicacion: no se encontró ${descripcion}. Revisa el marcado de la página o el patrón en scripts/publicacion.mjs.`);
+  return resultado;
+}
+
+// Bloque con un id: su etiqueta de apertura (con los atributos que tenga), su contenido y su cierre
+const bloque = (etiqueta, id) => new RegExp(`(<${etiqueta}\\b[^>]*\\bid="${id}"[^>]*>)[\\s\\S]*?(</${etiqueta}>)`);
 
 // ---------- Lectura de Fuseki, con las mismas consultas y funciones que usa el sitio
 
@@ -106,15 +122,14 @@ function paginaFicha(plantilla, atraccion, { CAMPOS, datosEstructurados }) {
 		</article>
 	`;
 
-  // Las sustituciones usan funciones: en un texto de reemplazo, "$1" de un precio se leería como un grupo
-  return plantilla
-    // La ficha vive en ficha/: con <base> sus rutas (estilos, modelos, enlaces) se resuelven como en la raíz
-    .replace('<head>', () => '<head>\n\t<base href="../">')
-    .replace(/<title>[\s\S]*?<\/title>/, () => `<title>${esc(nombre)} | Atracciones turísticas de Magallanes</title>`)
-    .replace(/(<meta name="description" content=")[^"]*(")/, (_, antes, despues) =>
-      `${antes}${esc(descripcion || `${nombre}: ${tipo} de la Región de Magallanes.`)}${despues}`)
-    .replace('</head>', () => `${canonico(rutaFicha(id))}${script('application/ld+json', estructurados)}${script('application/json', atraccion, 'datos-atraccion')}</head>`)
-    .replace(/(<div id="ficha">)[\s\S]*?(<\/div>)/, (_, antes, despues) => `${antes}${cuerpo}${despues}`);
+  let html = plantilla;
+  // La ficha vive en ficha/: con <base> sus rutas (estilos, modelos, enlaces) se resuelven como en la raíz
+  html = sustituir(html, '<head>', () => '<head>\n\t<base href="../">', '<head> en atraccion.html');
+  html = sustituir(html, /<title>[\s\S]*?<\/title>/, () => `<title>${esc(nombre)} | Atracciones turísticas de Magallanes</title>`, '<title> en atraccion.html');
+  html = sustituir(html, /(<meta name="description" content=")[^"]*(")/, (_, antes, despues) =>
+    `${antes}${esc(descripcion || `${nombre}: ${tipo} de la Región de Magallanes.`)}${despues}`, '<meta name="description"> en atraccion.html');
+  html = sustituir(html, '</head>', () => `${canonico(rutaFicha(id))}${script('application/ld+json', estructurados)}${script('application/json', atraccion, 'datos-atraccion')}</head>`, '</head> en atraccion.html');
+  return sustituir(html, bloque('div', 'ficha'), (_, antes, despues) => `${antes}${cuerpo}${despues}`, '<div id="ficha"> en atraccion.html');
 }
 
 function paginaIndice(html, atracciones) {
@@ -132,12 +147,13 @@ function paginaIndice(html, atracciones) {
     }))
   };
 
-  return html
-    .replace(/(<ul class="cards lista-atracciones" id="lista-atracciones")(>)(<\/ul>)/, (_, antes, cierre, fin) =>
-      `${antes} data-estatica${cierre}${tarjetas}\n\t\t\t${fin}`)
-    .replace(/(<p class="total-atracciones" id="total-atracciones" role="status">)(<\/p>)/, (_, antes, fin) =>
-      `${antes}${atracciones.length} atracciones${fin}`)
-    .replace('</head>', () => `${script('application/ld+json', lista)}</head>`);
+  let resultado = html;
+  // data-estatica: js/inicio.js conserva esta lista si Fuseki no responde
+  resultado = sustituir(resultado, bloque('ul', 'lista-atracciones'), (_, antes, fin) =>
+    `${antes.replace(/>$/, ' data-estatica>')}${tarjetas}\n\t\t\t${fin}`, '<ul id="lista-atracciones"> en index.html');
+  resultado = sustituir(resultado, bloque('p', 'total-atracciones'), (_, antes, fin) =>
+    `${antes}${atracciones.length} atracciones${fin}`, '<p id="total-atracciones"> en index.html');
+  return sustituir(resultado, '</head>', () => `${script('application/ld+json', lista)}</head>`, '</head> en index.html');
 }
 
 // datos.html: solo enlaza los archivos que existen y describe el conjunto con schema:Dataset
@@ -158,18 +174,19 @@ function paginaDatos(html, disponibles) {
     distribution: grafo.map(([archivo, { tipo }]) => ({ '@type': 'DataDownload', encodingFormat: tipo, contentUrl: `${SITIO}datos/${archivo}` }))
   };
 
-  return html
-    .replace(/(<ul class="ficha-enlaces" id="descargas">)[\s\S]*?(<\/ul>)/, (_, antes, fin) =>
-      `${antes}${descargas.map(([archivo, { nombre }]) => `<li><a href="datos/${archivo}" download>${esc(nombre)} · ${archivo}</a></li>`).join('')}${fin}`)
-    .replace('</head>', () => `${script('application/ld+json', conjunto)}</head>`);
+  const conDescargas = sustituir(html, bloque('ul', 'descargas'), (_, antes, fin) =>
+    `${antes}${descargas.map(([archivo, { nombre }]) => `<li><a href="datos/${archivo}" download>${esc(nombre)} · ${archivo}</a></li>`).join('')}${fin}`,
+  '<ul id="descargas"> en datos.html');
+  return sustituir(conDescargas, '</head>', () => `${script('application/ld+json', conjunto)}</head>`, '</head> en datos.html');
 }
 
 // ontologia/: el documento al que llevan los IRIs. Cada término tiene un ancla con su identificador,
 // así <SITIO>ontologia#FuerteBulnes abre la página en ese individuo; el grafo completo va incrustado en JSON-LD.
 function paginaVocabulario(html, { terminos, jsonld, enlaceFicha }) {
+  const DONDE = '<div id="terminos"> en ontologia/index.html';
   if (!terminos) {
-    return html.replace(/(<div id="terminos">)[\s\S]*?(<\/div>)/, (_, antes, fin) =>
-      `${antes}<p>La lista de términos se escribe con Fuseki en marcha. El grafo completo está en <a href="../datos/turismo.rdf">turismo.rdf</a>.</p>${fin}`);
+    return sustituir(html, bloque('div', 'terminos'), (_, antes, fin) =>
+      `${antes}<p>La lista de términos se escribe con Fuseki en marcha. El grafo completo está en <a href="../datos/turismo.rdf">turismo.rdf</a>.</p>${fin}`, DONDE);
   }
 
   const porId = new Map(terminos.map((termino) => [termino.id, termino]));
@@ -227,10 +244,33 @@ function paginaVocabulario(html, { terminos, jsonld, enlaceFicha }) {
   const alternativas = Object.entries({ ...FUENTES, ...FORMATOS }).filter(([archivo]) => archivo !== 'turismo.shacl.ttl')
     .map(([archivo, { tipo }]) => `<link rel="alternate" type="${tipo}" href="../datos/${archivo}">\n`).join('');
 
-  return html
-    .replace(/(<div id="terminos">)[\s\S]*?(<\/div>)/, (_, antes, fin) =>
-      `${antes}${seccion('Clases', clases)}${seccion('Propiedades', propiedades)}${seccion('Individuos', individuos)}\n\t\t${fin}`)
-    .replace('</head>', () => `${alternativas}${jsonld ? incrustar('application/ld+json', jsonld) : ''}</head>`);
+  const conTerminos = sustituir(html, bloque('div', 'terminos'), (_, antes, fin) =>
+    `${antes}${seccion('Clases', clases)}${seccion('Propiedades', propiedades)}${seccion('Individuos', individuos)}\n\t\t${fin}`, DONDE);
+  return sustituir(conTerminos, '</head>', () => `${alternativas}${jsonld ? incrustar('application/ld+json', jsonld) : ''}</head>`, '</head> en ontologia/index.html');
+}
+
+// Modelos de modelos3d/ que no se publican: los que ningún individuo usa y los originales en un formato
+// que el visor no abre. Siguen en public/ para trabajar con ellos; solo se quitan del sitio compilado,
+// donde alargaban cada despliegue sin que ninguna página los cargara.
+const ARCHIVO_MODELO = /\.(glb|gltf|fbx|obj|blend)$/i;
+
+function retirarModelosSinUso(salida, { atracciones, terminos }) {
+  const carpeta = resolve(salida, 'modelos3d');
+  if (!existsSync(carpeta)) return [];
+
+  const enUso = new Set([
+    ...atracciones.flatMap(({ crudo }) => crudo.modelos),
+    ...terminos.flatMap(({ p }) => (p[`${NS}tieneModelo3D`] ?? []).map(({ value }) => value))
+  ].map((ruta) => ruta.split('?')[0].replace(/^\/+/, '')));
+
+  return readdirSync(carpeta, { withFileTypes: true })
+    .filter((entrada) => entrada.isFile() && ARCHIVO_MODELO.test(entrada.name) && !enUso.has(`modelos3d/${entrada.name}`))
+    .map(({ name }) => {
+      const ruta = resolve(carpeta, name);
+      const { size } = statSync(ruta);
+      rmSync(ruta);
+      return { nombre: name, size };
+    });
 }
 
 function sitemap(atracciones) {
@@ -326,7 +366,9 @@ export function publicacion({ fuseki }) {
           resultado = paginaIndice(html, datos.atracciones);
         }
         // El enlace canónico solo tiene sentido en el sitio publicado
-        return compilando && pagina in PAGINAS ? resultado.replace('</head>', () => `${canonico(PAGINAS[pagina])}</head>`) : resultado;
+        return compilando && pagina in PAGINAS
+          ? sustituir(resultado, '</head>', () => `${canonico(PAGINAS[pagina])}</head>`, `</head> en ${pagina}`)
+          : resultado;
       }
     },
 
@@ -345,6 +387,12 @@ export function publicacion({ fuseki }) {
         writeFileSync(resolve(salida, 'ficha', `${atraccion.id}.html`), paginaFicha(plantilla, atraccion, datos));
       });
       console.log(`publicacion: ${datos.atracciones.length} fichas estáticas, ${datos.terminos.length} términos en el vocabulario y ${Object.keys(FUENTES).length + Object.keys(datos.volcados).length} archivos de datos`);
+
+      const retirados = retirarModelosSinUso(salida, datos);
+      if (retirados.length) {
+        const megas = Math.round(retirados.reduce((suma, { size }) => suma + size, 0) / 1024 / 1024);
+        console.log(`publicacion: ${retirados.length} modelos sin uso no se publican (${megas} MB): ${retirados.map(({ nombre }) => nombre).join(', ')}`);
+      }
     }
   };
 }

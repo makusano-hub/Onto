@@ -41,8 +41,10 @@ export function datosEstructurados(
         addressCountry: 'CL'
       }
     }),
+    // No es un AggregateRating: la ontología guarda una sola calificación, sin número de valoraciones,
+    // y sin ratingCount o reviewCount ese tipo no es válido. Se publica como una propiedad con su escala.
     ...(calificacion && {
-      aggregateRating: { '@type': 'AggregateRating', ratingValue: Number(calificacion), bestRating: 5 }
+      additionalProperty: { '@type': 'PropertyValue', name: 'Calificación', value: Number(calificacion), minValue: 0, maxValue: 5 }
     }),
     ...(coordenadas && {
       geo: { '@type': 'GeoCoordinates', latitude: coordenadas.latitud, longitude: coordenadas.longitud }

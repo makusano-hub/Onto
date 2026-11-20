@@ -40,16 +40,23 @@ export const CATEGORIAS = [
   { id: 'compras', nombre: 'Compras', clases: ['ZonaTiendas', 'Mercado'] }
 ];
 
-// Nombre legible de algunas clases; otra clase nueva usa su propio nombre
+// Nombre legible de las clases cuyo identificador no basta; otra clase nueva usa su propio nombre.
+// Es la única tabla de nombres del sitio (portada, fichas, panel y carta 3D) y debe decir lo mismo que
+// el rdfs:label de cada clase en la ontología: la pestaña Validación del panel avisa si dejan de coincidir.
 export const NOMBRES_CLASE = {
   Estatua: 'Monumento',
   SitioHistorico: 'Sitio histórico',
-  Montaña: 'Montaña',
+  CulturalHistorico: 'Cultural e histórico',
   Rio: 'Río',
   Cafeteria: 'Cafetería',
   PanoramaCiudad: 'Panorama en la ciudad',
   PescaDeportiva: 'Pesca deportiva',
-  ZonaTiendas: 'Zona de tiendas'
+  ZonaTiendas: 'Zona de tiendas',
+  ZonaTuristica: 'Zona turística',
+  Turistica: 'Actividad turística',
+  Cotidiana: 'Actividad cotidiana',
+  Establecimientos: 'Establecimiento',
+  Lugares: 'Lugar'
 };
 
 // Nombre del botón de cada modelo cuando una atracción tiene varios; otro archivo usa su propio nombre

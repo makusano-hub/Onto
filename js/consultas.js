@@ -28,7 +28,10 @@ const PATRON_ATRACCION = `
 const agrupar = (variable, alias = `${variable}s`) =>
   `(GROUP_CONCAT(DISTINCT COALESCE(STR(?${variable}), ""); SEPARATOR="${SEP}") AS ?${alias})`;
 
-function inventario(filtros = '') {
+// "filtros" recorta qué atracciones entran. "comuna" se comprueba con HAVING, después de agrupar:
+// como FILTER dentro del WHERE quitaba las filas de las otras comunas, y una atracción con lugares
+// en varias comunas perdía esos lugares, ciudades y comunas al filtrar.
+function inventario(filtros = '', comuna = '') {
   return `${PREFIJOS}
 SELECT ?atraccion
        ${agrupar('clase')} ${agrupar('nombre')} ${agrupar('descripcion', 'descripciones')}
@@ -53,7 +56,7 @@ WHERE {
   OPTIONAL { ?atraccion owl:sameAs ?mismo }
   OPTIONAL { ?clase rdfs:subClassOf+ ?tipoSchema FILTER(STRSTARTS(STR(?tipoSchema), "${SCHEMA}")) }${filtros ? `\n  ${filtros.trim()}` : ''}
 }
-GROUP BY ?atraccion`;
+GROUP BY ?atraccion${comuna ? `\nHAVING (SUM(IF(BOUND(?comuna) && ?comuna = <${NS}${comuna}>, 1, 0)) > 0)` : ''}`;
 }
 
 function filtroCategoria(categoria) {
@@ -66,10 +69,7 @@ function filtroCategoria(categoria) {
 export const construir = {
   inventario: () => inventario(),
 
-  busqueda: ({ comuna, categoria }) => inventario([
-    comuna ? `FILTER(?comuna = <${NS}${comuna}>)` : '',
-    filtroCategoria(categoria)
-  ].filter(Boolean).join('\n  ')),
+  busqueda: ({ comuna, categoria }) => inventario(filtroCategoria(categoria), comuna),
 
   // Algunos individuos usan otro espacio de nombres: se busca por la última parte del IRI
   ficha: (id) => inventario(`FILTER(REPLACE(STR(?atraccion), "^.*[#/]", "") = "${id}")`),
@@ -92,10 +92,11 @@ GROUP BY ?categoria`,
 
   // Solo las clases propias: las de schema.org se usan como superclase, no como categoría del sitio
   jerarquia: () => `${PREFIJOS}
-SELECT ?clase ?padre WHERE {
+SELECT ?clase ?padre ?etiqueta WHERE {
   ?clase a owl:Class .
   FILTER(STRSTARTS(STR(?clase), STR(t:)))
   OPTIONAL { ?clase rdfs:subClassOf ?padre FILTER(STRSTARTS(STR(?padre), STR(t:))) }
+  OPTIONAL { ?clase rdfs:label ?etiqueta }
 }`,
 
   // Tipos de todo lo que tiene tipo: sirve para comprobar que ciudades, comunas y lugares existen
@@ -173,7 +174,7 @@ export const CONSULTAS = [
     id: 'jerarquia',
     titulo: 'Jerarquía de clases',
     usadaEn: 'Validación',
-    descripcion: 'Clases declaradas y su clase padre directa.',
+    descripcion: 'Clases declaradas, su clase padre directa y su etiqueta (rdfs:label), que se compara con el nombre que muestra el sitio.',
     texto: construir.jerarquia
   },
   {

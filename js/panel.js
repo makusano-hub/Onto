@@ -15,6 +15,7 @@ const estado = {
   datos: null,
   hallazgos: new Map(), // id → hallazgos de reglas locales
   extra: new Map(), // id → hallazgos de las comprobaciones en vivo (presencia y archivos)
+  shacl: null, // id → hallazgos de las reglas SHACL; null mientras Fuseki no las haya aplicado
   global: [],
   filtros: { comuna: '', categoria: '', falta: '', texto: '' }
 };
@@ -31,7 +32,20 @@ function el(etiqueta, atributos = {}, ...hijos) {
   return elemento;
 }
 
-const hallazgosDe = (id) => [...(estado.hallazgos.get(id) ?? []), ...(estado.extra.get(id) ?? [])];
+// Con el resultado de SHACL disponible, sustituye a las reglas equivalentes de validacion.js (marcadas "respaldo"):
+// cada regla se evalúa una sola vez y la tabla no puede contradecir al bloque "Reglas SHACL" ni al despliegue.
+const hallazgosDe = (id) => [
+  ...(estado.hallazgos.get(id) ?? []).filter((h) => !(estado.shacl && h.respaldo)),
+  ...(estado.shacl?.get(id) ?? []),
+  ...(estado.extra.get(id) ?? [])
+];
+
+// Grupo de la tabla al que va un resultado SHACL según la propiedad que incumple; el resto son de ontología
+const GRUPO_SHACL = {
+  Nombre: 'datos', Descripcion: 'datos', Calificacion: 'datos', Precio: 'datos',
+  requierePermisoAutoridad: 'datos', tieneTemporada: 'datos', Latitud: 'datos', Longitud: 'datos',
+  tieneModelo3D: 'medios', tieneImagen: 'medios', tieneEnlace: 'medios'
+};
 const problemas = (lista) => lista.filter(({ nivel }) => nivel !== 'ok');
 const relacionesCompletas = (a) => !hallazgosDe(a.id).some(({ grupo, nivel }) => grupo === 'ontologia' && nivel === 'error');
 
@@ -119,11 +133,21 @@ async function comprobarSHACL() {
   try {
     resultados = await validarSHACL();
   } catch (error) {
-    aviso.textContent = [404, 405].includes(error.estado)
+    aviso.textContent = `${[404, 405].includes(error.estado)
       ? 'Este Fuseki no tiene el endpoint /turismo/shacl. Inícialo con fuseki/config.ttl (ver readme.md).'
-      : `No se pudo validar con SHACL: ${error.message}`;
+      : `No se pudo validar con SHACL: ${error.message}`} La tabla usa las reglas de respaldo de js/validacion.js.`;
+    estado.shacl = null;
+    refrescar();
     return;
   }
+
+  // Los mismos resultados, repartidos por individuo para la tabla y las tarjetas
+  estado.shacl = new Map();
+  resultados.forEach(({ nivel, mensaje, individuo, propiedad }) => {
+    if (!estado.shacl.has(individuo)) estado.shacl.set(individuo, []);
+    estado.shacl.get(individuo).push({ grupo: GRUPO_SHACL[propiedad] ?? 'ontologia', nivel, mensaje, consejo: 'Regla de ontologia/turismo.shacl.ttl.' });
+  });
+  refrescar();
 
   const grupos = new Map();
   resultados.forEach(({ nivel, mensaje, individuo }) => {
@@ -219,7 +243,7 @@ function crearGrupo(contenedor, campo, opciones, textoTodas) {
 
 function falta(a, campo) {
   switch (campo) {
-    case 'modelo': return !a.modelos.length;
+    case 'modelo': return !a.esActividad && !a.modelos.length; // una actividad no lleva modelo
     case 'imagen': return !a.imagenes.length;
     case 'descripcion': return !a.descripcion;
     case 'enlace': return !a.enlaces.length;
@@ -250,13 +274,15 @@ function dibujarIndicadores() {
     detalle && el('span', { class: 'indicador-detalle', texto: detalle }));
 
   const proporcion = (n) => `${n} de ${total}`;
+  // Los modelos se cuentan sobre los lugares: una actividad no puede llevar t:tieneModelo3D
+  const lugares = contar((a) => !a.esActividad);
   const conModelo = contar((a) => a.modelos.length);
   const conImagen = contar((a) => a.imagenes.length);
   const relaciones = contar(relacionesCompletas);
 
   $('indicadores').replaceChildren(
     indicador('Atracciones', String(total), `${CATEGORIAS.filter(({ id }) => atracciones.some((a) => a.categorias.includes(id))).length} de ${CATEGORIAS.length} categorías con contenido`),
-    indicador('Con modelo 3D', proporcion(conModelo), `${total - conModelo} sin modelo`, conModelo < total ? 'aviso' : 'ok'),
+    indicador('Con modelo 3D', `${conModelo} de ${lugares} lugares`, `${lugares - conModelo} sin modelo`, conModelo < lugares ? 'aviso' : 'ok'),
     indicador('Con imagen', proporcion(conImagen), `${total - conImagen} sin imagen`, conImagen < total ? 'aviso' : 'ok'),
     indicador('Relaciones completas', proporcion(relaciones), `${total - relaciones} con errores de ontología`, relaciones < total ? 'error' : 'ok'),
     indicador('Con errores', String(conErrores), 'de cualquier tipo', conErrores ? 'error' : 'ok')
@@ -288,7 +314,7 @@ function tarjeta(a) {
       el('h3', { texto: a.nombre }),
       el('p', { texto: a.comuna ? `${a.tipo} · ${a.comuna}` : `${a.tipo} · sin comuna` }),
       el('div', { class: 'chips' },
-        chip('3D', a.modelos.length > 0),
+        !a.esActividad && chip('3D', a.modelos.length > 0),
         chip('Imagen', a.imagenes.length > 0),
         chip('Enlace', a.enlaces.length > 0),
         chip('Relaciones', relacionesCompletas(a))),
@@ -600,10 +626,11 @@ function generar() {
   if (!esActividad && !valor('ciudad') && !valor('comuna')) avisos.push(['error', 'Sin ciudad ni comuna: no aparecerá al filtrar por comuna.']);
   const calificacion = valor('calificacion');
   if (calificacion && !(Number(calificacion) >= 0 && Number(calificacion) <= 5)) avisos.push(['error', 'La calificación debe estar entre 0 y 5.']);
-  const modelo = valor('modelo');
+  // Solo los lugares llevan modelo: t:tieneModelo3D tiene dominio t:Lugares y la regla SHACL f:Modelo lo exige
+  const modelo = esActividad ? '' : valor('modelo');
   if (modelo && !FORMATOS_MODELO.some((ext) => modelo.toLowerCase().endsWith(`.${ext}`))) avisos.push(['error', 'El modelo debe ser .glb o .gltf.']);
   else if (modelo && !/^https?:/.test(modelo) && !estado.datos.recursos.modelos3d.includes(modelo)) avisos.push(['aviso', `No existe public/${modelo}: cópialo antes de recargar.`]);
-  if (!modelo) avisos.push(['aviso', 'Sin modelo 3D.']);
+  if (!modelo && !esActividad) avisos.push(['aviso', 'Sin modelo 3D.']);
   const imagenes = lineas(valor('imagenes'));
   if (!imagenes.length) avisos.push(['aviso', 'Sin imagen.']);
   imagenes.filter((ruta) => !/^https?:/.test(ruta) && !estado.datos.recursos.imagenes.includes(ruta))

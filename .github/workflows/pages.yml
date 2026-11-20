@@ -62,7 +62,7 @@ jobs:
       # Fuseki carga ontologia/turismo.rdf al arrancar (fuseki/config.ttl)
       - name: Iniciar Fuseki
         run: |
-          java -jar "$FUSEKI_JAR" --config=fuseki/config.ttl > "$RUNNER_TEMP/fuseki.log" 2>&1 &
+          java -jar "$FUSEKI_JAR" --localhost --config=fuseki/config.ttl > "$RUNNER_TEMP/fuseki.log" 2>&1 &
           for intento in $(seq 1 30); do
             if curl -fs 'http://localhost:3030/$/ping' > /dev/null; then exit 0; fi
             sleep 2
@@ -72,6 +72,11 @@ jobs:
           exit 1
 
       - run: npm ci
+
+      # En Pages no hay Fuseki y la carta 3D usa siempre su copia de respaldo (js/grafo-datos.js):
+      # se regenera aquí para que coincida con la ontología que se publica, aunque nadie la haya regenerado a mano
+      - name: Regenerar la copia de la carta 3D
+        run: node scripts/generar-copia.mjs
 
       - name: Compilar el sitio
         run: npx vite build
@@ -84,6 +89,7 @@ jobs:
           test -f dist/sitemap.xml
           test "$(ls dist/ficha/*.html | wc -l)" -gt 0
           grep -q 'class="lista-terminos"' dist/ontologia/index.html
+          grep -q 'data-estatica' dist/index.html
 
       - uses: actions/configure-pages@v6
 

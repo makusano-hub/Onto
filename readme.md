@@ -28,10 +28,12 @@ Código compartido en `js/`:
 Inicia Fuseki desde la carpeta del proyecto con la configuración del repositorio (ajusta la ruta de Fuseki):
 
 ```bash
-java -jar C:\apache-jena-fuseki-6.2.0\fuseki-server.jar --config=fuseki/config.ttl
+java -jar C:\apache-jena-fuseki-6.2.0\fuseki-server.jar --localhost --config=fuseki/config.ttl
 ```
 
 Carga `ontologia/turismo.rdf` al arrancar, así que no hay que subir el archivo a mano. Después de editar la ontología, reinicia Fuseki.
+
+No quites `--localhost`: `/turismo/update` y `/turismo/data` aceptan cambios sin contraseña y, sin esa opción, Fuseki escucha en toda la red, de modo que cualquier equipo conectado a ella podría borrar los datos.
 
 | Endpoint | Qué ofrece |
 | --- | --- |
@@ -72,6 +74,10 @@ El sitio compilado se puede servir como archivos estáticos: las fichas y la lis
 
 Si Fuseki no responde al compilar, la compilación termina igual con un aviso, pero solo publica `turismo.rdf` y las reglas SHACL.
 
+Los modelos de `public/modelos3d/` que ningún individuo usa (y los originales en formatos que el visor no abre, como `.fbx`) no se copian al sitio compilado; la compilación indica cuáles dejó fuera.
+
+Si cambias el marcado donde la compilación escribe (la lista de `index.html`, `<div id="ficha">`, `#descargas`, `#terminos`) y deja de reconocerlo, la compilación falla con un mensaje que dice qué no encontró, en vez de publicar la página incompleta.
+
 ### Dirección del sitio e IRIs
 
 El sitio se publica en GitHub Pages, en `https://makusano-hub.github.io/Onto/`. Esa dirección está en `js/catalogo.js` (`SITIO`) y de ella cuelgan los IRIs de la ontología:
@@ -86,7 +92,7 @@ Para publicar en otro dominio hay que cambiar tres cosas a la vez: `SITIO` en `j
 
 ### Despliegue en GitHub Pages
 
-`.github/workflows/pages.yml` publica el sitio en cada cambio de la rama `main`: valida la ontología con SHACL, inicia Fuseki con `fuseki/config.ttl`, compila y sube `dist/`. Si la ontología tiene errores SHACL o la publicación queda incompleta, no se despliega.
+`.github/workflows/pages.yml` publica el sitio en cada cambio de la rama `main`: valida la ontología con SHACL, inicia Fuseki con `fuseki/config.ttl`, regenera la copia de respaldo de la carta 3D, compila y sube `dist/`. Si la ontología tiene errores SHACL o la publicación queda incompleta, no se despliega.
 
 Solo hay que activarlo una vez en GitHub: *Settings → Pages → Source → GitHub Actions*.
 

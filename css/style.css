@@ -479,6 +479,9 @@ h2 {
   margin-bottom: 28px;
 }
 
+/* Sin Fuseki no hay filtros ni tarjetas de categoría (js/inicio.js los oculta) */
+.filtros[hidden], .categorias-portada[hidden] { display: none; }
+
 .titulo-filtro {
   margin: 0 0 8px;
   font-size: 13px;

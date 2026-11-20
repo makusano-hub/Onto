@@ -950,8 +950,8 @@
     <owl:NamedIndividual rdf:about="https://makusano-hub.github.io/Onto/ontologia#Monumento_Lago_Cisnes">
         <rdf:type rdf:resource="https://makusano-hub.github.io/Onto/ontologia#Reserva"/>
         <Ontologia2:ubicadoEnComuna rdf:resource="https://makusano-hub.github.io/Onto/ontologia#Porvenir"/>
-        <Ontologia2:Descripcion>Presencia de fosiles vivientes llamados estromatolitos</Ontologia2:Descripcion>
-        <Ontologia2:Nombre>Conocido como el parque de los estromatolitos</Ontologia2:Nombre>
+        <Ontologia2:Descripcion>Conocido como el parque de los estromatolitos. Presencia de fosiles vivientes llamados estromatolitos</Ontologia2:Descripcion>
+        <Ontologia2:Nombre>Monumento Natural Laguna de los Cisnes</Ontologia2:Nombre>
         <owl:sameAs rdf:resource="http://www.wikidata.org/entity/Q6023322"/>
         <Ontologia2:Latitud rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">-53.24</Ontologia2:Latitud>
         <Ontologia2:Longitud rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">-70.33</Ontologia2:Longitud>
@@ -1054,7 +1054,6 @@
     <owl:NamedIndividual rdf:about="https://makusano-hub.github.io/Onto/ontologia#Paseo">
         <rdf:type rdf:resource="https://makusano-hub.github.io/Onto/ontologia#PanoramaCiudad"/>
         <Ontologia2:seRealizaEn rdf:resource="https://makusano-hub.github.io/Onto/ontologia#Calle_Bories"/>
-        <Ontologia2:seRealizaEn rdf:resource="https://makusano-hub.github.io/Onto/ontologia#Puerto_Bories"/>
         <Ontologia2:seRealizaEn rdf:resource="https://makusano-hub.github.io/Onto/ontologia#ZonaFranca"/>
     </owl:NamedIndividual>
     

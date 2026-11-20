@@ -3,7 +3,7 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { COPIA } from './grafo-datos.js';
-import { NS } from './catalogo.js';
+import { NS, nombreClase as nomClase } from './catalogo.js'; // los nombres de clase son los mismos que en el resto del sitio
 import { gx, gz, paso, suelo, construirRegion, REGION } from './mapa-region.js';
 
 /* ============ 1. CONFIGURACIÓN ============ */
@@ -32,10 +32,7 @@ const GRUPOS = {
   Establecimientos:{nombre:"Establecimientos", color:"#b79cff"},
   Lugares:{nombre:"Otros lugares", color:"#8ec5ff"}
 };
-const NOMBRE_CLASE = {SitioHistorico:"Sitio histórico", CulturalHistorico:"Cultural e histórico", ZonaTiendas:"Zona de tiendas", ZonaTuristica:"Zona turística",
-  PescaDeportiva:"Pesca deportiva", PanoramaCiudad:"Panorama de ciudad", Rio:"Río", Cafeteria:"Cafetería", Turistica:"Turística"};
 const bonito = id => { const t=String(id).replace(/_/g," ").replace(/([a-zñáéíóú])([A-Z])/g,"$1 $2").trim(); return t.charAt(0).toUpperCase()+t.slice(1); };
-const nomClase = c => NOMBRE_CLASE[c] || bonito(c);
 const local = iri => { const s=String(iri); return s.includes("#") ? s.slice(s.lastIndexOf("#")+1) : s.replace(/\/$/,"").split("/").pop(); };
 // Un IRI de otro sitio (owl:sameAs hacia Wikidata) se conserva entero para poder enlazarlo
 const externo = v => /^https?:\/\//.test(v);
@@ -90,6 +87,8 @@ async function cargar(){
     const sub = {}; tc.forEach(b => { sub[local(b.clase.value)] = local(b.padre.value); });
     const tri = ti.map(b => [local(b.s.value), local(b.p.value), b.o.type==="uri" ? nodo(b.o.value) : b.o.value, b.o.type==="uri" ? 1 : 0]);
     if(!tri.length) throw new Error("el dataset no devolvió individuos");
+    // Un turismo.rdf anterior usa otros identificadores: sin la jerarquía de clases de esta ontología la carta quedaría vacía
+    if(!tc.length || !ti.some(b => b.s.value.startsWith(NS))) throw new Error("el dataset no usa los identificadores de esta ontología; carga el turismo.rdf actual");
     construir(sub, tri); return {modo:"vivo"};
   }catch(e){
     console.error("No se pudo consultar Fuseki:", e);
@@ -354,7 +353,7 @@ document.querySelectorAll("[data-copiar]").forEach(b => b.addEventListener("clic
   const resumen=`${IND.size} individuos · ${LUGARES.length} lugares y ciudades · ${ACTS.length} actividades · ${nm} modelos 3D`;
   const es=$("estado"); es.dataset.modo=modo;
   es.lastElementChild.textContent = modo==="vivo" ? `En vivo desde Fuseki · ${resumen}`
-    : modo==="error" ? `Fuseki no respondió (${error}). Copia de turismo.rdf · ${resumen}` : `Copia de turismo.rdf · ${resumen}`;
+    : modo==="error" ? `No se pudo leer de Fuseki (${error}). Copia de turismo.rdf · ${resumen}` : `Copia de turismo.rdf · ${resumen}`;
   pintar();
   if(tres) poblar3D();
   elegir(IND.has("ParqueTorresDelPaine") ? "ParqueTorresDelPaine" : (LUGARES[0]||{}).id);

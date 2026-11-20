@@ -2,7 +2,10 @@
 #
 # Inicia el servidor desde la carpeta del proyecto (ajusta la ruta de Fuseki):
 #
-#   java -jar C:\apache-jena-fuseki-6.2.0\fuseki-server.jar --config=fuseki/config.ttl
+#   java -jar C:\apache-jena-fuseki-6.2.0\fuseki-server.jar --localhost --config=fuseki/config.ttl
+#
+# --localhost es necesario: /turismo/update y /turismo/data aceptan cambios sin contraseña, y sin esa opción
+# Fuseki escucha en todas las interfaces de red, así que cualquier equipo de la misma red podría borrar los datos.
 #
 # Carga ontologia/turismo.rdf al arrancar: no hay que subir el archivo a mano.
 # Después de editar la ontología, reinicia Fuseki para que la vuelva a leer.

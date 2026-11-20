@@ -101,7 +101,7 @@
 };</pre>
       </div>
     </div>
-    <p class="nota">La ontología no guarda coordenadas, así que la página usa la tabla <code>COORDS</code> (aproximada) para ciudades, comunas y lugares naturales; los lugares urbanos se reparten en anillo alrededor de su ciudad. Si agregas a un individuo las propiedades de datos <code>Latitud</code> y <code>Longitud</code>, la página las usa en lugar de la tabla. Los archivos <code>.glb</code> de <code>tieneModelo3D</code> se cargan desde la carpeta <code>public/modelos3d/</code>.</p>
+    <p class="nota">Las coordenadas salen de la ontología: son las propiedades de datos <code>Latitud</code> y <code>Longitud</code> de cada individuo, en grados decimales (aproximadas). Un lugar sin coordenadas se dibuja en anillo alrededor de su ciudad o comuna; para ubicarlo en su sitio, añádele esas dos propiedades en <code>ontologia/turismo.rdf</code>. Los archivos <code>.glb</code> de <code>tieneModelo3D</code> se cargan desde la carpeta <code>public/modelos3d/</code>.</p>
   </section>
 
   <section id="region">
