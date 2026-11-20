@@ -12,7 +12,7 @@
         <dcterms:license rdf:resource="https://creativecommons.org/licenses/by/4.0/"/>
         <dcterms:created rdf:datatype="http://www.w3.org/2001/XMLSchema#date">2026-10-26</dcterms:created>
         <dcterms:modified rdf:datatype="http://www.w3.org/2001/XMLSchema#date">2026-11-20</dcterms:modified>
-        <owl:versionInfo>1.2.0</owl:versionInfo>
+        <owl:versionInfo>1.2.1</owl:versionInfo>
         <rdfs:comment xml:lang="es">Lugares, actividades, ciudades y comunas de la Región de Magallanes y de la Antártica Chilena, con sus modelos 3D.</rdfs:comment>
         <rdfs:label xml:lang="es">Ontología de turismo de la Región de Magallanes</rdfs:label>
     </owl:Ontology>
@@ -1221,7 +1221,7 @@
 
     <owl:NamedIndividual rdf:about="https://makusano-hub.github.io/Onto/ontologia#PinguinoRey">
         <rdf:type rdf:resource="https://makusano-hub.github.io/Onto/ontologia#Reserva"/>
-        <Ontologia2:ubicadoEnComuna rdf:resource="https://makusano-hub.github.io/Onto/ontologia#Timaukel"/>
+        <Ontologia2:ubicadoEnComuna rdf:resource="https://makusano-hub.github.io/Onto/ontologia#Porvenir"/>
         <Ontologia2:Nombre xml:lang="es">Reserva natuiral Pinguino Rey de la Patagonia</Ontologia2:Nombre>
         <Ontologia2:Latitud rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">-53.46</Ontologia2:Latitud>
         <Ontologia2:Longitud rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">-69.31</Ontologia2:Longitud>
@@ -1233,7 +1233,7 @@
     <!-- https://makusano-hub.github.io/Onto/ontologia#Plaza_de_armas_porvenir -->
 
     <owl:NamedIndividual rdf:about="https://makusano-hub.github.io/Onto/ontologia#Plaza_de_armas_porvenir">
-        <rdf:type rdf:resource="https://makusano-hub.github.io/Onto/ontologia#Estatua"/>
+        <rdf:type rdf:resource="https://makusano-hub.github.io/Onto/ontologia#Plaza"/>
         <Ontologia2:ubicadoEnCiudad rdf:resource="https://makusano-hub.github.io/Onto/ontologia#porvenir"/>
         <Ontologia2:Nombre xml:lang="es">Plaza de armas de porvenir</Ontologia2:Nombre>
         <Ontologia2:tieneModelo3D rdf:datatype="http://www.w3.org/2001/XMLSchema#anyURI">modelos3d/monumento_porve_Final.glb</Ontologia2:tieneModelo3D>
