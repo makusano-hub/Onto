@@ -35,13 +35,13 @@ java -jar C:\apache-jena-fuseki-6.2.0\fuseki-server.jar --localhost --config=fus
 
 Carga `ontologia/turismo.rdf` al arrancar, así que no hay que subir el archivo a mano. Después de editar la ontología, reinicia Fuseki.
 
-No quites `--localhost`: `/turismo/update` y `/turismo/data` aceptan cambios sin contraseña y, sin esa opción, Fuseki escucha en toda la red, de modo que cualquier equipo conectado a ella podría borrar los datos.
+Esta configuración es de solo lectura: no hay `/turismo/update` ni `/turismo/data`. El sitio y la compilación solo consultan, y un endpoint de escritura sin contraseña lo puede usar cualquier página web abierta en el mismo navegador, aunque Fuseki escuche solo en tu equipo. Para cambiar los datos se edita `ontologia/turismo.rdf` y se reinicia Fuseki. Mantén `--localhost`: sin esa opción Fuseki responde a toda la red sin necesidad.
 
 | Endpoint | Qué ofrece |
 | --- | --- |
 | `/turismo` | Los datos tal como están en el archivo. Es el que usa el sitio. |
 | `/turismo-inferido` | Los mismos datos más lo que deduce el razonador (OWL Micro): tipos por `rdfs:subClassOf`, `rdfs:domain` y `rdfs:range`, propiedades por `rdfs:subPropertyOf`, inversas por `owl:inverseOf` y la comuna de cada lugar por la transitividad de `t:ubicadoEn`. En el panel: casilla *Con inferencia* de la pestaña *Consultas SPARQL*. |
-| `/turismo/shacl` | Validación con las reglas de `ontologia/turismo.shacl.ttl`. En el panel: bloque *Reglas SHACL* de la pestaña *Validación*. |
+| `/turismo/shacl` | Validación con las reglas de `ontologia/turismo.shacl.ttl`, que incluyen los axiomas de la ontología (clases disjuntas, propiedades funcionales y dominios). En el panel: bloque *Reglas SHACL* de la pestaña *Validación*. |
 
 Las reglas SHACL también se pueden aplicar sin Fuseki en marcha:
 
@@ -66,7 +66,9 @@ Además de las clases, las propiedades y su alineación con schema.org, `ontolog
 
 La cabecera lleva la versión (`owl:versionInfo`) y las fechas de creación y de última modificación (`dcterms:created`, `dcterms:modified`). El vocabulario (`ontologia/`) y `datos.html` las muestran: al cambiar la ontología, actualiza la versión y la fecha de modificación.
 
-El razonador de Fuseki (OWL Micro) aplica la transitividad, los dominios y las inversas, pero no busca contradicciones. Para eso está HermiT, que viene con Protégé: abre `turismo.rdf` y elige *Reasoner → HermiT → Start reasoner*. Si la ontología se contradice, Protégé lo indica; si no, clasifica las clases. Las reglas SHACL siguen siendo lo que bloquea el despliegue.
+El razonador de Fuseki (OWL Micro) aplica la transitividad, los dominios y las inversas, pero no busca contradicciones. Para eso está HermiT, que viene con Protégé: abre `turismo.rdf` y elige *Reasoner → HermiT → Start reasoner*. Si la ontología se contradice, Protégé lo indica; si no, clasifica las clases.
+
+Lo que bloquea el despliegue son las reglas SHACL, y tres de ellas leen esos mismos axiomas: `f:Disjuntas` (un individuo en dos clases disjuntas), `f:Funcionales` (dos valores en una propiedad funcional) y `f:Dominio` (una propiedad usada por algo que no es de su dominio). No sustituyen a HermiT, que además deduce y comprueba la consistencia completa, pero detienen las contradicciones que estos axiomas hacen posibles sin tener que acordarse de abrir Protégé.
 
 Al añadir una comuna o una ciudad, inclúyela en la lista de individuos distintos (en Protégé, *Different individuals*).
 
@@ -135,6 +137,8 @@ Para publicar en otro dominio hay que cambiar tres cosas a la vez: `SITIO` en `j
 
 `.github/workflows/pages.yml` publica el sitio en cada cambio de la rama `main`: valida la ontología con SHACL, inicia Fuseki con `fuseki/config.ttl`, regenera la copia de respaldo de la carta 3D, compila y sube `dist/`. Si la ontología tiene errores SHACL o la publicación queda incompleta, no se despliega.
 
+En un pull request el mismo flujo valida y compila, pero no publica: un error aparece como comprobación fallida antes de fusionar, en vez de descubrirse cuando el despliegue de `main` ya ha fallado.
+
 Solo hay que activarlo una vez en GitHub: *Settings → Pages → Source → GitHub Actions*.
 
 ## Agregar contenido sin tocar el código
@@ -142,9 +146,9 @@ Solo hay que activarlo una vez en GitHub: *Settings → Pages → Source → Git
 1. Modelo 3D: copia el `.glb` a `public/modelos3d/` y añade `t:tieneModelo3D "modelos3d/archivo.glb"`.
 2. Imagen: cópiala a `public/imagenes/` y añade `t:tieneImagen "imagenes/archivo.jpg"`.
 3. Enlace: `t:tieneEnlace "https://…"` (puede repetirse).
-4. Coordenadas: `t:Latitud` y `t:Longitud` en grados decimales. La carta 3D ubica el lugar con ellas; sin coordenadas lo dibuja alrededor de su ciudad o comuna.
+4. Coordenadas: `t:Latitud` y `t:Longitud` en grados decimales. La carta 3D ubica el lugar con ellas; sin coordenadas lo dibuja alrededor de su ciudad o comuna. Una ciudad con coordenadas aparece también en el mapa de la portada.
 5. Mismo lugar en otras bases de datos: `owl:sameAs <http://www.wikidata.org/entity/Q…>` y, si Wikidata da su identificador de GeoNames (propiedad P1566), `owl:sameAs <https://sws.geonames.org/…/>`. Cada entidad externa se enlaza con un solo individuo, y solo si es el mismo objeto: una bahía de GeoNames no es el sitio histórico que lleva su nombre.
-6. Individuo nuevo: usa la pestaña *Nuevo individuo* del panel, que genera el Turtle o el `INSERT DATA`, con el nombre y la descripción ya marcados como español (`@es`).
+6. Individuo nuevo: usa la pestaña *Nuevo individuo* del panel, que genera el Turtle con el nombre y la descripción ya marcados como español (`@es`). Pégalo en Protégé y guarda `turismo.rdf`. También genera un `INSERT DATA`, que solo sirve en un Fuseki propio con endpoint de escritura: el de `fuseki/config.ttl` no lo tiene.
 7. Reinicia Fuseki (o recarga el dataset `turismo` si lo subes a mano) y revisa la pestaña *Validación*.
 8. Si cambiaste `ontologia/turismo.rdf`, regenera la copia de respaldo de la carta 3D con `node scripts/generar-copia.mjs`.
 

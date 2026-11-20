@@ -3,7 +3,8 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { COPIA } from './grafo-datos.js';
-import { NS, nombreClase as nomClase, nombreSitio as sitio } from './catalogo.js'; // nombres de clase y de sitios externos: los mismos que en el resto del sitio
+// Nombres de clase, de individuo y de sitios externos: los mismos que en el resto del sitio
+import { NS, nombreClase as nomClase, nombreSitio as sitio, nombreLegible as bonito, esVerdadero } from './catalogo.js';
 import { consultarSPARQLDetallado, origenDeDatos } from './fuseki.js'; // Fuseki o, si no responde, el motor SPARQL del navegador
 import { gx, gz, paso, suelo, construirRegion, REGION } from './mapa-region.js';
 
@@ -33,11 +34,13 @@ const GRUPOS = {
   Establecimientos:{nombre:"Establecimientos", color:"#b79cff"},
   Lugares:{nombre:"Otros lugares", color:"#8ec5ff"}
 };
-const bonito = id => { const t=String(id).replace(/_/g," ").replace(/([a-zñáéíóú])([A-Z])/g,"$1 $2").trim(); return t.charAt(0).toUpperCase()+t.slice(1); };
 const local = iri => { const s=String(iri); return s.includes("#") ? s.slice(s.lastIndexOf("#")+1) : s.replace(/\/$/,"").split("/").pop(); };
 // Un IRI de otro sitio (owl:sameAs hacia Wikidata o GeoNames) se conserva entero para poder enlazarlo
 const externo = v => /^https?:\/\//.test(v);
-const nodo = iri => iri.includes("#") ? local(iri) : iri;
+// Solo se acortan los términos propios y los de OWL (owl:NamedIndividual). Un IRI externo se conserva entero
+// aunque lleve "#": acortado dejaba de ser un enlace y se confundía con un individuo propio del mismo nombre.
+const OWL = "http://www.w3.org/2002/07/owl#";
+const nodo = iri => iri.startsWith(NS) || iri.startsWith(OWL) ? local(iri) : iri;
 // Búsqueda de Google Maps por nombre (formato documentado de Maps URLs): abre la ciudad con su ficha
 const mapa = x => "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(x.nombre + ", Región de Magallanes, Chile");
 const $ = id => document.getElementById(id);
@@ -266,8 +269,8 @@ function etiquetasDato(x){
   const d=[];
   if(texto1(x,"Calificacion")!==undefined) d.push("★ "+texto1(x,"Calificacion"));
   if(texto1(x,"Precio")!==undefined) d.push(dinero(texto1(x,"Precio")));
-  if(texto1(x,"requierePermisoAutoridad")==="true") d.push("Requiere permiso");
-  if(texto1(x,"tieneTemporada")==="true") d.push("Por temporada");
+  if(esVerdadero(texto1(x,"requierePermisoAutoridad"))) d.push("Requiere permiso");
+  if(esVerdadero(texto1(x,"tieneTemporada"))) d.push("Por temporada");
   return d;
 }
 

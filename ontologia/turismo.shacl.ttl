@@ -221,14 +221,76 @@ f:Coordenadas
         sh:message "La longitud queda fuera de la carta de la región (entre -76 y -66,4)."@es
     ] .
 
-# ---------- Coherencia con la ontología
+# ---------- Coherencia con los axiomas de la ontología
+#
+# Estas tres reglas leen los axiomas del propio grafo (owl:disjointWith, owl:FunctionalProperty y rdfs:domain)
+# y comprueban que los datos no los contradicen: si la ontología gana un axioma, la regla lo aplica sin tocarla.
+# No sustituyen a un razonador como HermiT (no deducen nada nuevo ni prueban la consistencia completa), pero
+# detienen el despliegue ante las contradicciones que esos axiomas hacen posibles.
 
-# t:tieneModelo3D declara rdfs:domain t:Lugares: usado en otra cosa, el razonador la clasifica como lugar
-f:Modelo
+# Prefijos de las reglas escritas en SPARQL
+f:prefijos
+    sh:declare [ sh:prefix "rdf" ;  sh:namespace "http://www.w3.org/1999/02/22-rdf-syntax-ns#"^^xsd:anyURI ] ,
+               [ sh:prefix "rdfs" ; sh:namespace "http://www.w3.org/2000/01/rdf-schema#"^^xsd:anyURI ] ,
+               [ sh:prefix "owl" ;  sh:namespace "http://www.w3.org/2002/07/owl#"^^xsd:anyURI ] .
+
+# Un individuo no puede ser de dos clases disjuntas (por ejemplo, lugar y actividad), ni directamente
+# ni a través de sus superclases
+f:Disjuntas
     a sh:NodeShape ;
-    sh:targetSubjectsOf t:tieneModelo3D ;
-    sh:class t:Lugares ;
-    sh:message "Tiene t:tieneModelo3D pero no es un t:Lugares: el dominio de la propiedad hace que el razonador lo clasifique como lugar."@es .
+    sh:targetClass owl:NamedIndividual ;
+    sh:sparql [
+        sh:prefixes f:prefijos ;
+        sh:message "Es a la vez {?una} y {?otra}, que la ontología declara disjuntas (owl:disjointWith)."@es ;
+        sh:select """
+            SELECT DISTINCT $this ?una ?otra WHERE {
+                $this rdf:type/rdfs:subClassOf* ?claseUna ;
+                      rdf:type/rdfs:subClassOf* ?claseOtra .
+                ?claseUna owl:disjointWith ?claseOtra .
+                BIND(REPLACE(STR(?claseUna), "^.*#", "t:") AS ?una)
+                BIND(REPLACE(STR(?claseOtra), "^.*#", "t:") AS ?otra)
+            }"""
+    ] .
+
+# Una propiedad funcional admite un solo valor. Varias ya tienen su sh:maxCount más arriba, con un mensaje
+# propio; esta regla cubre además las que se declaren funcionales en adelante.
+f:Funcionales
+    a sh:NodeShape ;
+    sh:targetClass owl:NamedIndividual ;
+    sh:sparql [
+        sh:prefixes f:prefijos ;
+        sh:message "Tiene dos valores distintos de {?propiedad}, que la ontología declara funcional (un solo valor)."@es ;
+        sh:select """
+            SELECT DISTINCT $this ?path ?propiedad WHERE {
+                ?path rdf:type owl:FunctionalProperty .
+                $this ?path ?uno , ?otro .
+                FILTER(?uno != ?otro)
+                BIND(REPLACE(STR(?path), "^.*#", "t:") AS ?propiedad)
+            }"""
+    ] .
+
+# Quien usa una propiedad debe ser de su dominio (una clase, o alguna de las de una unión): t:tieneModelo3D es
+# solo de los lugares, t:Latitud de lugares, ciudades y comunas… Usada en otra cosa, un razonador la
+# clasificaría en esa clase, y con las clases disjuntas eso es una contradicción.
+f:Dominio
+    a sh:NodeShape ;
+    sh:targetClass owl:NamedIndividual ;
+    sh:sparql [
+        sh:prefixes f:prefijos ;
+        sh:message "Usa {?propiedad}, pero no es de ninguna clase de su dominio (rdfs:domain)."@es ;
+        sh:select """
+            SELECT DISTINCT $this ?path ?propiedad WHERE {
+                $this ?path ?valor .
+                ?path rdfs:domain ?dominio .
+                FILTER NOT EXISTS {
+                    { ?path rdfs:domain ?clase . FILTER(isIRI(?clase)) }
+                    UNION
+                    { ?path rdfs:domain/owl:unionOf/rdf:rest*/rdf:first ?clase }
+                    $this rdf:type/rdfs:subClassOf* ?clase .
+                }
+                BIND(REPLACE(STR(?path), "^.*#", "t:") AS ?propiedad)
+            }"""
+    ] .
 
 # ---------- Datos enlazados
 
@@ -242,3 +304,10 @@ f:Equivalencia
         sh:maxCount 1 ;
         sh:message "Esta entidad externa está enlazada con más de un individuo: owl:sameAs los convertiría en el mismo."@es
     ] .
+
+# El sitio escribe estos IRIs como enlaces: solo se admiten direcciones web
+f:EquivalenciaWeb
+    a sh:NodeShape ;
+    sh:targetObjectsOf owl:sameAs ;
+    sh:pattern "^https?://" ;
+    sh:message "owl:sameAs debe apuntar a una dirección http(s): el sitio lo muestra como enlace."@es .

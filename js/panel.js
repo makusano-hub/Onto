@@ -150,11 +150,15 @@ async function comprobarSHACL() {
     return;
   }
 
-  // Los mismos resultados, repartidos por individuo para la tabla y las tarjetas
+  // Los mismos resultados, repartidos por atracción para la tabla y las tarjetas. Se emparejan por el IRI
+  // completo: un individuo de otro espacio de nombres tiene el mismo identificador corto en la tabla,
+  // pero SHACL lo nombra por su IRI entero y sus errores se quedaban sin fila.
+  const idPorIri = new Map(estado.datos.atracciones.map((a) => [a.uri, a.id]));
   estado.shacl = new Map();
-  resultados.forEach(({ nivel, mensaje, individuo, propiedad }) => {
-    if (!estado.shacl.has(individuo)) estado.shacl.set(individuo, []);
-    estado.shacl.get(individuo).push({ grupo: GRUPO_SHACL[propiedad] ?? 'ontologia', nivel, mensaje, consejo: 'Regla de ontologia/turismo.shacl.ttl.' });
+  resultados.forEach(({ nivel, mensaje, individuo, iri, propiedad }) => {
+    const id = idPorIri.get(iri) ?? individuo;
+    if (!estado.shacl.has(id)) estado.shacl.set(id, []);
+    estado.shacl.get(id).push({ grupo: GRUPO_SHACL[propiedad] ?? 'ontologia', nivel, mensaje, consejo: 'Regla de ontologia/turismo.shacl.ttl.' });
   });
   refrescar();
 
@@ -631,14 +635,21 @@ function generar() {
 
   if (!id) avisos.push(['error', 'Falta el identificador.']);
   else if (!ID_VALIDO.test(id)) avisos.push(['error', 'El identificador solo puede tener letras, números, _ y -.']);
-  else if (estado.datos.tiposPorIndividuo.has(id)) avisos.push(['error', `Ya existe un individuo ${id}.`]);
+  // Cualquier término propio cuenta, no solo los individuos con clase: con el identificador de una clase o de
+  // una propiedad, el Turtle generado convertiría ese mismo IRI en un individuo
+  else if (estado.datos.identificadores.has(id)) avisos.push(['error', `Ya existe t:${id} en la ontología (es una clase, una propiedad o un individuo).`]);
   if (!clase) avisos.push(['error', 'Falta la clase.']);
   if (!valor('nombre')) avisos.push(['aviso', 'Sin nombre: el sitio mostrará el identificador.']);
   if (esActividad && !valor('lugar')) avisos.push(['error', 'Una actividad necesita el lugar donde se realiza.']);
   if (!esActividad && !valor('ciudad') && !valor('comuna')) avisos.push(['error', 'Sin ciudad ni comuna: no aparecerá al filtrar por comuna.']);
+  // Con ciudad, la comuna ya viene dada por ella: otra distinta deja al lugar con dos comunas (error SHACL)
+  const comunasDeLaCiudad = estado.datos.comunaDeCiudad.get(valor('ciudad')) ?? [];
+  if (!esActividad && valor('ciudad') && valor('comuna') && comunasDeLaCiudad.length && !comunasDeLaCiudad.includes(valor('comuna'))) {
+    avisos.push(['error', `${nombreLegible(valor('ciudad'))} pertenece a la comuna de ${comunasDeLaCiudad.map(nombreLegible).join(', ')}, no a ${nombreLegible(valor('comuna'))}: deja la comuna vacía o elige esa.`]);
+  }
   const calificacion = valor('calificacion');
   if (calificacion && !(Number(calificacion) >= 0 && Number(calificacion) <= 5)) avisos.push(['error', 'La calificación debe estar entre 0 y 5.']);
-  // Solo los lugares llevan modelo: t:tieneModelo3D tiene dominio t:Lugares y la regla SHACL f:Modelo lo exige
+  // Solo los lugares llevan modelo: t:tieneModelo3D tiene dominio t:Lugares y la regla SHACL f:Dominio lo exige
   const modelo = esActividad ? '' : valor('modelo');
   if (modelo && !FORMATOS_MODELO.some((ext) => modelo.toLowerCase().endsWith(`.${ext}`))) avisos.push(['error', 'El modelo debe ser .glb o .gltf.']);
   else if (modelo && !/^https?:/.test(modelo) && !estado.datos.recursos.modelos3d.includes(modelo)) avisos.push(['aviso', `No existe public/${modelo}: cópialo antes de recargar.`]);

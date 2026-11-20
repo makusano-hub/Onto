@@ -36,12 +36,13 @@ const extension = (ruta) => ruta.split('?')[0].split('.').pop().toLowerCase();
 
 // Descarga todo lo necesario para validar y explorar
 export async function cargarDatos() {
-  const [atracciones, jerarquia, tipos, ciudades, huerfanos] = await Promise.all([
+  const [atracciones, jerarquia, tipos, ciudades, huerfanos, terminos] = await Promise.all([
     obtenerInventario(),
     consultarSPARQL(construir.jerarquia()),
     consultarSPARQL(construir.tipos()),
     consultarSPARQL(construir.ciudades()),
-    consultarSPARQL(construir.huerfanos())
+    consultarSPARQL(construir.huerfanos()),
+    consultarSPARQL(construir.identificadores())
   ]);
 
   const padres = new Map();
@@ -59,7 +60,10 @@ export async function cargarDatos() {
   const comunaDeCiudad = new Map(ciudades.map(({ ciudad, comunas }) =>
     [idDe(ciudad), comunas ? comunas.split(SEP).map(idDe) : []]));
 
-  const contexto = { padres, etiquetas, tiposPorIndividuo, comunaDeCiudad, huerfanos, recursos };
+  // Identificadores ya usados por cualquier término propio (clase, propiedad o individuo, con tipo o sin él)
+  const identificadores = new Set(terminos.map(({ termino }) => idDe(termino)));
+
+  const contexto = { padres, etiquetas, tiposPorIndividuo, comunaDeCiudad, identificadores, huerfanos, recursos };
   atracciones.forEach((atraccion) => {
     atraccion.ancestros = ancestros(atraccion.clases, padres);
     atraccion.categorias = CATEGORIAS
