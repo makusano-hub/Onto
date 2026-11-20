@@ -12,7 +12,7 @@
         <dcterms:license rdf:resource="https://creativecommons.org/licenses/by/4.0/"/>
         <dcterms:created rdf:datatype="http://www.w3.org/2001/XMLSchema#date">2026-10-26</dcterms:created>
         <dcterms:modified rdf:datatype="http://www.w3.org/2001/XMLSchema#date">2026-11-20</dcterms:modified>
-        <owl:versionInfo>1.1.0</owl:versionInfo>
+        <owl:versionInfo>1.2.0</owl:versionInfo>
         <rdfs:comment xml:lang="es">Lugares, actividades, ciudades y comunas de la Región de Magallanes y de la Antártica Chilena, con sus modelos 3D.</rdfs:comment>
         <rdfs:label xml:lang="es">Ontología de turismo de la Región de Magallanes</rdfs:label>
     </owl:Ontology>
@@ -813,6 +813,7 @@
         <owl:sameAs rdf:resource="http://www.wikidata.org/entity/Q3673"/>
         <Ontologia2:Latitud rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">-54.93</Ontologia2:Latitud>
         <Ontologia2:Longitud rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">-67.61</Ontologia2:Longitud>
+        <owl:sameAs rdf:resource="https://sws.geonames.org/8261179/"/>
     </owl:NamedIndividual>
     
 
@@ -897,6 +898,7 @@
         <Ontologia2:Descripcion xml:lang="es">Hotel ubicado en la costanera de Punta arenas</Ontologia2:Descripcion>
         <Ontologia2:Nombre xml:lang="es">Diego de Almagro</Ontologia2:Nombre>
         <Ontologia2:tieneTemporada rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">false</Ontologia2:tieneTemporada>
+        <owl:sameAs rdf:resource="http://www.wikidata.org/entity/Q111415366"/>
     </owl:NamedIndividual>
     
 
@@ -928,6 +930,7 @@
         <owl:sameAs rdf:resource="http://www.wikidata.org/entity/Q2362268"/>
         <Ontologia2:Latitud rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">-53.63</Ontologia2:Latitud>
         <Ontologia2:Longitud rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">-70.92</Ontologia2:Longitud>
+        <owl:sameAs rdf:resource="https://sws.geonames.org/3897723/"/>
     </owl:NamedIndividual>
     
 
@@ -940,6 +943,7 @@
         <Ontologia2:Nombre xml:lang="es">Monumento Hernando de Magallanes</Ontologia2:Nombre>
         <Ontologia2:Precio rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">0</Ontologia2:Precio>
         <Ontologia2:tieneModelo3D rdf:datatype="http://www.w3.org/2001/XMLSchema#anyURI">modelos3d/monumentoHernando.glb</Ontologia2:tieneModelo3D>
+        <owl:sameAs rdf:resource="http://www.wikidata.org/entity/Q66124258"/>
     </owl:NamedIndividual>
     
 
@@ -963,6 +967,7 @@
         <Ontologia2:Latitud rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">-52.92</Ontologia2:Latitud>
         <Ontologia2:Longitud rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">-70.58</Ontologia2:Longitud>
         <Ontologia2:Nombre xml:lang="es">Isla Magdalena</Ontologia2:Nombre>
+        <owl:sameAs rdf:resource="https://sws.geonames.org/3881027/"/>
     </owl:NamedIndividual>
     
 
@@ -976,6 +981,7 @@
         <Ontologia2:Latitud rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">-54.05</Ontologia2:Latitud>
         <Ontologia2:Longitud rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">-68.95</Ontologia2:Longitud>
         <Ontologia2:Nombre xml:lang="es">Lago Blanco</Ontologia2:Nombre>
+        <owl:sameAs rdf:resource="https://sws.geonames.org/3898229/"/>
     </owl:NamedIndividual>
     
 
@@ -987,6 +993,7 @@
         <owl:sameAs rdf:resource="http://www.wikidata.org/entity/Q14474"/>
         <Ontologia2:Latitud rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">-52.43</Ontologia2:Latitud>
         <Ontologia2:Longitud rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">-71.41</Ontologia2:Longitud>
+        <owl:sameAs rdf:resource="https://sws.geonames.org/8261394/"/>
     </owl:NamedIndividual>
     
 
@@ -1073,6 +1080,7 @@
         <owl:sameAs rdf:resource="http://www.wikidata.org/entity/Q22366685"/>
         <Ontologia2:Latitud rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">-53.75</Ontologia2:Latitud>
         <Ontologia2:Longitud rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">-71.02</Ontologia2:Longitud>
+        <owl:sameAs rdf:resource="https://sws.geonames.org/3870106/"/>
     </owl:NamedIndividual>
     
 
@@ -1151,6 +1159,7 @@
         <owl:sameAs rdf:resource="http://www.wikidata.org/entity/Q901646"/>
         <Ontologia2:Latitud rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">-50.98</Ontologia2:Latitud>
         <Ontologia2:Longitud rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">-73.10</Ontologia2:Longitud>
+        <owl:sameAs rdf:resource="https://sws.geonames.org/7732121/"/>
     </owl:NamedIndividual>
     
 
@@ -1178,6 +1187,7 @@
         <Ontologia2:Latitud rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">-53.40</Ontologia2:Latitud>
         <Ontologia2:Longitud rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">-71.25</Ontologia2:Longitud>
         <Ontologia2:Nombre xml:lang="es">Laguna Parrillar</Ontologia2:Nombre>
+        <owl:sameAs rdf:resource="https://sws.geonames.org/3890821/"/>
     </owl:NamedIndividual>
     
 
@@ -1215,6 +1225,7 @@
         <Ontologia2:Nombre xml:lang="es">Reserva natuiral Pinguino Rey de la Patagonia</Ontologia2:Nombre>
         <Ontologia2:Latitud rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">-53.46</Ontologia2:Latitud>
         <Ontologia2:Longitud rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">-69.31</Ontologia2:Longitud>
+        <owl:sameAs rdf:resource="http://www.wikidata.org/entity/Q136868955"/>
     </owl:NamedIndividual>
     
 
@@ -1226,6 +1237,7 @@
         <Ontologia2:ubicadoEnCiudad rdf:resource="https://makusano-hub.github.io/Onto/ontologia#porvenir"/>
         <Ontologia2:Nombre xml:lang="es">Plaza de armas de porvenir</Ontologia2:Nombre>
         <Ontologia2:tieneModelo3D rdf:datatype="http://www.w3.org/2001/XMLSchema#anyURI">modelos3d/monumento_porve_Final.glb</Ontologia2:tieneModelo3D>
+        <owl:sameAs rdf:resource="http://www.wikidata.org/entity/Q136910704"/>
     </owl:NamedIndividual>
     
 
@@ -1237,6 +1249,7 @@
         <owl:sameAs rdf:resource="http://www.wikidata.org/entity/Q51120"/>
         <Ontologia2:Latitud rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">-53.30</Ontologia2:Latitud>
         <Ontologia2:Longitud rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">-70.37</Ontologia2:Longitud>
+        <owl:sameAs rdf:resource="https://sws.geonames.org/8261448/"/>
     </owl:NamedIndividual>
     
 
@@ -1248,6 +1261,7 @@
         <owl:sameAs rdf:resource="http://www.wikidata.org/entity/Q51586"/>
         <Ontologia2:Latitud rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">-52.78</Ontologia2:Latitud>
         <Ontologia2:Longitud rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">-69.29</Ontologia2:Longitud>
+        <owl:sameAs rdf:resource="https://sws.geonames.org/8261447/"/>
     </owl:NamedIndividual>
     
 
@@ -1277,6 +1291,7 @@
         <owl:sameAs rdf:resource="http://www.wikidata.org/entity/Q51043"/>
         <Ontologia2:Latitud rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">-51.73</Ontologia2:Latitud>
         <Ontologia2:Longitud rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">-72.51</Ontologia2:Longitud>
+        <owl:sameAs rdf:resource="https://sws.geonames.org/8261192/"/>
     </owl:NamedIndividual>
     
 
@@ -1303,6 +1318,7 @@
         <Ontologia2:Latitud rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">-51.73</Ontologia2:Latitud>
         <Ontologia2:Longitud rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">-72.51</Ontologia2:Longitud>
         <Ontologia2:tieneEnlace rdf:datatype="http://www.w3.org/2001/XMLSchema#anyURI">https://es.wikipedia.org/wiki/Puerto_Natales</Ontologia2:tieneEnlace>
+        <owl:sameAs rdf:resource="https://sws.geonames.org/3874958/"/>
     </owl:NamedIndividual>
     
 
@@ -1316,6 +1332,7 @@
         <Ontologia2:Latitud rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">-54.93</Ontologia2:Latitud>
         <Ontologia2:Longitud rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">-67.61</Ontologia2:Longitud>
         <Ontologia2:tieneEnlace rdf:datatype="http://www.w3.org/2001/XMLSchema#anyURI">https://es.wikipedia.org/wiki/Puerto_Williams</Ontologia2:tieneEnlace>
+        <owl:sameAs rdf:resource="https://sws.geonames.org/3874926/"/>
     </owl:NamedIndividual>
     
 
@@ -1327,6 +1344,7 @@
         <owl:sameAs rdf:resource="http://www.wikidata.org/entity/Q20530729"/>
         <Ontologia2:Latitud rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">-53.16</Ontologia2:Latitud>
         <Ontologia2:Longitud rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">-70.91</Ontologia2:Longitud>
+        <owl:sameAs rdf:resource="https://sws.geonames.org/8261182/"/>
     </owl:NamedIndividual>
     
 
@@ -1340,6 +1358,7 @@
         <Ontologia2:Latitud rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">-53.16</Ontologia2:Latitud>
         <Ontologia2:Longitud rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">-70.91</Ontologia2:Longitud>
         <Ontologia2:tieneEnlace rdf:datatype="http://www.w3.org/2001/XMLSchema#anyURI">https://es.wikipedia.org/wiki/Punta_Arenas</Ontologia2:tieneEnlace>
+        <owl:sameAs rdf:resource="https://sws.geonames.org/3874787/"/>
     </owl:NamedIndividual>
     
 
@@ -1351,6 +1370,7 @@
         <owl:sameAs rdf:resource="http://www.wikidata.org/entity/Q56131"/>
         <Ontologia2:Latitud rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">-52.58</Ontologia2:Latitud>
         <Ontologia2:Longitud rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">-71.50</Ontologia2:Longitud>
+        <owl:sameAs rdf:resource="https://sws.geonames.org/8261180/"/>
     </owl:NamedIndividual>
     
 
@@ -1362,6 +1382,7 @@
         <owl:sameAs rdf:resource="http://www.wikidata.org/entity/Q187816"/>
         <Ontologia2:Latitud rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">-52.31</Ontologia2:Latitud>
         <Ontologia2:Longitud rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">-69.69</Ontologia2:Longitud>
+        <owl:sameAs rdf:resource="https://sws.geonames.org/8261452/"/>
     </owl:NamedIndividual>
     
 
@@ -1378,6 +1399,7 @@
         <owl:sameAs rdf:resource="http://www.wikidata.org/entity/Q5638602"/>
         <Ontologia2:Latitud rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">-51.28</Ontologia2:Latitud>
         <Ontologia2:Longitud rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">-73.10</Ontologia2:Longitud>
+        <owl:sameAs rdf:resource="https://sws.geonames.org/3870984/"/>
     </owl:NamedIndividual>
     
 
@@ -1402,6 +1424,7 @@
         <owl:sameAs rdf:resource="http://www.wikidata.org/entity/Q188177"/>
         <Ontologia2:Latitud rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">-53.64</Ontologia2:Latitud>
         <Ontologia2:Longitud rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">-69.65</Ontologia2:Longitud>
+        <owl:sameAs rdf:resource="https://sws.geonames.org/8261181/"/>
     </owl:NamedIndividual>
     
 
@@ -1413,6 +1436,7 @@
         <owl:sameAs rdf:resource="http://www.wikidata.org/entity/Q200948"/>
         <Ontologia2:Latitud rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">-51.26</Ontologia2:Latitud>
         <Ontologia2:Longitud rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">-72.35</Ontologia2:Longitud>
+        <owl:sameAs rdf:resource="https://sws.geonames.org/8261441/"/>
     </owl:NamedIndividual>
     
 
@@ -1521,6 +1545,7 @@
         <Ontologia2:Latitud rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">-53.30</Ontologia2:Latitud>
         <Ontologia2:Longitud rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">-70.37</Ontologia2:Longitud>
         <Ontologia2:tieneEnlace rdf:datatype="http://www.w3.org/2001/XMLSchema#anyURI">https://es.wikipedia.org/wiki/Porvenir</Ontologia2:tieneEnlace>
+        <owl:sameAs rdf:resource="https://sws.geonames.org/3875367/"/>
     </owl:NamedIndividual>
     
 

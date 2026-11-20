@@ -143,7 +143,7 @@ Solo hay que activarlo una vez en GitHub: *Settings → Pages → Source → Git
 2. Imagen: cópiala a `public/imagenes/` y añade `t:tieneImagen "imagenes/archivo.jpg"`.
 3. Enlace: `t:tieneEnlace "https://…"` (puede repetirse).
 4. Coordenadas: `t:Latitud` y `t:Longitud` en grados decimales. La carta 3D ubica el lugar con ellas; sin coordenadas lo dibuja alrededor de su ciudad o comuna.
-5. Mismo lugar en Wikidata: `owl:sameAs <http://www.wikidata.org/entity/Q…>`. Cada entidad de Wikidata se enlaza con un solo individuo.
+5. Mismo lugar en otras bases de datos: `owl:sameAs <http://www.wikidata.org/entity/Q…>` y, si Wikidata da su identificador de GeoNames (propiedad P1566), `owl:sameAs <https://sws.geonames.org/…/>`. Cada entidad externa se enlaza con un solo individuo, y solo si es el mismo objeto: una bahía de GeoNames no es el sitio histórico que lleva su nombre.
 6. Individuo nuevo: usa la pestaña *Nuevo individuo* del panel, que genera el Turtle o el `INSERT DATA`, con el nombre y la descripción ya marcados como español (`@es`).
 7. Reinicia Fuseki (o recarga el dataset `turismo` si lo subes a mano) y revisa la pestaña *Validación*.
 8. Si cambiaste `ontologia/turismo.rdf`, regenera la copia de respaldo de la carta 3D con `node scripts/generar-copia.mjs`.

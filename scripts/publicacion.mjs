@@ -70,6 +70,7 @@ const OWL = 'http://www.w3.org/2002/07/owl#';
 const XSD = 'http://www.w3.org/2001/XMLSchema#';
 const DCT = 'http://purl.org/dc/terms/';
 const WIKIDATA = 'http://www.wikidata.org/entity/';
+const GEONAMES = 'https://sws.geonames.org/';
 
 const esc = (texto) => String(texto).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
@@ -240,7 +241,7 @@ function paginaDatos(html, disponibles, cabecera) {
     '@type': 'Dataset',
     '@id': `${SITIO}ontologia`,
     name: 'Ontología de turismo de la Región de Magallanes',
-    description: 'Lugares, actividades, ciudades y comunas de la Región de Magallanes y de la Antártica Chilena, con sus modelos 3D, enlazados con Wikidata y alineados con schema.org.',
+    description: 'Lugares, actividades, ciudades y comunas de la Región de Magallanes y de la Antártica Chilena, con sus modelos 3D, enlazados con Wikidata y GeoNames y alineados con schema.org.',
     url: `${SITIO}datos.html`,
     inLanguage: 'es',
     license: LICENCIA,
@@ -280,6 +281,7 @@ function paginaVocabulario(html, { terminos, jsonld, enlaceFicha, cabecera }) {
     if (iri.startsWith(NS)) return `<a href="#${encodeURIComponent(iri.slice(NS.length))}">${esc(etiqueta(iri.slice(NS.length)))}</a>`;
     if (iri.startsWith(SCHEMA)) return `<a href="${esc(iri)}">schema:${esc(iri.slice(SCHEMA.length))}</a>`;
     if (iri.startsWith(WIKIDATA)) return `<a href="${esc(iri)}">Wikidata ${esc(iri.slice(WIKIDATA.length))}</a>`;
+    if (iri.startsWith(GEONAMES)) return `<a href="${esc(iri)}">GeoNames ${esc(iri.slice(GEONAMES.length).replace(/\/$/, ''))}</a>`;
     if (iri.startsWith(XSD)) return `xsd:${esc(iri.slice(XSD.length))}`;
     if (iri === `${RDF}PlainLiteral`) return 'texto, con o sin idioma (rdf:PlainLiteral)';
     return `<a href="${esc(iri)}">${esc(iri)}</a>`;
