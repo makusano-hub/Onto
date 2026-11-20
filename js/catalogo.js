@@ -93,6 +93,20 @@ export function categoriaPorId(id) {
   return CATEGORIAS.find((categoria) => categoria.id === id) ?? null;
 }
 
+// Texto de un enlace externo: los sitios conocidos por su nombre, el resto por su dominio.
+// Lo usan la ficha y la carta 3D para los enlaces (t:tieneEnlace) y las equivalencias (owl:sameAs).
+const SITIOS = { 'wikipedia.org': 'Wikipedia', 'wikidata.org': 'Wikidata', 'geonames.org': 'GeoNames' };
+
+export function nombreSitio(url) {
+  try {
+    const dominio = new URL(url).hostname.replace(/^www\./, '');
+    const conocido = Object.keys(SITIOS).find((sitio) => dominio === sitio || dominio.endsWith(`.${sitio}`));
+    return conocido ? SITIOS[conocido] : dominio;
+  } catch {
+    return url;
+  }
+}
+
 // Fuera de Vite (al generar las fichas estáticas con Node) no existe import.meta.env
 const BASE = import.meta.env?.BASE_URL ?? './';
 

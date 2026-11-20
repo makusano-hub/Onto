@@ -52,7 +52,7 @@ export function renderizarFicha(contenedor, atraccion, { visor = true, nivelTitu
         el('a', { href: url, target: '_blank', rel: 'noopener noreferrer', texto: `${texto} ↗` }))))
     : null;
 
-  // owl:sameAs: el mismo lugar en otras bases de datos (Wikidata)
+  // owl:sameAs: el mismo lugar en otras bases de datos (Wikidata y GeoNames)
   const listaEquivalentes = equivalentes.length
     ? el('ul', { class: 'ficha-enlaces', 'data-campo': 'equivalentes', 'aria-label': 'Este lugar en otras bases de datos' },
       ...equivalentes.map(({ url, texto }) => el('li', {},

@@ -3,7 +3,7 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { COPIA } from './grafo-datos.js';
-import { NS, nombreClase as nomClase } from './catalogo.js'; // los nombres de clase son los mismos que en el resto del sitio
+import { NS, nombreClase as nomClase, nombreSitio as sitio } from './catalogo.js'; // nombres de clase y de sitios externos: los mismos que en el resto del sitio
 import { consultarSPARQLDetallado, origenDeDatos } from './fuseki.js'; // Fuseki o, si no responde, el motor SPARQL del navegador
 import { gx, gz, paso, suelo, construirRegion, REGION } from './mapa-region.js';
 
@@ -35,12 +35,9 @@ const GRUPOS = {
 };
 const bonito = id => { const t=String(id).replace(/_/g," ").replace(/([a-zñáéíóú])([A-Z])/g,"$1 $2").trim(); return t.charAt(0).toUpperCase()+t.slice(1); };
 const local = iri => { const s=String(iri); return s.includes("#") ? s.slice(s.lastIndexOf("#")+1) : s.replace(/\/$/,"").split("/").pop(); };
-// Un IRI de otro sitio (owl:sameAs hacia Wikidata) se conserva entero para poder enlazarlo
+// Un IRI de otro sitio (owl:sameAs hacia Wikidata o GeoNames) se conserva entero para poder enlazarlo
 const externo = v => /^https?:\/\//.test(v);
 const nodo = iri => iri.includes("#") ? local(iri) : iri;
-// Texto de un enlace externo: los sitios conocidos por su nombre, el resto por su dominio
-const SITIOS = {"wikipedia.org":"Wikipedia", "wikidata.org":"Wikidata"};
-const sitio = url => { try{ const h=new URL(url).hostname.replace(/^www\./,""); const d=Object.keys(SITIOS).find(k => h===k || h.endsWith("."+k)); return d ? SITIOS[d] : h; }catch(e){ return url; } };
 // Búsqueda de Google Maps por nombre (formato documentado de Maps URLs): abre la ciudad con su ficha
 const mapa = x => "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(x.nombre + ", Región de Magallanes, Chile");
 const $ = id => document.getElementById(id);
