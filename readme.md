@@ -70,6 +70,8 @@ El razonador de Fuseki (OWL Micro) aplica la transitividad, los dominios y las i
 
 Al añadir una comuna o una ciudad, inclúyela en la lista de individuos distintos (en Protégé, *Different individuals*).
 
+Los nombres y las descripciones llevan su idioma (`xml:lang="es"` en RDF/XML, `"…"@es` en Turtle), para que quien reutilice los datos sepa en qué lengua están. Por eso el rango de `t:Nombre` y `t:Descripcion` es `rdf:PlainLiteral` (texto, con o sin idioma) y no `xsd:string`: con `xsd:string`, un texto con idioma hace inconsistente la ontología. Una regla SHACL avisa si alguno queda sin idioma. El sitio muestra un solo nombre por atracción: si añades el mismo nombre en otro idioma, SHACL avisará de que hay más de uno.
+
 ### Sin Fuseki: SPARQL en el navegador
 
 Cada página pregunta primero a Fuseki (`ASK {}`). Si no responde, como ocurre en el sitio publicado en GitHub Pages, las mismas consultas las resuelve un motor SPARQL que corre en el navegador: [Oxigraph](https://github.com/oxigraph/oxigraph) compilado a WebAssembly (1,5 MB comprimido, se descarga solo en ese caso). Carga `datos/turismo.rdf`, el mismo archivo que el sitio ofrece para descargar.
@@ -142,7 +144,7 @@ Solo hay que activarlo una vez en GitHub: *Settings → Pages → Source → Git
 3. Enlace: `t:tieneEnlace "https://…"` (puede repetirse).
 4. Coordenadas: `t:Latitud` y `t:Longitud` en grados decimales. La carta 3D ubica el lugar con ellas; sin coordenadas lo dibuja alrededor de su ciudad o comuna.
 5. Mismo lugar en Wikidata: `owl:sameAs <http://www.wikidata.org/entity/Q…>`. Cada entidad de Wikidata se enlaza con un solo individuo.
-6. Individuo nuevo: usa la pestaña *Nuevo individuo* del panel, que genera el Turtle o el `INSERT DATA`.
+6. Individuo nuevo: usa la pestaña *Nuevo individuo* del panel, que genera el Turtle o el `INSERT DATA`, con el nombre y la descripción ya marcados como español (`@es`).
 7. Reinicia Fuseki (o recarga el dataset `turismo` si lo subes a mano) y revisa la pestaña *Validación*.
 8. Si cambiaste `ontologia/turismo.rdf`, regenera la copia de respaldo de la carta 3D con `node scripts/generar-copia.mjs`.
 

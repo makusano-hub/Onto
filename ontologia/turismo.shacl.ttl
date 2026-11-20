@@ -10,6 +10,7 @@
 # sh:Violation = error que hay que corregir. sh:Warning = aviso.
 
 @prefix sh:   <http://www.w3.org/ns/shacl#> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
 @prefix owl:  <http://www.w3.org/2002/07/owl#> .
 @prefix t:    <https://makusano-hub.github.io/Onto/ontologia#> .
@@ -43,12 +44,25 @@ f:Atraccion
         sh:severity sh:Warning ;
         sh:message "Tiene más de un t:Nombre; la interfaz muestra solo uno."@es
     ] ;
+    # Los textos para personas llevan su idioma: así quien reutiliza los datos sabe en qué lengua están
+    sh:property [
+        sh:path t:Nombre ;
+        sh:datatype rdf:langString ;
+        sh:severity sh:Warning ;
+        sh:message "t:Nombre sin idioma: escríbelo con su lengua, por ejemplo \"Fuerte Bulnes\"@es."@es
+    ] ;
     sh:property [
         sh:path t:Descripcion ;
         sh:maxCount 1 ;
         sh:nodeKind sh:Literal ;
         sh:severity sh:Warning ;
         sh:message "Tiene más de una t:Descripcion; la interfaz muestra solo una."@es
+    ] ;
+    sh:property [
+        sh:path t:Descripcion ;
+        sh:datatype rdf:langString ;
+        sh:severity sh:Warning ;
+        sh:message "t:Descripcion sin idioma: escríbela con su lengua, por ejemplo \"…\"@es."@es
     ] ;
     sh:property [
         sh:path t:Calificacion ;

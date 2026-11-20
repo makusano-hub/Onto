@@ -281,6 +281,7 @@ function paginaVocabulario(html, { terminos, jsonld, enlaceFicha, cabecera }) {
     if (iri.startsWith(SCHEMA)) return `<a href="${esc(iri)}">schema:${esc(iri.slice(SCHEMA.length))}</a>`;
     if (iri.startsWith(WIKIDATA)) return `<a href="${esc(iri)}">Wikidata ${esc(iri.slice(WIKIDATA.length))}</a>`;
     if (iri.startsWith(XSD)) return `xsd:${esc(iri.slice(XSD.length))}`;
+    if (iri === `${RDF}PlainLiteral`) return 'texto, con o sin idioma (rdf:PlainLiteral)';
     return `<a href="${esc(iri)}">${esc(iri)}</a>`;
   };
   // "Etiqueta: a, b" con los valores de una propiedad; vacío si no tiene (o solo apunta a términos de OWL)

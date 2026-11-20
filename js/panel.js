@@ -652,8 +652,9 @@ function generar() {
 
   const sujeto = `t:${ID_VALIDO.test(id) ? id : 'NuevoIndividuo'}`;
   const triples = [`a owl:NamedIndividual${clase ? `, t:${clase}` : ''}`];
-  if (valor('nombre')) triples.push(`t:Nombre ${literal(valor('nombre'))}`);
-  if (valor('descripcion')) triples.push(`t:Descripcion ${literal(valor('descripcion'))}`);
+  // Los textos llevan su idioma (@es): lo pide la regla SHACL y el rango de la propiedad lo admite (rdf:PlainLiteral)
+  if (valor('nombre')) triples.push(`t:Nombre ${literal(valor('nombre'))}@es`);
+  if (valor('descripcion')) triples.push(`t:Descripcion ${literal(valor('descripcion'))}@es`);
   if (esActividad && valor('lugar')) triples.push(`t:seRealizaEn t:${valor('lugar')}`);
   if (!esActividad && valor('ciudad')) triples.push(`t:ubicadoEnCiudad t:${valor('ciudad')}`);
   if (!esActividad && valor('comuna')) triples.push(`t:ubicadoEnComuna t:${valor('comuna')}`);

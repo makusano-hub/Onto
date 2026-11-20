@@ -12,7 +12,7 @@
         <dcterms:license rdf:resource="https://creativecommons.org/licenses/by/4.0/"/>
         <dcterms:created rdf:datatype="http://www.w3.org/2001/XMLSchema#date">2026-10-26</dcterms:created>
         <dcterms:modified rdf:datatype="http://www.w3.org/2001/XMLSchema#date">2026-11-20</dcterms:modified>
-        <owl:versionInfo>1.0.0</owl:versionInfo>
+        <owl:versionInfo>1.1.0</owl:versionInfo>
         <rdfs:comment xml:lang="es">Lugares, actividades, ciudades y comunas de la Región de Magallanes y de la Antártica Chilena, con sus modelos 3D.</rdfs:comment>
         <rdfs:label xml:lang="es">Ontología de turismo de la Región de Magallanes</rdfs:label>
     </owl:Ontology>
@@ -175,8 +175,8 @@
     <owl:DatatypeProperty rdf:about="https://makusano-hub.github.io/Onto/ontologia#Descripcion">
         <rdfs:subPropertyOf rdf:resource="https://schema.org/description"/>
         <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topDataProperty"/>
-        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
-        <rdfs:comment xml:lang="es">Texto que describe el lugar o la actividad.</rdfs:comment>
+        <rdfs:range rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral"/>
+        <rdfs:comment xml:lang="es">Texto que describe el lugar o la actividad. Lleva su idioma (xml:lang).</rdfs:comment>
         <rdfs:label xml:lang="es">descripción</rdfs:label>
     </owl:DatatypeProperty>
     
@@ -228,8 +228,8 @@
 
     <owl:DatatypeProperty rdf:about="https://makusano-hub.github.io/Onto/ontologia#Nombre">
         <rdfs:subPropertyOf rdf:resource="https://schema.org/name"/>
-        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
-        <rdfs:comment xml:lang="es">Nombre con el que se muestra al público.</rdfs:comment>
+        <rdfs:range rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral"/>
+        <rdfs:comment xml:lang="es">Nombre con el que se muestra al público. Lleva su idioma (xml:lang).</rdfs:comment>
         <rdfs:label xml:lang="es">nombre</rdfs:label>
     </owl:DatatypeProperty>
     
@@ -801,6 +801,7 @@
 
     <owl:NamedIndividual rdf:about="https://makusano-hub.github.io/Onto/ontologia#Shopping">
         <rdf:type rdf:resource="https://makusano-hub.github.io/Onto/ontologia#Compras"/>
+        <Ontologia2:Nombre xml:lang="es">Ir de compras</Ontologia2:Nombre>
     </owl:NamedIndividual>
     
 
@@ -821,9 +822,10 @@
     <owl:NamedIndividual rdf:about="https://makusano-hub.github.io/Onto/ontologia#Calle_Bories">
         <rdf:type rdf:resource="https://makusano-hub.github.io/Onto/ontologia#ZonaTiendas"/>
         <Ontologia2:ubicadoEnCiudad rdf:resource="https://makusano-hub.github.io/Onto/ontologia#Punta_Arenas"/>
-        <Ontologia2:Descripcion>Calle considerada como el centro de Punta Arenas con muchos negocios de distinta indole</Ontologia2:Descripcion>
+        <Ontologia2:Descripcion xml:lang="es">Calle considerada como el centro de Punta Arenas con muchos negocios de distinta indole</Ontologia2:Descripcion>
         <Ontologia2:requierePermisoAutoridad rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">false</Ontologia2:requierePermisoAutoridad>
         <Ontologia2:tieneTemporada rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">false</Ontologia2:tieneTemporada>
+        <Ontologia2:Nombre xml:lang="es">Calle Bories</Ontologia2:Nombre>
     </owl:NamedIndividual>
     
 
@@ -833,7 +835,7 @@
     <owl:NamedIndividual rdf:about="https://makusano-hub.github.io/Onto/ontologia#Cementerio_Sara_Braun">
         <rdf:type rdf:resource="https://makusano-hub.github.io/Onto/ontologia#SitioHistorico"/>
         <Ontologia2:ubicadoEnCiudad rdf:resource="https://makusano-hub.github.io/Onto/ontologia#Punta_Arenas"/>
-        <Ontologia2:Nombre>Cementerio Municipal Sara Braun</Ontologia2:Nombre>
+        <Ontologia2:Nombre xml:lang="es">Cementerio Municipal Sara Braun</Ontologia2:Nombre>
         <Ontologia2:tieneModelo3D rdf:datatype="http://www.w3.org/2001/XMLSchema#anyURI">modelos3d/fachadaCementerio.glb</Ontologia2:tieneModelo3D>
         <owl:sameAs rdf:resource="http://www.wikidata.org/entity/Q5058719"/>
     </owl:NamedIndividual>
@@ -845,10 +847,10 @@
     <owl:NamedIndividual rdf:about="https://makusano-hub.github.io/Onto/ontologia#Circuito_O">
         <rdf:type rdf:resource="https://makusano-hub.github.io/Onto/ontologia#Senderismo"/>
         <Ontologia2:seRealizaEn rdf:resource="https://makusano-hub.github.io/Onto/ontologia#ParqueTorresDelPaine"/>
-        <Ontologia2:Descripcion>• Duración: 8 a 9 días (7 a 8 noches).
+        <Ontologia2:Descripcion xml:lang="es">• Duración: 8 a 9 días (7 a 8 noches).
 • Distancia: Entre 93 y 110 kilómetros.
 • Dificultad: Alta y extenuante</Ontologia2:Descripcion>
-        <Ontologia2:Nombre>Circuito O de senderismo</Ontologia2:Nombre>
+        <Ontologia2:Nombre xml:lang="es">Circuito O de senderismo</Ontologia2:Nombre>
         <Ontologia2:requierePermisoAutoridad rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</Ontologia2:requierePermisoAutoridad>
         <Ontologia2:tieneTemporada rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</Ontologia2:tieneTemporada>
     </owl:NamedIndividual>
@@ -860,7 +862,7 @@
     <owl:NamedIndividual rdf:about="https://makusano-hub.github.io/Onto/ontologia#ComerenDinos">
         <rdf:type rdf:resource="https://makusano-hub.github.io/Onto/ontologia#Comida"/>
         <Ontologia2:seRealizaEn rdf:resource="https://makusano-hub.github.io/Onto/ontologia#Dinos_Pizza"/>
-        <Ontologia2:Nombre>Comer en el Dinos pizza</Ontologia2:Nombre>
+        <Ontologia2:Nombre xml:lang="es">Comer en el Dinos pizza</Ontologia2:Nombre>
     </owl:NamedIndividual>
     
 
@@ -870,6 +872,7 @@
     <owl:NamedIndividual rdf:about="https://makusano-hub.github.io/Onto/ontologia#ComerenRestraurant">
         <rdf:type rdf:resource="https://makusano-hub.github.io/Onto/ontologia#Comida"/>
         <Ontologia2:seRealizaEn rdf:resource="https://makusano-hub.github.io/Onto/ontologia#Cormoran_de_las_rocas"/>
+        <Ontologia2:Nombre xml:lang="es">Comer en el Cormorán de las rocas</Ontologia2:Nombre>
     </owl:NamedIndividual>
     
 
@@ -879,8 +882,8 @@
     <owl:NamedIndividual rdf:about="https://makusano-hub.github.io/Onto/ontologia#Cormoran_de_las_rocas">
         <rdf:type rdf:resource="https://makusano-hub.github.io/Onto/ontologia#Restaurante"/>
         <Ontologia2:ubicadoEnCiudad rdf:resource="https://makusano-hub.github.io/Onto/ontologia#Puerto_Natales"/>
-        <Ontologia2:Descripcion>Excelente Restaurant con bella vista al seno ultima esperanza</Ontologia2:Descripcion>
-        <Ontologia2:Nombre>Cormorán de las rocas</Ontologia2:Nombre>
+        <Ontologia2:Descripcion xml:lang="es">Excelente Restaurant con bella vista al seno ultima esperanza</Ontologia2:Descripcion>
+        <Ontologia2:Nombre xml:lang="es">Cormorán de las rocas</Ontologia2:Nombre>
     </owl:NamedIndividual>
     
 
@@ -891,8 +894,8 @@
         <rdf:type rdf:resource="https://makusano-hub.github.io/Onto/ontologia#Hotel"/>
         <Ontologia2:ubicadoEnCiudad rdf:resource="https://makusano-hub.github.io/Onto/ontologia#Punta_Arenas"/>
         <Ontologia2:Calificacion rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">4.5</Ontologia2:Calificacion>
-        <Ontologia2:Descripcion>Hotel ubicado en la costanera de Punta arenas</Ontologia2:Descripcion>
-        <Ontologia2:Nombre>Diego de Almagro</Ontologia2:Nombre>
+        <Ontologia2:Descripcion xml:lang="es">Hotel ubicado en la costanera de Punta arenas</Ontologia2:Descripcion>
+        <Ontologia2:Nombre xml:lang="es">Diego de Almagro</Ontologia2:Nombre>
         <Ontologia2:tieneTemporada rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">false</Ontologia2:tieneTemporada>
     </owl:NamedIndividual>
     
@@ -903,8 +906,8 @@
     <owl:NamedIndividual rdf:about="https://makusano-hub.github.io/Onto/ontologia#Dinos_Pizza">
         <rdf:type rdf:resource="https://makusano-hub.github.io/Onto/ontologia#Restaurante"/>
         <Ontologia2:ubicadoEnCiudad rdf:resource="https://makusano-hub.github.io/Onto/ontologia#Punta_Arenas"/>
-        <Ontologia2:Descripcion>Sandwicheria popular en Punta Arenas</Ontologia2:Descripcion>
-        <Ontologia2:Nombre>Dino´s Pizza</Ontologia2:Nombre>
+        <Ontologia2:Descripcion xml:lang="es">Sandwicheria popular en Punta Arenas</Ontologia2:Descripcion>
+        <Ontologia2:Nombre xml:lang="es">Dino´s Pizza</Ontologia2:Nombre>
         <Ontologia2:requierePermisoAutoridad rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">false</Ontologia2:requierePermisoAutoridad>
         <Ontologia2:tieneTemporada rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">false</Ontologia2:tieneTemporada>
     </owl:NamedIndividual>
@@ -918,8 +921,8 @@
         <Ontologia2:ubicadoEnCiudad rdf:resource="https://makusano-hub.github.io/Onto/ontologia#Punta_Arenas"/>
         <Ontologia2:ubicadoEnComuna rdf:resource="https://makusano-hub.github.io/Onto/ontologia#PuntaArenas"/>
         <Ontologia2:Calificacion rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">4.7</Ontologia2:Calificacion>
-        <Ontologia2:Descripcion>Primer Asentamiento de la region de magallanes chilena</Ontologia2:Descripcion>
-        <Ontologia2:Nombre>Fuerte Bulnes</Ontologia2:Nombre>
+        <Ontologia2:Descripcion xml:lang="es">Primer Asentamiento de la region de magallanes chilena</Ontologia2:Descripcion>
+        <Ontologia2:Nombre xml:lang="es">Fuerte Bulnes</Ontologia2:Nombre>
         <Ontologia2:requierePermisoAutoridad rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">false</Ontologia2:requierePermisoAutoridad>
         <Ontologia2:tieneTemporada rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">false</Ontologia2:tieneTemporada>
         <owl:sameAs rdf:resource="http://www.wikidata.org/entity/Q2362268"/>
@@ -934,7 +937,7 @@
     <owl:NamedIndividual rdf:about="https://makusano-hub.github.io/Onto/ontologia#Hernando_de_Magallanes">
         <rdf:type rdf:resource="https://makusano-hub.github.io/Onto/ontologia#Estatua"/>
         <Ontologia2:ubicadoEnCiudad rdf:resource="https://makusano-hub.github.io/Onto/ontologia#Punta_Arenas"/>
-        <Ontologia2:Nombre>Monumento Hernando de Magallanes</Ontologia2:Nombre>
+        <Ontologia2:Nombre xml:lang="es">Monumento Hernando de Magallanes</Ontologia2:Nombre>
         <Ontologia2:Precio rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">0</Ontologia2:Precio>
         <Ontologia2:tieneModelo3D rdf:datatype="http://www.w3.org/2001/XMLSchema#anyURI">modelos3d/monumentoHernando.glb</Ontologia2:tieneModelo3D>
     </owl:NamedIndividual>
@@ -946,6 +949,7 @@
     <owl:NamedIndividual rdf:about="https://makusano-hub.github.io/Onto/ontologia#Iglesia_San_Francisco_de_Sales">
         <rdf:type rdf:resource="https://makusano-hub.github.io/Onto/ontologia#SitioHistorico"/>
         <Ontologia2:ubicadoEnCiudad rdf:resource="https://makusano-hub.github.io/Onto/ontologia#porvenir"/>
+        <Ontologia2:Nombre xml:lang="es">Iglesia San Francisco de Sales</Ontologia2:Nombre>
     </owl:NamedIndividual>
     
 
@@ -958,6 +962,7 @@
         <owl:sameAs rdf:resource="http://www.wikidata.org/entity/Q2469493"/>
         <Ontologia2:Latitud rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">-52.92</Ontologia2:Latitud>
         <Ontologia2:Longitud rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">-70.58</Ontologia2:Longitud>
+        <Ontologia2:Nombre xml:lang="es">Isla Magdalena</Ontologia2:Nombre>
     </owl:NamedIndividual>
     
 
@@ -970,6 +975,7 @@
         <owl:sameAs rdf:resource="http://www.wikidata.org/entity/Q23652932"/>
         <Ontologia2:Latitud rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">-54.05</Ontologia2:Latitud>
         <Ontologia2:Longitud rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">-68.95</Ontologia2:Longitud>
+        <Ontologia2:Nombre xml:lang="es">Lago Blanco</Ontologia2:Nombre>
     </owl:NamedIndividual>
     
 
@@ -991,8 +997,8 @@
         <rdf:type rdf:resource="https://makusano-hub.github.io/Onto/ontologia#Hotel"/>
         <Ontologia2:ubicadoEnComuna rdf:resource="https://makusano-hub.github.io/Onto/ontologia#PuertoNatales"/>
         <Ontologia2:Calificacion rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">5</Ontologia2:Calificacion>
-        <Ontologia2:Descripcion>Hotel Ubicado en un lugar llamado las llanuras de diana, 15 min a distancia de Puerto Natales, posee piscina, alojamientos, zonas de entretencion entre otros.</Ontologia2:Descripcion>
-        <Ontologia2:Nombre>Hotel LLanuras de diana</Ontologia2:Nombre>
+        <Ontologia2:Descripcion xml:lang="es">Hotel Ubicado en un lugar llamado las llanuras de diana, 15 min a distancia de Puerto Natales, posee piscina, alojamientos, zonas de entretencion entre otros.</Ontologia2:Descripcion>
+        <Ontologia2:Nombre xml:lang="es">Hotel LLanuras de diana</Ontologia2:Nombre>
         <Ontologia2:Latitud rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">-51.90</Ontologia2:Latitud>
         <Ontologia2:Longitud rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">-72.40</Ontologia2:Longitud>
     </owl:NamedIndividual>
@@ -1004,8 +1010,8 @@
     <owl:NamedIndividual rdf:about="https://makusano-hub.github.io/Onto/ontologia#Maggiorino_Borgatello">
         <rdf:type rdf:resource="https://makusano-hub.github.io/Onto/ontologia#Museo"/>
         <Ontologia2:ubicadoEnCiudad rdf:resource="https://makusano-hub.github.io/Onto/ontologia#Punta_Arenas"/>
-        <Ontologia2:Descripcion>Es un museo que posee coleccion privada de historia, flora y fauna de la region de Magallanes</Ontologia2:Descripcion>
-        <Ontologia2:Nombre>Museo salesiano Maggiorino Borgatello</Ontologia2:Nombre>
+        <Ontologia2:Descripcion xml:lang="es">Es un museo que posee coleccion privada de historia, flora y fauna de la region de Magallanes</Ontologia2:Descripcion>
+        <Ontologia2:Nombre xml:lang="es">Museo salesiano Maggiorino Borgatello</Ontologia2:Nombre>
         <owl:sameAs rdf:resource="http://www.wikidata.org/entity/Q86284641"/>
     </owl:NamedIndividual>
     
@@ -1016,8 +1022,8 @@
     <owl:NamedIndividual rdf:about="https://makusano-hub.github.io/Onto/ontologia#Masay">
         <rdf:type rdf:resource="https://makusano-hub.github.io/Onto/ontologia#Restaurante"/>
         <Ontologia2:ubicadoEnCiudad rdf:resource="https://makusano-hub.github.io/Onto/ontologia#Puerto_Natales"/>
-        <Ontologia2:Descripcion>Sandwicheria tipica de la ciudad de Puerto Natales</Ontologia2:Descripcion>
-        <Ontologia2:Nombre>Masay Pizza</Ontologia2:Nombre>
+        <Ontologia2:Descripcion xml:lang="es">Sandwicheria tipica de la ciudad de Puerto Natales</Ontologia2:Descripcion>
+        <Ontologia2:Nombre xml:lang="es">Masay Pizza</Ontologia2:Nombre>
     </owl:NamedIndividual>
     
 
@@ -1027,6 +1033,7 @@
     <owl:NamedIndividual rdf:about="https://makusano-hub.github.io/Onto/ontologia#MercadoRegional">
         <rdf:type rdf:resource="https://makusano-hub.github.io/Onto/ontologia#Mercado"/>
         <Ontologia2:ubicadoEnCiudad rdf:resource="https://makusano-hub.github.io/Onto/ontologia#Punta_Arenas"/>
+        <Ontologia2:Nombre xml:lang="es">Mercado Regional</Ontologia2:Nombre>
     </owl:NamedIndividual>
     
 
@@ -1036,9 +1043,10 @@
     <owl:NamedIndividual rdf:about="https://makusano-hub.github.io/Onto/ontologia#Mirador_Ballenas">
         <rdf:type rdf:resource="https://makusano-hub.github.io/Onto/ontologia#Safari"/>
         <Ontologia2:seRealizaEn rdf:resource="https://makusano-hub.github.io/Onto/ontologia#Parque_Marino_Francisco_Coloane"/>
-        <Ontologia2:Descripcion>Solo se puede visitar a traves de navegación</Ontologia2:Descripcion>
+        <Ontologia2:Descripcion xml:lang="es">Solo se puede visitar a traves de navegación</Ontologia2:Descripcion>
         <Ontologia2:requierePermisoAutoridad rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</Ontologia2:requierePermisoAutoridad>
         <Ontologia2:tieneTemporada rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</Ontologia2:tieneTemporada>
+        <Ontologia2:Nombre xml:lang="es">Mirador de ballenas</Ontologia2:Nombre>
     </owl:NamedIndividual>
     
 
@@ -1048,6 +1056,7 @@
     <owl:NamedIndividual rdf:about="https://makusano-hub.github.io/Onto/ontologia#Mirador_Base_las_Torres">
         <rdf:type rdf:resource="https://makusano-hub.github.io/Onto/ontologia#Trekking"/>
         <Ontologia2:seRealizaEn rdf:resource="https://makusano-hub.github.io/Onto/ontologia#ParqueTorresDelPaine"/>
+        <Ontologia2:Nombre xml:lang="es">Mirador Base las Torres</Ontologia2:Nombre>
     </owl:NamedIndividual>
     
 
@@ -1057,7 +1066,7 @@
     <owl:NamedIndividual rdf:about="https://makusano-hub.github.io/Onto/ontologia#Monte_Tarn">
         <rdf:type rdf:resource="https://makusano-hub.github.io/Onto/ontologia#Montaña"/>
         <Ontologia2:ubicadoEnComuna rdf:resource="https://makusano-hub.github.io/Onto/ontologia#PuntaArenas"/>
-        <Ontologia2:Nombre>Monte Tarn</Ontologia2:Nombre>
+        <Ontologia2:Nombre xml:lang="es">Monte Tarn</Ontologia2:Nombre>
         <Ontologia2:Precio rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">0</Ontologia2:Precio>
         <Ontologia2:requierePermisoAutoridad rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</Ontologia2:requierePermisoAutoridad>
         <Ontologia2:tieneTemporada rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</Ontologia2:tieneTemporada>
@@ -1073,8 +1082,8 @@
     <owl:NamedIndividual rdf:about="https://makusano-hub.github.io/Onto/ontologia#Monumento_Lago_Cisnes">
         <rdf:type rdf:resource="https://makusano-hub.github.io/Onto/ontologia#Reserva"/>
         <Ontologia2:ubicadoEnComuna rdf:resource="https://makusano-hub.github.io/Onto/ontologia#Porvenir"/>
-        <Ontologia2:Descripcion>Conocido como el parque de los estromatolitos. Presencia de fosiles vivientes llamados estromatolitos</Ontologia2:Descripcion>
-        <Ontologia2:Nombre>Monumento Natural Laguna de los Cisnes</Ontologia2:Nombre>
+        <Ontologia2:Descripcion xml:lang="es">Conocido como el parque de los estromatolitos. Presencia de fosiles vivientes llamados estromatolitos</Ontologia2:Descripcion>
+        <Ontologia2:Nombre xml:lang="es">Monumento Natural Laguna de los Cisnes</Ontologia2:Nombre>
         <owl:sameAs rdf:resource="http://www.wikidata.org/entity/Q6023322"/>
         <Ontologia2:Latitud rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">-53.24</Ontologia2:Latitud>
         <Ontologia2:Longitud rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">-70.33</Ontologia2:Longitud>
@@ -1087,7 +1096,7 @@
     <owl:NamedIndividual rdf:about="https://makusano-hub.github.io/Onto/ontologia#Monumento_al_Ovejero">
         <rdf:type rdf:resource="https://makusano-hub.github.io/Onto/ontologia#Estatua"/>
         <Ontologia2:ubicadoEnCiudad rdf:resource="https://makusano-hub.github.io/Onto/ontologia#Punta_Arenas"/>
-        <Ontologia2:Nombre>Monumento al Ovejero</Ontologia2:Nombre>
+        <Ontologia2:Nombre xml:lang="es">Monumento al Ovejero</Ontologia2:Nombre>
         <Ontologia2:tieneModelo3D rdf:datatype="http://www.w3.org/2001/XMLSchema#anyURI">modelos3d/monumento_al_ovejero_.glb</Ontologia2:tieneModelo3D>
         <owl:sameAs rdf:resource="http://www.wikidata.org/entity/Q6023247"/>
     </owl:NamedIndividual>
@@ -1100,8 +1109,8 @@
         <rdf:type rdf:resource="https://makusano-hub.github.io/Onto/ontologia#Museo"/>
         <Ontologia2:ubicadoEnCiudad rdf:resource="https://makusano-hub.github.io/Onto/ontologia#Punta_Arenas"/>
         <Ontologia2:Calificacion rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">4.5</Ontologia2:Calificacion>
-        <Ontologia2:Descripcion>Museo donde se pueden replicas a escala de las naves que exploraron el estrecho de magallanes</Ontologia2:Descripcion>
-        <Ontologia2:Nombre>Museo Nao Victoria</Ontologia2:Nombre>
+        <Ontologia2:Descripcion xml:lang="es">Museo donde se pueden replicas a escala de las naves que exploraron el estrecho de magallanes</Ontologia2:Descripcion>
+        <Ontologia2:Nombre xml:lang="es">Museo Nao Victoria</Ontologia2:Nombre>
         <Ontologia2:requierePermisoAutoridad rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">false</Ontologia2:requierePermisoAutoridad>
         <Ontologia2:tieneTemporada rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">false</Ontologia2:tieneTemporada>
         <Ontologia2:tieneModelo3D rdf:datatype="http://www.w3.org/2001/XMLSchema#anyURI">modelos3d/nao_victoria_model.glb</Ontologia2:tieneModelo3D>
@@ -1119,8 +1128,8 @@
     <owl:NamedIndividual rdf:about="https://makusano-hub.github.io/Onto/ontologia#ParqueJapones">
         <rdf:type rdf:resource="https://makusano-hub.github.io/Onto/ontologia#Parque"/>
         <Ontologia2:ubicadoEnCiudad rdf:resource="https://makusano-hub.github.io/Onto/ontologia#Punta_Arenas"/>
-        <Ontologia2:Descripcion>Paseo Cercano a la ciudad</Ontologia2:Descripcion>
-        <Ontologia2:Nombre>Reserva nacional Magallanes</Ontologia2:Nombre>
+        <Ontologia2:Descripcion xml:lang="es">Paseo Cercano a la ciudad</Ontologia2:Descripcion>
+        <Ontologia2:Nombre xml:lang="es">Reserva nacional Magallanes</Ontologia2:Nombre>
         <Ontologia2:Precio rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">0</Ontologia2:Precio>
         <owl:sameAs rdf:resource="http://www.wikidata.org/entity/Q6106272"/>
     </owl:NamedIndividual>
@@ -1133,8 +1142,8 @@
         <rdf:type rdf:resource="https://makusano-hub.github.io/Onto/ontologia#Parque"/>
         <Ontologia2:ubicadoEnComuna rdf:resource="https://makusano-hub.github.io/Onto/ontologia#TorresDelPaine"/>
         <Ontologia2:Calificacion rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">4.8</Ontologia2:Calificacion>
-        <Ontologia2:Descripcion>Es una atraccion turistica, con multiples panoramas</Ontologia2:Descripcion>
-        <Ontologia2:Nombre>Parque Nacional Torres del Paine</Ontologia2:Nombre>
+        <Ontologia2:Descripcion xml:lang="es">Es una atraccion turistica, con multiples panoramas</Ontologia2:Descripcion>
+        <Ontologia2:Nombre xml:lang="es">Parque Nacional Torres del Paine</Ontologia2:Nombre>
         <Ontologia2:Precio rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">10000</Ontologia2:Precio>
         <Ontologia2:requierePermisoAutoridad rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</Ontologia2:requierePermisoAutoridad>
         <Ontologia2:tieneTemporada rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</Ontologia2:tieneTemporada>
@@ -1151,8 +1160,8 @@
     <owl:NamedIndividual rdf:about="https://makusano-hub.github.io/Onto/ontologia#Parque_Marino_Francisco_Coloane">
         <rdf:type rdf:resource="https://makusano-hub.github.io/Onto/ontologia#Parque"/>
         <Ontologia2:ubicadoEnComuna rdf:resource="https://makusano-hub.github.io/Onto/ontologia#PuntaArenas"/>
-        <Ontologia2:Descripcion>Zona protegida para las vida marina de la region de magallanes</Ontologia2:Descripcion>
-        <Ontologia2:Nombre>Francisco Coloane</Ontologia2:Nombre>
+        <Ontologia2:Descripcion xml:lang="es">Zona protegida para las vida marina de la region de magallanes</Ontologia2:Descripcion>
+        <Ontologia2:Nombre xml:lang="es">Francisco Coloane</Ontologia2:Nombre>
         <owl:sameAs rdf:resource="http://www.wikidata.org/entity/Q5483269"/>
         <Ontologia2:Latitud rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">-53.65</Ontologia2:Latitud>
         <Ontologia2:Longitud rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">-72.25</Ontologia2:Longitud>
@@ -1168,6 +1177,7 @@
         <owl:sameAs rdf:resource="http://www.wikidata.org/entity/Q23645951"/>
         <Ontologia2:Latitud rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">-53.40</Ontologia2:Latitud>
         <Ontologia2:Longitud rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">-71.25</Ontologia2:Longitud>
+        <Ontologia2:Nombre xml:lang="es">Laguna Parrillar</Ontologia2:Nombre>
     </owl:NamedIndividual>
     
 
@@ -1178,6 +1188,7 @@
         <rdf:type rdf:resource="https://makusano-hub.github.io/Onto/ontologia#PanoramaCiudad"/>
         <Ontologia2:seRealizaEn rdf:resource="https://makusano-hub.github.io/Onto/ontologia#Calle_Bories"/>
         <Ontologia2:seRealizaEn rdf:resource="https://makusano-hub.github.io/Onto/ontologia#ZonaFranca"/>
+        <Ontologia2:Nombre xml:lang="es">Paseo por la ciudad</Ontologia2:Nombre>
     </owl:NamedIndividual>
     
 
@@ -1188,9 +1199,10 @@
         <rdf:type rdf:resource="https://makusano-hub.github.io/Onto/ontologia#Safari"/>
         <Ontologia2:seRealizaEn rdf:resource="https://makusano-hub.github.io/Onto/ontologia#Isla_Magdalena"/>
         <Ontologia2:seRealizaEn rdf:resource="https://makusano-hub.github.io/Onto/ontologia#PinguinoRey"/>
-        <Ontologia2:Descripcion>Ver pinguinos en la naturaleza</Ontologia2:Descripcion>
+        <Ontologia2:Descripcion xml:lang="es">Ver pinguinos en la naturaleza</Ontologia2:Descripcion>
         <Ontologia2:requierePermisoAutoridad rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</Ontologia2:requierePermisoAutoridad>
         <Ontologia2:tieneTemporada rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</Ontologia2:tieneTemporada>
+        <Ontologia2:Nombre xml:lang="es">Visita a las pingüineras</Ontologia2:Nombre>
     </owl:NamedIndividual>
     
 
@@ -1200,7 +1212,7 @@
     <owl:NamedIndividual rdf:about="https://makusano-hub.github.io/Onto/ontologia#PinguinoRey">
         <rdf:type rdf:resource="https://makusano-hub.github.io/Onto/ontologia#Reserva"/>
         <Ontologia2:ubicadoEnComuna rdf:resource="https://makusano-hub.github.io/Onto/ontologia#Timaukel"/>
-        <Ontologia2:Nombre>Reserva natuiral Pinguino Rey de la Patagonia</Ontologia2:Nombre>
+        <Ontologia2:Nombre xml:lang="es">Reserva natuiral Pinguino Rey de la Patagonia</Ontologia2:Nombre>
         <Ontologia2:Latitud rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">-53.46</Ontologia2:Latitud>
         <Ontologia2:Longitud rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">-69.31</Ontologia2:Longitud>
     </owl:NamedIndividual>
@@ -1212,7 +1224,7 @@
     <owl:NamedIndividual rdf:about="https://makusano-hub.github.io/Onto/ontologia#Plaza_de_armas_porvenir">
         <rdf:type rdf:resource="https://makusano-hub.github.io/Onto/ontologia#Estatua"/>
         <Ontologia2:ubicadoEnCiudad rdf:resource="https://makusano-hub.github.io/Onto/ontologia#porvenir"/>
-        <Ontologia2:Nombre>Plaza de armas de porvenir</Ontologia2:Nombre>
+        <Ontologia2:Nombre xml:lang="es">Plaza de armas de porvenir</Ontologia2:Nombre>
         <Ontologia2:tieneModelo3D rdf:datatype="http://www.w3.org/2001/XMLSchema#anyURI">modelos3d/monumento_porve_Final.glb</Ontologia2:tieneModelo3D>
     </owl:NamedIndividual>
     
@@ -1246,13 +1258,14 @@
         <rdf:type rdf:resource="https://makusano-hub.github.io/Onto/ontologia#SitioHistorico"/>
         <Ontologia2:ubicadoEnCiudad rdf:resource="https://makusano-hub.github.io/Onto/ontologia#Punta_Arenas"/>
         <Ontologia2:ubicadoEnComuna rdf:resource="https://makusano-hub.github.io/Onto/ontologia#PuntaArenas"/>
-        <Ontologia2:Descripcion>Asentamiento Español Abandonado</Ontologia2:Descripcion>
+        <Ontologia2:Descripcion xml:lang="es">Asentamiento Español Abandonado</Ontologia2:Descripcion>
         <Ontologia2:Precio rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">0</Ontologia2:Precio>
         <Ontologia2:requierePermisoAutoridad rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">false</Ontologia2:requierePermisoAutoridad>
         <Ontologia2:tieneTemporada rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">false</Ontologia2:tieneTemporada>
         <owl:sameAs rdf:resource="http://www.wikidata.org/entity/Q800201"/>
         <Ontologia2:Latitud rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">-53.61</Ontologia2:Latitud>
         <Ontologia2:Longitud rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">-70.93</Ontologia2:Longitud>
+        <Ontologia2:Nombre xml:lang="es">Puerto del Hambre</Ontologia2:Nombre>
     </owl:NamedIndividual>
     
 
@@ -1276,6 +1289,7 @@
         <owl:sameAs rdf:resource="http://www.wikidata.org/entity/Q6091979"/>
         <Ontologia2:Latitud rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">-51.69</Ontologia2:Latitud>
         <Ontologia2:Longitud rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">-72.53</Ontologia2:Longitud>
+        <Ontologia2:Nombre xml:lang="es">Puerto Bories</Ontologia2:Nombre>
     </owl:NamedIndividual>
     
 
@@ -1357,8 +1371,8 @@
     <owl:NamedIndividual rdf:about="https://makusano-hub.github.io/Onto/ontologia#Serrano">
         <rdf:type rdf:resource="https://makusano-hub.github.io/Onto/ontologia#Rio"/>
         <Ontologia2:ubicadoEnComuna rdf:resource="https://makusano-hub.github.io/Onto/ontologia#TorresDelPaine"/>
-        <Ontologia2:Descripcion>Rio ubicado en las cercanias del parque Torres del Paine</Ontologia2:Descripcion>
-        <Ontologia2:Nombre>Rio Serrano</Ontologia2:Nombre>
+        <Ontologia2:Descripcion xml:lang="es">Rio ubicado en las cercanias del parque Torres del Paine</Ontologia2:Descripcion>
+        <Ontologia2:Nombre xml:lang="es">Rio Serrano</Ontologia2:Nombre>
         <Ontologia2:requierePermisoAutoridad rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</Ontologia2:requierePermisoAutoridad>
         <Ontologia2:tieneTemporada rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</Ontologia2:tieneTemporada>
         <owl:sameAs rdf:resource="http://www.wikidata.org/entity/Q5638602"/>
@@ -1374,8 +1388,8 @@
         <rdf:type rdf:resource="https://makusano-hub.github.io/Onto/ontologia#Restaurante"/>
         <Ontologia2:ubicadoEnCiudad rdf:resource="https://makusano-hub.github.io/Onto/ontologia#Punta_Arenas"/>
         <Ontologia2:Calificacion rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">4.4</Ontologia2:Calificacion>
-        <Ontologia2:Descripcion>Restaurante de alta cocina magallanica, especializado en platos magallanicos</Ontologia2:Descripcion>
-        <Ontologia2:Nombre>Sotitos Bar</Ontologia2:Nombre>
+        <Ontologia2:Descripcion xml:lang="es">Restaurante de alta cocina magallanica, especializado en platos magallanicos</Ontologia2:Descripcion>
+        <Ontologia2:Nombre xml:lang="es">Sotitos Bar</Ontologia2:Nombre>
         <Ontologia2:Precio rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">25000</Ontologia2:Precio>
     </owl:NamedIndividual>
     
@@ -1408,6 +1422,7 @@
     <owl:NamedIndividual rdf:about="https://makusano-hub.github.io/Onto/ontologia#Tren_Mclelland">
         <rdf:type rdf:resource="https://makusano-hub.github.io/Onto/ontologia#Estatua"/>
         <Ontologia2:ubicadoEnCiudad rdf:resource="https://makusano-hub.github.io/Onto/ontologia#Puerto_Natales"/>
+        <Ontologia2:Nombre xml:lang="es">Tren Mclelland</Ontologia2:Nombre>
     </owl:NamedIndividual>
     
 
@@ -1417,8 +1432,8 @@
     <owl:NamedIndividual rdf:about="https://makusano-hub.github.io/Onto/ontologia#Wake_up">
         <rdf:type rdf:resource="https://makusano-hub.github.io/Onto/ontologia#Cafeteria"/>
         <Ontologia2:ubicadoEnCiudad rdf:resource="https://makusano-hub.github.io/Onto/ontologia#Punta_Arenas"/>
-        <Ontologia2:Descripcion>Coffee shop y tienda donde puedes aprender a hacer café</Ontologia2:Descripcion>
-        <Ontologia2:Nombre>Wake up - coffee Lab</Ontologia2:Nombre>
+        <Ontologia2:Descripcion xml:lang="es">Coffee shop y tienda donde puedes aprender a hacer café</Ontologia2:Descripcion>
+        <Ontologia2:Nombre xml:lang="es">Wake up - coffee Lab</Ontologia2:Nombre>
     </owl:NamedIndividual>
     
 
@@ -1429,8 +1444,9 @@
         <rdf:type rdf:resource="https://makusano-hub.github.io/Onto/ontologia#ZonaTiendas"/>
         <Ontologia2:permiteActividad rdf:resource="https://makusano-hub.github.io/Onto/ontologia#Shopping"/>
         <Ontologia2:ubicadoEnCiudad rdf:resource="https://makusano-hub.github.io/Onto/ontologia#Punta_Arenas"/>
-        <Ontologia2:Descripcion>Usualmente abierto entre las 10:30 am y 8 PM</Ontologia2:Descripcion>
+        <Ontologia2:Descripcion xml:lang="es">Usualmente abierto entre las 10:30 am y 8 PM</Ontologia2:Descripcion>
         <owl:sameAs rdf:resource="http://www.wikidata.org/entity/Q6171529"/>
+        <Ontologia2:Nombre xml:lang="es">Zona Franca de Punta Arenas</Ontologia2:Nombre>
     </owl:NamedIndividual>
     
 
@@ -1440,6 +1456,7 @@
     <owl:NamedIndividual rdf:about="https://makusano-hub.github.io/Onto/ontologia#alojamientoDiegoAlmagro">
         <rdf:type rdf:resource="https://makusano-hub.github.io/Onto/ontologia#Alojamiento"/>
         <Ontologia2:seRealizaEn rdf:resource="https://makusano-hub.github.io/Onto/ontologia#DiegoAlmagro"/>
+        <Ontologia2:Nombre xml:lang="es">Alojamiento en el hotel Diego de Almagro</Ontologia2:Nombre>
     </owl:NamedIndividual>
     
 
@@ -1449,10 +1466,10 @@
     <owl:NamedIndividual rdf:about="https://makusano-hub.github.io/Onto/ontologia#circuito_W">
         <rdf:type rdf:resource="https://makusano-hub.github.io/Onto/ontologia#Senderismo"/>
         <Ontologia2:seRealizaEn rdf:resource="https://makusano-hub.github.io/Onto/ontologia#ParqueTorresDelPaine"/>
-        <Ontologia2:Descripcion>• Duración: De 4 a 5 días (3 o 4 noches).
+        <Ontologia2:Descripcion xml:lang="es">• Duración: De 4 a 5 días (3 o 4 noches).
 • Distancia: Entre 70 y 80 km en total.
 • Dificultad: Alta</Ontologia2:Descripcion>
-        <Ontologia2:Nombre>Circuito W de senderismo</Ontologia2:Nombre>
+        <Ontologia2:Nombre xml:lang="es">Circuito W de senderismo</Ontologia2:Nombre>
         <Ontologia2:requierePermisoAutoridad rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</Ontologia2:requierePermisoAutoridad>
         <Ontologia2:tieneTemporada rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</Ontologia2:tieneTemporada>
     </owl:NamedIndividual>
@@ -1464,6 +1481,7 @@
     <owl:NamedIndividual rdf:about="https://makusano-hub.github.io/Onto/ontologia#mirador_Cuernos_del_Paine">
         <rdf:type rdf:resource="https://makusano-hub.github.io/Onto/ontologia#Trekking"/>
         <Ontologia2:seRealizaEn rdf:resource="https://makusano-hub.github.io/Onto/ontologia#ParqueTorresDelPaine"/>
+        <Ontologia2:Nombre xml:lang="es">Mirador Cuernos del Paine</Ontologia2:Nombre>
     </owl:NamedIndividual>
     
 
@@ -1473,9 +1491,10 @@
     <owl:NamedIndividual rdf:about="https://makusano-hub.github.io/Onto/ontologia#pescaRioSerrano">
         <rdf:type rdf:resource="https://makusano-hub.github.io/Onto/ontologia#PescaDeportiva"/>
         <Ontologia2:seRealizaEn rdf:resource="https://makusano-hub.github.io/Onto/ontologia#Serrano"/>
-        <Ontologia2:Descripcion>Pesca Salmon de rio, y trucha</Ontologia2:Descripcion>
+        <Ontologia2:Descripcion xml:lang="es">Pesca Salmon de rio, y trucha</Ontologia2:Descripcion>
         <Ontologia2:requierePermisoAutoridad rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</Ontologia2:requierePermisoAutoridad>
         <Ontologia2:tieneTemporada rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</Ontologia2:tieneTemporada>
+        <Ontologia2:Nombre xml:lang="es">Pesca deportiva en el río Serrano</Ontologia2:Nombre>
     </owl:NamedIndividual>
     
 
@@ -1485,9 +1504,10 @@
     <owl:NamedIndividual rdf:about="https://makusano-hub.github.io/Onto/ontologia#pescaSanJuan">
         <rdf:type rdf:resource="https://makusano-hub.github.io/Onto/ontologia#PescaDeportiva"/>
         <Ontologia2:seRealizaEn rdf:resource="https://makusano-hub.github.io/Onto/ontologia#rioSanjuan"/>
-        <Ontologia2:Descripcion>Se puede pescar diferentes especies de trucha</Ontologia2:Descripcion>
+        <Ontologia2:Descripcion xml:lang="es">Se puede pescar diferentes especies de trucha</Ontologia2:Descripcion>
         <Ontologia2:requierePermisoAutoridad rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</Ontologia2:requierePermisoAutoridad>
         <Ontologia2:tieneTemporada rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</Ontologia2:tieneTemporada>
+        <Ontologia2:Nombre xml:lang="es">Pesca deportiva en el río San Juan</Ontologia2:Nombre>
     </owl:NamedIndividual>
     
 
@@ -1510,8 +1530,8 @@
     <owl:NamedIndividual rdf:about="https://makusano-hub.github.io/Onto/ontologia#rioSanjuan">
         <rdf:type rdf:resource="https://makusano-hub.github.io/Onto/ontologia#Rio"/>
         <Ontologia2:ubicadoEnComuna rdf:resource="https://makusano-hub.github.io/Onto/ontologia#PuntaArenas"/>
-        <Ontologia2:Descripcion>Rio ubicado aprox 60 Kilometros al Sur de Punta arenas</Ontologia2:Descripcion>
-        <Ontologia2:Nombre>San Juan</Ontologia2:Nombre>
+        <Ontologia2:Descripcion xml:lang="es">Rio ubicado aprox 60 Kilometros al Sur de Punta arenas</Ontologia2:Descripcion>
+        <Ontologia2:Nombre xml:lang="es">San Juan</Ontologia2:Nombre>
         <Ontologia2:Precio rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">0</Ontologia2:Precio>
         <Ontologia2:requierePermisoAutoridad rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">false</Ontologia2:requierePermisoAutoridad>
         <Ontologia2:tieneTemporada rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</Ontologia2:tieneTemporada>
@@ -1527,8 +1547,8 @@
     <owl:NamedIndividual rdf:about="https://makusano-hub.github.io/Onto/ontologia#senderismoTarn">
         <rdf:type rdf:resource="https://makusano-hub.github.io/Onto/ontologia#Senderismo"/>
         <Ontologia2:seRealizaEn rdf:resource="https://makusano-hub.github.io/Onto/ontologia#Monte_Tarn"/>
-        <Ontologia2:Descripcion>A una distancia aproximada de 70 km de Punta Arenas, el sendero es de alta dificultad, y se debe avisar previamente a la comisaria de Carabineros de Chile de Aguafresca</Ontologia2:Descripcion>
-        <Ontologia2:Nombre>Subida al Monte Tarn</Ontologia2:Nombre>
+        <Ontologia2:Descripcion xml:lang="es">A una distancia aproximada de 70 km de Punta Arenas, el sendero es de alta dificultad, y se debe avisar previamente a la comisaria de Carabineros de Chile de Aguafresca</Ontologia2:Descripcion>
+        <Ontologia2:Nombre xml:lang="es">Subida al Monte Tarn</Ontologia2:Nombre>
         <Ontologia2:requierePermisoAutoridad rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</Ontologia2:requierePermisoAutoridad>
         <Ontologia2:tieneTemporada rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</Ontologia2:tieneTemporada>
     </owl:NamedIndividual>
@@ -1541,8 +1561,8 @@
         <rdf:type rdf:resource="https://makusano-hub.github.io/Onto/ontologia#Cafeteria"/>
         <Ontologia2:ubicadoEnCiudad rdf:resource="https://makusano-hub.github.io/Onto/ontologia#Puerto_Natales"/>
         <Ontologia2:Calificacion rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">5</Ontologia2:Calificacion>
-        <Ontologia2:Descripcion>Cafeteria ubicada en la plaza de armas de Puerto Natales, reconocida por su sistema de dispensar café, y que este sea tostado por los mismo dueños</Ontologia2:Descripcion>
-        <Ontologia2:Nombre>Holaste! salon de Café</Ontologia2:Nombre>
+        <Ontologia2:Descripcion xml:lang="es">Cafeteria ubicada en la plaza de armas de Puerto Natales, reconocida por su sistema de dispensar café, y que este sea tostado por los mismo dueños</Ontologia2:Descripcion>
+        <Ontologia2:Nombre xml:lang="es">Holaste! salon de Café</Ontologia2:Nombre>
     </owl:NamedIndividual>
     
 
@@ -1552,6 +1572,7 @@
     <owl:NamedIndividual rdf:about="https://makusano-hub.github.io/Onto/ontologia#The_Cormorant_at_55_South">
         <rdf:type rdf:resource="https://makusano-hub.github.io/Onto/ontologia#Hotel"/>
         <Ontologia2:ubicadoEnCiudad rdf:resource="https://makusano-hub.github.io/Onto/ontologia#Puerto_Williams"/>
+        <Ontologia2:Nombre xml:lang="es">The Cormorant at 55 South</Ontologia2:Nombre>
     </owl:NamedIndividual>
 
 
