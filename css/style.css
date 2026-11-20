@@ -793,6 +793,9 @@ footer {
 }
 
 /* ==========  Documento del vocabulario (ontologia/)  ========== */
+/* Versión y fechas de la cabecera de la ontología */
+.version-ontologia { color: var(--muted); font-size: 14px; }
+
 .lista-terminos {
   margin: 12px 0 32px;
   padding: 0;

@@ -68,6 +68,7 @@ const RDF = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#';
 const RDFS = 'http://www.w3.org/2000/01/rdf-schema#';
 const OWL = 'http://www.w3.org/2002/07/owl#';
 const XSD = 'http://www.w3.org/2001/XMLSchema#';
+const DCT = 'http://purl.org/dc/terms/';
 const WIKIDATA = 'http://www.wikidata.org/entity/';
 
 const esc = (texto) => String(texto).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -120,7 +121,26 @@ async function leerTerminos(fuseki) {
     if (!terminos.has(id)) terminos.set(id, { id, p: {} });
     (terminos.get(id).p[propiedad.value] ||= []).push(valor);
   });
+
+  // Lo que cuelga de nodos anónimos: condiciones necesarias de las clases y dominios que son una unión
+  const { filas: axiomas } = await consultarSPARQLDetallado(construir.axiomas(), `${fuseki}/turismo/query`);
+  axiomas.forEach(({ termino, axioma, propiedad, valor }) => {
+    const descrito = terminos.get(termino.value.slice(NS.length));
+    if (!descrito) return;
+    if (axioma.value === 'condicion') (descrito.condiciones ||= []).push({ propiedad: propiedad.value, valor: valor.value });
+    else (descrito.dominio ||= []).push(valor.value);
+  });
+
   return [...terminos.values()].sort((a, b) => a.id.localeCompare(b.id, 'es'));
+}
+
+// Versión y fechas que la ontología declara en su cabecera: { version, creada, modificada }
+async function leerCabecera(fuseki) {
+  const { consultarSPARQL } = await import('../js/fuseki.js');
+  const { construir } = await import('../js/consultas.js');
+  const filas = await consultarSPARQL(construir.cabecera(), `${fuseki}/turismo/query`);
+  const valor = (propiedad) => filas.find((fila) => fila.propiedad === propiedad)?.valor ?? null;
+  return { version: valor(`${OWL}versionInfo`), creada: valor(`${DCT}created`), modificada: valor(`${DCT}modified`) };
 }
 
 async function derivado(fuseki, archivo, reglas) {
@@ -149,7 +169,10 @@ async function leerFuseki(fuseki, reglas) {
     }
   }
 
-  return { atracciones, volcados, derivados, sinDerivar, terminos: await leerTerminos(fuseki), CAMPOS, datosEstructurados };
+  return {
+    atracciones, volcados, derivados, sinDerivar,
+    terminos: await leerTerminos(fuseki), cabecera: await leerCabecera(fuseki), CAMPOS, datosEstructurados
+  };
 }
 
 // ---------- Páginas
@@ -207,7 +230,7 @@ function paginaIndice(html, atracciones) {
 }
 
 // datos.html: solo enlaza los archivos que existen y describe el conjunto con schema:Dataset
-function paginaDatos(html, disponibles) {
+function paginaDatos(html, disponibles, cabecera) {
   const descargas = Object.entries({ ...FUENTES, ...FORMATOS, ...DERIVADOS }).filter(([archivo]) => disponibles.includes(archivo));
   // Distribuciones del conjunto de datos: solo el grafo declarado, en sus formatos
   const grafo = descargas.filter(([archivo]) => archivo !== 'turismo.shacl.ttl' && !(archivo in DERIVADOS));
@@ -221,6 +244,10 @@ function paginaDatos(html, disponibles) {
     url: `${SITIO}datos.html`,
     inLanguage: 'es',
     license: LICENCIA,
+    // De la cabecera de la ontología (owl:versionInfo, dcterms:created y dcterms:modified); sin ella no se escriben
+    version: cabecera?.version ?? undefined,
+    dateCreated: cabecera?.creada ?? undefined,
+    dateModified: cabecera?.modificada ?? undefined,
     keywords: ['turismo', 'Magallanes', 'ontología', 'OWL', 'datos enlazados'],
     distribution: grafo.map(([archivo, { tipo }]) => ({ '@type': 'DataDownload', encodingFormat: tipo, contentUrl: `${SITIO}datos/${archivo}` }))
   };
@@ -233,7 +260,7 @@ function paginaDatos(html, disponibles) {
 
 // ontologia/: el documento al que llevan los IRIs. Cada término tiene un ancla con su identificador,
 // así <SITIO>ontologia#FuerteBulnes abre la página en ese individuo; el grafo completo va incrustado en JSON-LD.
-function paginaVocabulario(html, { terminos, jsonld, enlaceFicha }) {
+function paginaVocabulario(html, { terminos, jsonld, enlaceFicha, cabecera }) {
   const DONDE = '<div id="terminos"> en ontologia/index.html';
   if (!terminos) {
     return sustituir(html, bloque('div', 'terminos'), (_, antes, fin) =>
@@ -269,15 +296,36 @@ function paginaVocabulario(html, { terminos, jsonld, enlaceFicha }) {
 		<ul class="lista-terminos">${filas.join('')}
 		</ul>`;
 
+  // "Etiqueta: a, b" con una lista de IRIs ya reunida; como alternativas se escribe "a, b o c"
+  const unaUOtra = new Intl.ListFormat('es', { type: 'disjunction' });
+  const lista =(nombre, valores, unir = (partes) => partes.join(', ')) => (valores.length ? `${nombre}: ${unir(valores.map(referencia))}` : '');
+
+  // owl:disjointWith se declara en un solo sentido (A disjunta con B); aquí se muestra en las dos clases
+  const disjuntas = new Map();
+  terminos.forEach((termino) => iris(termino, `${OWL}disjointWith`).forEach((otra) => {
+    [[`${NS}${termino.id}`, otra], [otra, `${NS}${termino.id}`]].forEach(([una, con]) => {
+      if (!disjuntas.has(una)) disjuntas.set(una, new Set());
+      disjuntas.get(una).add(con);
+    });
+  }));
+
   const clases = terminos.filter((termino) => es(termino, 'Class')).map((termino) => fila(termino, [
-    relacion('Subclase de', termino, `${RDFS}subClassOf`)
+    [
+      relacion('Subclase de', termino, `${RDFS}subClassOf`),
+      lista('Disjunta con', [...(disjuntas.get(`${NS}${termino.id}`) ?? [])].sort())
+    ].filter(Boolean).join(' · '),
+    // Condición necesaria (owl:someValuesFrom): todo individuo de la clase tiene esa propiedad hacia alguno de esa otra
+    (termino.condiciones ?? []).map(({ propiedad, valor }) => `Condición necesaria: ${referencia(propiedad)} → ${referencia(valor)}`).join(' · ')
   ]));
 
   const propiedades = terminos.filter((termino) => es(termino, 'ObjectProperty') || es(termino, 'DatatypeProperty')).map((termino) => fila(termino, [
     esc(texto(termino, `${RDFS}comment`) ?? ''),
     [
       es(termino, 'ObjectProperty') ? 'Relaciona dos individuos' : 'Tiene un valor',
-      relacion('Dominio', termino, `${RDFS}domain`),
+      es(termino, 'FunctionalProperty') ? 'Funcional (un solo valor)' : '',
+      es(termino, 'TransitiveProperty') ? 'Transitiva' : '',
+      // El dominio es una clase o, si la propiedad se aplica a varias, la unión de ellas
+      relacion('Dominio', termino, `${RDFS}domain`) || lista('Dominio', [...(termino.dominio ?? [])].sort(), (partes) => unaUOtra.format(partes)),
       relacion('Rango', termino, `${RDFS}range`),
       relacion('Inversa de', termino, `${OWL}inverseOf`),
       relacion('Subpropiedad de', termino, `${RDFS}subPropertyOf`)
@@ -295,8 +343,15 @@ function paginaVocabulario(html, { terminos, jsonld, enlaceFicha }) {
   const alternativas = Object.entries({ ...FUENTES, ...FORMATOS }).filter(([archivo]) => archivo !== 'turismo.shacl.ttl')
     .map(([archivo, { tipo }]) => `<link rel="alternate" type="${tipo}" href="../datos/${archivo}">\n`).join('');
 
+  const fecha = (valor) => `<time datetime="${esc(valor)}">${esc(valor)}</time>`;
+  const version = [
+    cabecera?.version ? `Versión ${esc(cabecera.version)}` : '',
+    cabecera?.creada ? `creada el ${fecha(cabecera.creada)}` : '',
+    cabecera?.modificada ? `última modificación el ${fecha(cabecera.modificada)}` : ''
+  ].filter(Boolean).join(' · ');
+
   const conTerminos = sustituir(html, bloque('div', 'terminos'), (_, antes, fin) =>
-    `${antes}${seccion('Clases', clases)}${seccion('Propiedades', propiedades)}${seccion('Individuos', individuos)}\n\t\t${fin}`, DONDE);
+    `${antes}${version ? `\n\t\t<p class="version-ontologia">${version}</p>` : ''}${seccion('Clases', clases)}${seccion('Propiedades', propiedades)}${seccion('Individuos', individuos)}\n\t\t${fin}`, DONDE);
   return sustituir(conTerminos, '</head>', () => `${alternativas}${jsonld ? incrustar('application/ld+json', jsonld) : ''}</head>`, '</head> en ontologia/index.html');
 }
 
@@ -350,6 +405,7 @@ export function publicacion({ fuseki }) {
       const conFicha = new Set(datos.atracciones.map(({ id }) => id));
       return paginaVocabulario(html, {
         terminos: datos.terminos,
+        cabecera: datos.cabecera,
         jsonld: datos.volcados['turismo.jsonld'],
         enlaceFicha: (id) => (conFicha.has(id) ? `../${rutaFicha(id)}` : null)
       });
@@ -358,6 +414,7 @@ export function publicacion({ fuseki }) {
       const conFicha = new Set((await leerAtracciones(fuseki)).map(({ id }) => id));
       return paginaVocabulario(html, {
         terminos: await leerTerminos(fuseki),
+        cabecera: await leerCabecera(fuseki),
         jsonld: await volcado(fuseki, FORMATOS['turismo.jsonld'].tipo),
         enlaceFicha: (id) => (conFicha.has(id) ? `../atraccion.html?id=${encodeURIComponent(id)}` : null)
       });
@@ -418,7 +475,9 @@ export function publicacion({ fuseki }) {
           // En desarrollo se enlazan todos: los que escribe Fuseki se piden al abrirlos
           const deFuseki = !compilando ? [...Object.keys(FORMATOS), ...Object.keys(DERIVADOS)]
             : datos ? [...Object.keys(FORMATOS), ...Object.keys(datos.derivados)] : [];
-          resultado = paginaDatos(html, [...Object.keys(FUENTES), ...deFuseki]);
+          // La versión sale de Fuseki: en desarrollo se pide al abrir la página y, si no responde, no se escribe
+          const cabecera = compilando ? datos?.cabecera : await leerCabecera(fuseki).catch(() => null);
+          resultado = paginaDatos(html, [...Object.keys(FUENTES), ...deFuseki], cabecera);
         } else if (pagina === 'ontologia/index.html') {
           resultado = await vocabulario(html);
         } else if (pagina === 'index.html' && compilando && datos) {

@@ -101,11 +101,13 @@ SELECT ?clase ?padre ?etiqueta WHERE {
   OPTIONAL { ?clase rdfs:label ?etiqueta }
 }`,
 
-  // Tipos de todo lo que tiene tipo: sirve para comprobar que ciudades, comunas y lugares existen
+  // Tipos de todo lo que tiene tipo: sirve para comprobar que ciudades, comunas y lugares existen.
+  // Se descartan los tipos del vocabulario OWL (owl:Class, owl:FunctionalProperty, owl:Restriction…):
+  // describen la ontología, no clasifican individuos.
   tipos: () => `${PREFIJOS}
 SELECT ?individuo ${agrupar('tipo')} WHERE {
   ?individuo a ?tipo .
-  FILTER(?tipo NOT IN (owl:NamedIndividual, owl:Class, owl:ObjectProperty, owl:DatatypeProperty, owl:AnnotationProperty, owl:Ontology))
+  FILTER(!STRSTARTS(STR(?tipo), STR(owl:)))
 }
 GROUP BY ?individuo`,
 
@@ -121,6 +123,28 @@ GROUP BY ?ciudad`,
 SELECT ?termino ?propiedad ?valor WHERE {
   ?termino ?propiedad ?valor .
   FILTER(STRSTARTS(STR(?termino), STR(t:)))
+}`,
+
+  // Axiomas que cuelgan de nodos anónimos y por eso no salen en "vocabulario":
+  //   "condicion": la clase es subclase de una restricción (todo individuo tiene ?propiedad hacia algún ?valor)
+  //   "dominio":   el dominio de la propiedad es una unión de clases; hay una fila por cada clase de la unión
+  axiomas: () => `${PREFIJOS}
+SELECT ?termino ?axioma ?propiedad ?valor WHERE {
+  {
+    ?termino rdfs:subClassOf ?restriccion .
+    ?restriccion owl:onProperty ?propiedad ; owl:someValuesFrom ?valor .
+    BIND("condicion" AS ?axioma)
+  } UNION {
+    ?termino rdfs:domain/owl:unionOf/rdf:rest*/rdf:first ?valor .
+    BIND("dominio" AS ?axioma)
+  }
+  FILTER(STRSTARTS(STR(?termino), STR(t:)))
+}`,
+
+  // Versión y fechas declaradas en la cabecera de la ontología
+  cabecera: () => `${PREFIJOS}
+SELECT ?propiedad ?valor WHERE {
+  ?ontologia a owl:Ontology ; ?propiedad ?valor .
 }`,
 
   // Individuos con datos de atracción cuya clase no cuelga de ninguna raíz: no se verían en el sitio
@@ -200,7 +224,21 @@ export const CONSULTAS = [
     descripcion: 'Todas las tripletas de las clases, propiedades e individuos propios. Con ellas se escribe la página a la que llevan los IRIs de la ontología.',
     texto: construir.vocabulario
   },
-  // Estas dos solo dan resultado completo con el razonador (endpoint /turismo-inferido de fuseki/config.ttl)
+  {
+    id: 'axiomas',
+    titulo: 'Condiciones y dominios',
+    usadaEn: 'Documento del vocabulario (ontologia/)',
+    descripcion: 'Lo que la ontología exige y que no cabe en una tripleta simple: las condiciones necesarias de una clase (toda actividad se realiza en algún lugar) y los dominios que son una unión de clases (la latitud se aplica a lugares, ciudades y comunas).',
+    texto: construir.axiomas
+  },
+  {
+    id: 'cabecera',
+    titulo: 'Versión de la ontología',
+    usadaEn: 'Vocabulario y datos abiertos (datos.html)',
+    descripcion: 'Lo que la ontología declara de sí misma: versión, fechas de creación y de última modificación, licencia y descripción.',
+    texto: construir.cabecera
+  },
+  // Estas tres solo dan resultado completo con el razonador (endpoint /turismo-inferido de fuseki/config.ttl)
   {
     id: 'lugares-schema',
     titulo: 'Lugares según schema.org',
@@ -225,5 +263,19 @@ SELECT ?lugar ?actividad WHERE {
   ?lugar t:permiteActividad ?actividad .
 }
 ORDER BY ?lugar ?actividad`
+  },
+  {
+    id: 'comuna-por-lugar',
+    titulo: 'Comuna de cada lugar',
+    usadaEn: 'Solo en el panel · con inferencia',
+    inferencia: true,
+    descripcion: 'Muchos lugares solo declaran su ciudad. t:ubicadoEnCiudad y t:perteneceAComuna son subpropiedades de t:ubicadoEn, que es transitiva (owl:TransitiveProperty): el razonador deduce que un lugar ubicado en una ciudad está también en la comuna de esa ciudad. Ningún dato dice t:ubicadoEn ni t:Lugares directamente.',
+    texto: () => `${PREFIJOS}
+SELECT ?lugar ?comuna WHERE {
+  ?lugar a t:Lugares ;
+         t:ubicadoEn ?comuna .
+  ?comuna a t:Comuna .
+}
+ORDER BY ?lugar`
   }
 ];
