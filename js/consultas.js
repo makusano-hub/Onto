@@ -1,4 +1,4 @@
-// Todas las consultas SPARQL que el sitio envía a Fuseki.
+// Todas las consultas SPARQL del sitio. Las responde Fuseki o, donde no lo hay, el motor del navegador (js/fuseki.js).
 // Están aquí, con nombre y descripción, para poder revisarlas y probarlas desde el panel (panel.html#consultas).
 import { PREFIJOS, RAICES, CATEGORIAS, NS, SCHEMA } from './catalogo.js';
 
@@ -59,10 +59,12 @@ WHERE {
 GROUP BY ?atraccion${comuna ? `\nHAVING (SUM(IF(BOUND(?comuna) && ?comuna = <${NS}${comuna}>, 1, 0)) > 0)` : ''}`;
 }
 
+// Subconsulta y no FILTER EXISTS: elige las mismas atracciones, pero se evalúa una sola vez en lugar de
+// una por fila. En el motor del navegador (Oxigraph) el FILTER EXISTS tardaba unos 200 ms; así, unos 10.
 function filtroCategoria(categoria) {
   if (!categoria) return '';
   const clases = categoria.clases.map((clase) => `t:${clase}`).join(' ');
-  return `FILTER EXISTS { VALUES ?claseCategoria { ${clases} } ?atraccion a/rdfs:subClassOf* ?claseCategoria }`;
+  return `{ SELECT DISTINCT ?atraccion WHERE { VALUES ?claseCategoria { ${clases} } ?atraccion a/rdfs:subClassOf* ?claseCategoria } }`;
 }
 
 // Constructores usados por ontologia.js. Los identificadores llegan ya validados.

@@ -46,6 +46,8 @@
 }
 
 .estado-fuseki[data-estado="ok"]::before { background: var(--ok); }
+/* Funciona, pero sin Fuseki: responde el motor SPARQL del navegador */
+.estado-fuseki[data-estado="navegador"]::before { background: var(--aviso); }
 .estado-fuseki[data-estado="error"]::before { background: var(--error); }
 .estado-fuseki[data-estado="error"] { color: var(--error); }
 

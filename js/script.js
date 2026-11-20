@@ -1,6 +1,6 @@
 // Ficha pública de una atracción.
-//  · atraccion.html?id=...  pide los datos a Fuseki.
-//  · ficha/<id>.html        (generada al compilar) los trae incrustados junto con su JSON-LD: no necesita Fuseki.
+//  · atraccion.html?id=...  pide los datos con una consulta SPARQL (a Fuseki o al motor del navegador).
+//  · ficha/<id>.html        (generada al compilar) los trae incrustados junto con su JSON-LD: no consulta nada.
 import { obtenerAtraccion } from './ontologia.js';
 import { renderizarFicha, datosEstructurados } from './ficha.js';
 
@@ -18,8 +18,8 @@ async function iniciar() {
   try {
     atraccion = await obtenerAtraccion(id);
   } catch (error) {
-    console.error('Error consultando Fuseki:', error);
-    estado.textContent = 'No se pudo conectar con Fuseki. Comprueba que esté en ejecución y recarga la página.';
+    console.error('Error consultando los datos:', error);
+    estado.textContent = 'No se pudieron consultar los datos: Fuseki no responde y el motor SPARQL del navegador no se pudo cargar. Recarga la página.';
     return;
   }
 

@@ -1,4 +1,4 @@
-// Convierte las respuestas de Fuseki en objetos que usan las páginas
+// Convierte las respuestas SPARQL (de Fuseki o del motor del navegador) en objetos que usan las páginas
 import { consultarSPARQL } from './fuseki.js';
 import { construir, SEP } from './consultas.js';
 import {
@@ -63,7 +63,9 @@ function ordenar(atracciones) {
     (b.modelos.length > 0) - (a.modelos.length > 0) || a.nombre.localeCompare(b.nombre, 'es'));
 }
 
-const lista = (valor) => (valor ? valor.split(SEP).filter(Boolean) : []);
+// Ordenada: GROUP_CONCAT no garantiza un orden, y Fuseki y el motor del navegador devolvían los mismos
+// valores en orden distinto (una ficha compilada y la misma ficha en vivo mostraban "A / B" y "B / A")
+const lista = (valor) => (valor ? valor.split(SEP).filter(Boolean).sort() : []);
 const nombres = (uris) => uris.map((uri) => nombreLegible(idDe(uri)));
 
 // Objeto de atracción. Conserva los valores en bruto (crudo) para que la validación pueda revisarlos.

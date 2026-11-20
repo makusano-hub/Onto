@@ -1,5 +1,5 @@
 // Comprueba que cada atracción esté bien conectada a la ontología y se dibuje bien en el sitio.
-// No modifica nada: solo lee de Fuseki y de los archivos publicados.
+// No modifica nada: solo consulta (a Fuseki o al motor del navegador) y lee los archivos publicados.
 import recursos from 'virtual:recursos';
 import { consultarSPARQL } from './fuseki.js';
 import { construir, SEP } from './consultas.js';

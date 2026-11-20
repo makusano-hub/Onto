@@ -1,14 +1,30 @@
 // Validación con SHACL: envía las reglas de ontologia/turismo.shacl.ttl a Fuseki y lee su informe.
 // Necesita el endpoint /turismo/shacl, que define fuseki/config.ttl.
+// Sin Fuseki (el sitio publicado) lee el informe que Fuseki dejó al compilar: en el navegador no hay motor SHACL.
 import formas from '../ontologia/turismo.shacl.ttl?raw';
-import { ENDPOINT_SHACL } from './fuseki.js';
-import { NS } from './catalogo.js';
+import { ENDPOINT_SHACL, origenDeDatos } from './fuseki.js';
+import { NS, rutaPublica } from './catalogo.js';
 
 const SH = 'http://www.w3.org/ns/shacl#';
 const NIVELES = { Violation: 'error', Warning: 'aviso', Info: 'aviso' };
 
+// Lo escribe scripts/publicacion.mjs con la misma petición que se hace aquí
+const INFORME_PUBLICADO = 'datos/informe-shacl.nt';
+
+async function informePublicado() {
+  const respuesta = await fetch(new URL(rutaPublica(INFORME_PUBLICADO), document.baseURI), { headers: { Accept: 'application/n-triples' } });
+  if (!respuesta.ok) {
+    const error = new Error(`no está ${INFORME_PUBLICADO} (${respuesta.status})`);
+    error.sinInforme = true;
+    throw error;
+  }
+  return leerInforme(await respuesta.text());
+}
+
 // Resultados del informe: { nivel, mensaje, individuo, propiedad, valor }
 export async function validarSHACL() {
+  if ((await origenDeDatos()) === 'navegador') return informePublicado();
+
   const respuesta = await fetch(`${ENDPOINT_SHACL}?graph=default`, {
     method: 'POST',
     headers: { 'Content-Type': 'text/turtle', Accept: 'application/n-triples' },
