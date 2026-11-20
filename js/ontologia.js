@@ -44,8 +44,9 @@ export async function buscarAtracciones({ comuna, categoria }) {
   return ordenar(filas.map(crearAtraccion));
 }
 
-export async function obtenerInventario() {
-  const filas = await consultarSPARQL(construir.inventario());
+// "endpoint" permite consultar Fuseki por su dirección completa (al compilar no hay proxy de Vite)
+export async function obtenerInventario(endpoint) {
+  const filas = await consultarSPARQL(construir.inventario(), endpoint);
   return ordenar(filas.map(crearAtraccion));
 }
 
@@ -105,8 +106,18 @@ export function crearAtraccion(fila) {
     modelos: crearModelos(crudo.modelos, nombre),
     imagenes: crudo.imagenes.map((ruta) => ({ ruta: rutaPublica(ruta), original: ruta })),
     enlaces: crudo.enlaces.map((url) => ({ url, texto: textoEnlace(url) })),
+    // Datos enlazados: el mismo lugar en otras bases (owl:sameAs) y sus tipos de schema.org
+    equivalentes: lista(fila.mismos).map((url) => ({ url, texto: textoEnlace(url) })),
+    tiposSchema: lista(fila.tiposSchema).map(idDe).sort(),
+    coordenadas: crearCoordenadas(fila),
     crudo
   };
+}
+
+function crearCoordenadas({ latitud, longitud }) {
+  const lat = Number(latitud);
+  const lon = Number(longitud);
+  return latitud && longitud && Number.isFinite(lat) && Number.isFinite(lon) ? { latitud: lat, longitud: lon } : null;
 }
 
 function textoEnlace(url) {

@@ -1,12 +1,13 @@
 // Panel interno: explorar atracciones, probar consultas, validar y preparar individuos nuevos
-import { consultarSPARQLDetallado, ENDPOINT } from './fuseki.js';
+import { consultarSPARQLDetallado, ENDPOINT, ENDPOINT_INFERIDO } from './fuseki.js';
+import { validarSHACL } from './shacl.js';
 import { CONSULTAS } from './consultas.js';
 import { renderizarFicha } from './ficha.js';
 import {
   cargarDatos, validarAtraccion, validarGlobal, validarPresenciaEnSitio, probarArchivos,
   peorNivel, GRUPOS
 } from './validacion.js';
-import { CATEGORIAS, NS, RAICES, RAIZ_ACTIVIDAD, ID_VALIDO, FORMATOS_MODELO, nombreLegible, nombreClase } from './catalogo.js';
+import { CATEGORIAS, NS, SCHEMA, RAICES, RAIZ_ACTIVIDAD, ID_VALIDO, FORMATOS_MODELO, nombreLegible, nombreClase } from './catalogo.js';
 
 const $ = (id) => document.getElementById(id);
 
@@ -14,6 +15,7 @@ const estado = {
   datos: null,
   hallazgos: new Map(), // id → hallazgos de reglas locales
   extra: new Map(), // id → hallazgos de las comprobaciones en vivo (presencia y archivos)
+  shacl: null, // id → hallazgos de las reglas SHACL; null mientras Fuseki no las haya aplicado
   global: [],
   filtros: { comuna: '', categoria: '', falta: '', texto: '' }
 };
@@ -30,7 +32,20 @@ function el(etiqueta, atributos = {}, ...hijos) {
   return elemento;
 }
 
-const hallazgosDe = (id) => [...(estado.hallazgos.get(id) ?? []), ...(estado.extra.get(id) ?? [])];
+// Con el resultado de SHACL disponible, sustituye a las reglas equivalentes de validacion.js (marcadas "respaldo"):
+// cada regla se evalúa una sola vez y la tabla no puede contradecir al bloque "Reglas SHACL" ni al despliegue.
+const hallazgosDe = (id) => [
+  ...(estado.hallazgos.get(id) ?? []).filter((h) => !(estado.shacl && h.respaldo)),
+  ...(estado.shacl?.get(id) ?? []),
+  ...(estado.extra.get(id) ?? [])
+];
+
+// Grupo de la tabla al que va un resultado SHACL según la propiedad que incumple; el resto son de ontología
+const GRUPO_SHACL = {
+  Nombre: 'datos', Descripcion: 'datos', Calificacion: 'datos', Precio: 'datos',
+  requierePermisoAutoridad: 'datos', tieneTemporada: 'datos', Latitud: 'datos', Longitud: 'datos',
+  tieneModelo3D: 'medios', tieneImagen: 'medios', tieneEnlace: 'medios'
+};
 const problemas = (lista) => lista.filter(({ nivel }) => nivel !== 'ok');
 const relacionesCompletas = (a) => !hallazgosDe(a.id).some(({ grupo, nivel }) => grupo === 'ontologia' && nivel === 'error');
 
@@ -80,6 +95,7 @@ async function iniciar() {
   iniciarValidacion();
   iniciarNuevo();
   comprobarPresencia();
+  comprobarSHACL();
 }
 
 function validarLocal() {
@@ -103,6 +119,53 @@ async function comprobarPresencia() {
     progreso.textContent = `No se pudo comprobar la portada: ${error.message}`;
   }
   refrescar();
+}
+
+// Reglas de ontologia/turismo.shacl.ttl, aplicadas por Fuseki. Los resultados con el mismo mensaje van en una línea.
+async function comprobarSHACL() {
+  const aviso = $('v-shacl-estado');
+  const lista = $('v-shacl');
+  aviso.textContent = 'Validando con SHACL…';
+  lista.replaceChildren();
+  $('v-shacl-total').textContent = '';
+
+  let resultados;
+  try {
+    resultados = await validarSHACL();
+  } catch (error) {
+    aviso.textContent = `${[404, 405].includes(error.estado)
+      ? 'Este Fuseki no tiene el endpoint /turismo/shacl. Inícialo con fuseki/config.ttl (ver readme.md).'
+      : `No se pudo validar con SHACL: ${error.message}`} La tabla usa las reglas de respaldo de js/validacion.js.`;
+    estado.shacl = null;
+    refrescar();
+    return;
+  }
+
+  // Los mismos resultados, repartidos por individuo para la tabla y las tarjetas
+  estado.shacl = new Map();
+  resultados.forEach(({ nivel, mensaje, individuo, propiedad }) => {
+    if (!estado.shacl.has(individuo)) estado.shacl.set(individuo, []);
+    estado.shacl.get(individuo).push({ grupo: GRUPO_SHACL[propiedad] ?? 'ontologia', nivel, mensaje, consejo: 'Regla de ontologia/turismo.shacl.ttl.' });
+  });
+  refrescar();
+
+  const grupos = new Map();
+  resultados.forEach(({ nivel, mensaje, individuo }) => {
+    const clave = `${nivel} ${mensaje}`;
+    if (!grupos.has(clave)) grupos.set(clave, { nivel, mensaje, individuos: [] });
+    grupos.get(clave).individuos.push(individuo);
+  });
+
+  const cuenta = (nivel) => resultados.filter((resultado) => resultado.nivel === nivel).length;
+  $('v-shacl-total').textContent = `(${cuenta('error')} errores, ${cuenta('aviso')} avisos)`;
+  aviso.textContent = resultados.length
+    ? 'Reglas de ontologia/turismo.shacl.ttl, aplicadas por Fuseki a los datos cargados.'
+    : 'Los datos cumplen todas las reglas de ontologia/turismo.shacl.ttl.';
+  lista.replaceChildren(...[...grupos.values()].map(({ nivel, mensaje, individuos }) =>
+    el('li', { 'data-nivel': nivel },
+      el('span', { class: 'etiqueta-grupo', texto: individuos.length === 1 ? '1 individuo' : `${individuos.length} individuos` }),
+      el('span', { texto: mensaje }),
+      el('small', { texto: individuos.join(', ') }))));
 }
 
 function refrescar() {
@@ -180,7 +243,7 @@ function crearGrupo(contenedor, campo, opciones, textoTodas) {
 
 function falta(a, campo) {
   switch (campo) {
-    case 'modelo': return !a.modelos.length;
+    case 'modelo': return !a.esActividad && !a.modelos.length; // una actividad no lleva modelo
     case 'imagen': return !a.imagenes.length;
     case 'descripcion': return !a.descripcion;
     case 'enlace': return !a.enlaces.length;
@@ -211,13 +274,15 @@ function dibujarIndicadores() {
     detalle && el('span', { class: 'indicador-detalle', texto: detalle }));
 
   const proporcion = (n) => `${n} de ${total}`;
+  // Los modelos se cuentan sobre los lugares: una actividad no puede llevar t:tieneModelo3D
+  const lugares = contar((a) => !a.esActividad);
   const conModelo = contar((a) => a.modelos.length);
   const conImagen = contar((a) => a.imagenes.length);
   const relaciones = contar(relacionesCompletas);
 
   $('indicadores').replaceChildren(
     indicador('Atracciones', String(total), `${CATEGORIAS.filter(({ id }) => atracciones.some((a) => a.categorias.includes(id))).length} de ${CATEGORIAS.length} categorías con contenido`),
-    indicador('Con modelo 3D', proporcion(conModelo), `${total - conModelo} sin modelo`, conModelo < total ? 'aviso' : 'ok'),
+    indicador('Con modelo 3D', `${conModelo} de ${lugares} lugares`, `${lugares - conModelo} sin modelo`, conModelo < lugares ? 'aviso' : 'ok'),
     indicador('Con imagen', proporcion(conImagen), `${total - conImagen} sin imagen`, conImagen < total ? 'aviso' : 'ok'),
     indicador('Relaciones completas', proporcion(relaciones), `${total - relaciones} con errores de ontología`, relaciones < total ? 'error' : 'ok'),
     indicador('Con errores', String(conErrores), 'de cualquier tipo', conErrores ? 'error' : 'ok')
@@ -249,7 +314,7 @@ function tarjeta(a) {
       el('h3', { texto: a.nombre }),
       el('p', { texto: a.comuna ? `${a.tipo} · ${a.comuna}` : `${a.tipo} · sin comuna` }),
       el('div', { class: 'chips' },
-        chip('3D', a.modelos.length > 0),
+        !a.esActividad && chip('3D', a.modelos.length > 0),
         chip('Imagen', a.imagenes.length > 0),
         chip('Enlace', a.enlaces.length > 0),
         chip('Relaciones', relacionesCompletas(a))),
@@ -304,6 +369,7 @@ function iniciarValidacion() {
     validarLocal();
     refrescar();
     comprobarPresencia();
+    comprobarSHACL();
   });
 
   $('v-archivos').addEventListener('click', async (evento) => {
@@ -430,31 +496,35 @@ function elegirConsulta(consulta) {
   $('c-usada').textContent = `Usada en: ${consulta.usadaEn}`;
   $('c-descripcion').textContent = consulta.descripcion;
   $('c-texto').value = consulta.texto();
+  $('c-inferencia').checked = Boolean(consulta.inferencia);
   $('c-error').hidden = true;
   $('c-resultado').replaceChildren();
   $('c-estado').textContent = '';
 }
 
-const compactar = (valor) => valor.replace(NS, 't:').replace('http://www.w3.org/2002/07/owl#', 'owl:').replace('http://www.w3.org/2000/01/rdf-schema#', 'rdfs:').replace('http://www.w3.org/1999/02/22-rdf-syntax-ns#', 'rdf:');
+const compactar = (valor) => valor.replace(NS, 't:').replace(SCHEMA, 'schema:').replace('http://www.wikidata.org/entity/', 'wd:').replace('http://www.w3.org/2002/07/owl#', 'owl:').replace('http://www.w3.org/2000/01/rdf-schema#', 'rdfs:').replace('http://www.w3.org/1999/02/22-rdf-syntax-ns#', 'rdf:');
 
 async function ejecutarConsulta() {
   const salida = $('c-resultado');
   const error = $('c-error');
   const aviso = $('c-estado');
+  // Con inferencia se consulta /turismo-inferido: los mismos datos más lo que deduce el razonador
+  const inferencia = $('c-inferencia').checked;
+  const origen = inferencia ? ' · con inferencia' : '';
   error.hidden = true;
   aviso.textContent = 'Ejecutando…';
 
   try {
-    const { variables, filas, booleano, ms } = await consultarSPARQLDetallado($('c-texto').value);
+    const { variables, filas, booleano, ms } = await consultarSPARQLDetallado($('c-texto').value, inferencia ? ENDPOINT_INFERIDO : ENDPOINT);
 
     if (booleano !== undefined) {
-      aviso.textContent = `ASK · ${ms} ms`;
+      aviso.textContent = `ASK · ${ms} ms${origen}`;
       salida.replaceChildren(el('p', { class: 'resultado-ask', texto: booleano ? 'Verdadero' : 'Falso' }));
       return;
     }
 
     const MAXIMO = 500;
-    aviso.textContent = `${filas.length} filas · ${ms} ms${filas.length > MAXIMO ? ` · se muestran ${MAXIMO}` : ''}`;
+    aviso.textContent = `${filas.length} filas · ${ms} ms${origen}${filas.length > MAXIMO ? ` · se muestran ${MAXIMO}` : ''}`;
     salida.replaceChildren(el('div', { class: 'tabla-scroll' }, el('table', { class: 'tabla-resultados' },
       el('thead', {}, el('tr', {}, variables.map((variable) => el('th', { scope: 'col', texto: `?${variable}` })))),
       el('tbody', {}, filas.slice(0, MAXIMO).map((fila) => el('tr', {}, variables.map((variable) => {
@@ -465,7 +535,9 @@ async function ejecutarConsulta() {
   } catch (fallo) {
     aviso.textContent = '';
     error.hidden = false;
-    error.textContent = `${fallo.message}\n\n${fallo.detalle ?? ''}`.trim();
+    error.textContent = inferencia && fallo.estado === 404
+      ? 'Este Fuseki no tiene el endpoint /turismo-inferido. Inícialo con fuseki/config.ttl (ver readme.md) o desmarca "Con inferencia".'
+      : `${fallo.message}\n\n${fallo.detalle ?? ''}`.trim();
     salida.replaceChildren();
   }
 }
@@ -554,10 +626,11 @@ function generar() {
   if (!esActividad && !valor('ciudad') && !valor('comuna')) avisos.push(['error', 'Sin ciudad ni comuna: no aparecerá al filtrar por comuna.']);
   const calificacion = valor('calificacion');
   if (calificacion && !(Number(calificacion) >= 0 && Number(calificacion) <= 5)) avisos.push(['error', 'La calificación debe estar entre 0 y 5.']);
-  const modelo = valor('modelo');
+  // Solo los lugares llevan modelo: t:tieneModelo3D tiene dominio t:Lugares y la regla SHACL f:Modelo lo exige
+  const modelo = esActividad ? '' : valor('modelo');
   if (modelo && !FORMATOS_MODELO.some((ext) => modelo.toLowerCase().endsWith(`.${ext}`))) avisos.push(['error', 'El modelo debe ser .glb o .gltf.']);
   else if (modelo && !/^https?:/.test(modelo) && !estado.datos.recursos.modelos3d.includes(modelo)) avisos.push(['aviso', `No existe public/${modelo}: cópialo antes de recargar.`]);
-  if (!modelo) avisos.push(['aviso', 'Sin modelo 3D.']);
+  if (!modelo && !esActividad) avisos.push(['aviso', 'Sin modelo 3D.']);
   const imagenes = lineas(valor('imagenes'));
   if (!imagenes.length) avisos.push(['aviso', 'Sin imagen.']);
   imagenes.filter((ruta) => !/^https?:/.test(ruta) && !estado.datos.recursos.imagenes.includes(ruta))

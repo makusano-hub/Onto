@@ -1,0 +1,58 @@
+# Configuración de Fuseki para el proyecto.
+#
+# Inicia el servidor desde la carpeta del proyecto (ajusta la ruta de Fuseki):
+#
+#   java -jar C:\apache-jena-fuseki-6.2.0\fuseki-server.jar --localhost --config=fuseki/config.ttl
+#
+# --localhost es necesario: /turismo/update y /turismo/data aceptan cambios sin contraseña, y sin esa opción
+# Fuseki escucha en todas las interfaces de red, así que cualquier equipo de la misma red podría borrar los datos.
+#
+# Carga ontologia/turismo.rdf al arrancar: no hay que subir el archivo a mano.
+# Después de editar la ontología, reinicia Fuseki para que la vuelva a leer.
+#
+#   /turismo            los datos tal como están en el archivo (lo usa el sitio)
+#   /turismo/shacl      validación con las reglas de ontologia/turismo.shacl.ttl
+#   /turismo-inferido   los mismos datos más lo que deduce el razonador (solo lectura)
+
+PREFIX :       <#>
+PREFIX fuseki: <http://jena.apache.org/fuseki#>
+PREFIX ja:     <http://jena.hpl.hp.com/2005/11/Assembler#>
+PREFIX rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+# ---------- Datos declarados
+
+:servicio  rdf:type  fuseki:Service ;
+        fuseki:name      "turismo" ;
+        fuseki:endpoint  [ fuseki:operation fuseki:query ] ;
+        fuseki:endpoint  [ fuseki:operation fuseki:query ;  fuseki:name "sparql" ] ;
+        fuseki:endpoint  [ fuseki:operation fuseki:query ;  fuseki:name "query" ] ;
+        fuseki:endpoint  [ fuseki:operation fuseki:update ; fuseki:name "update" ] ;
+        fuseki:endpoint  [ fuseki:operation fuseki:gsp-r ;  fuseki:name "get" ] ;
+        fuseki:endpoint  [ fuseki:operation fuseki:gsp-rw ; fuseki:name "data" ] ;
+        fuseki:endpoint  [ fuseki:operation fuseki:shacl ;  fuseki:name "shacl" ] ;
+        fuseki:dataset   :datos .
+
+# En memoria: lo que se cambie con /turismo/update se pierde al reiniciar.
+# La fuente de verdad es el archivo.
+:datos  rdf:type  ja:RDFDataset ;
+        ja:defaultGraph  [ rdf:type  ja:MemoryModel ;
+                           ja:content  [ ja:externalContent  <../ontologia/turismo.rdf> ] ] .
+
+# ---------- Datos con inferencia
+
+:servicioInferido  rdf:type  fuseki:Service ;
+        fuseki:name      "turismo-inferido" ;
+        fuseki:endpoint  [ fuseki:operation fuseki:query ] ;
+        fuseki:endpoint  [ fuseki:operation fuseki:query ;  fuseki:name "sparql" ] ;
+        fuseki:endpoint  [ fuseki:operation fuseki:query ;  fuseki:name "query" ] ;
+        fuseki:dataset   :datosInferidos .
+
+:datosInferidos  rdf:type  ja:RDFDataset ;
+        ja:defaultGraph  :grafoInferido .
+
+# OWL Micro aplica rdfs:subClassOf, rdfs:subPropertyOf, rdfs:domain, rdfs:range y owl:inverseOf.
+# No aplica owl:sameAs: así las entidades de Wikidata no se mezclan con los individuos propios.
+:grafoInferido  rdf:type  ja:InfModel ;
+        ja:baseModel  [ rdf:type  ja:MemoryModel ;
+                        ja:content  [ ja:externalContent  <../ontologia/turismo.rdf> ] ] ;
+        ja:reasoner   [ ja:reasonerURL  <http://jena.hpl.hp.com/2003/OWLMicroFBRuleReasoner> ] .

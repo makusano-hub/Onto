@@ -32,10 +32,10 @@
   <div class="hero">
     <div>
       <div class="coord">53°09′S 70°54′O · Región de Magallanes y de la Antártica Chilena</div>
-      <h1>Magallanes es un <em>grafo</em> al fin del mundo.</h1>
+      <h1>Magallanes, una <em>Tierra</em> al fin del mundo.</h1>
     </div>
     <div class="lado">
-      <p class="lead">Los lugares, actividades y comunas de la ontología de turismo, leídos con SPARQL y levantados sobre una carta 3D de la región. Elige un nodo para ver sus datos, sus enlaces y su modelo 3D.</p>
+      <p class="lead">Lugares de la ontología, posicionados en la carta 3D. Selecciona un nodo para ver sus datos o atracciones cerca.</p>
       <div class="estado" id="estado" data-modo="ejemplo"><i></i><span>Cargando ontología</span></div>
     </div>
   </div>
@@ -101,7 +101,7 @@
 };</pre>
       </div>
     </div>
-    <p class="nota">La ontología no guarda coordenadas, así que la página usa la tabla <code>COORDS</code> (aproximada) para ciudades, comunas y lugares naturales; los lugares urbanos se reparten en anillo alrededor de su ciudad. Si agregas a un individuo las propiedades de datos <code>Latitud</code> y <code>Longitud</code>, la página las usa en lugar de la tabla. Los archivos <code>.glb</code> de <code>tieneModelo3D</code> se cargan desde la carpeta <code>public/modelos3d/</code>.</p>
+    <p class="nota">Las coordenadas salen de la ontología: son las propiedades de datos <code>Latitud</code> y <code>Longitud</code> de cada individuo, en grados decimales (aproximadas). Un lugar sin coordenadas se dibuja en anillo alrededor de su ciudad o comuna; para ubicarlo en su sitio, añádele esas dos propiedades en <code>ontologia/turismo.rdf</code>. Los archivos <code>.glb</code> de <code>tieneModelo3D</code> se cargan desde la carpeta <code>public/modelos3d/</code>.</p>
   </section>
 
   <section id="region">

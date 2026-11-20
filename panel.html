@@ -67,6 +67,11 @@
 				<summary>Problemas generales <span id="v-global-total"></span></summary>
 				<ul class="lista-hallazgos" id="v-global"></ul>
 			</details>
+			<details class="bloque-global" id="v-shacl-bloque" open>
+				<summary>Reglas SHACL <span id="v-shacl-total"></span></summary>
+				<p class="faltantes nota-shacl" id="v-shacl-estado" role="status"></p>
+				<ul class="lista-hallazgos" id="v-shacl"></ul>
+			</details>
 			<div class="tabla-validacion" id="v-tabla" role="list"></div>
 		</section>
 
@@ -88,6 +93,7 @@
 						<button type="button" class="button" id="c-ejecutar">Ejecutar <kbd>Ctrl</kbd>+<kbd>Enter</kbd></button>
 						<button type="button" class="button outline" id="c-restaurar">Restaurar</button>
 						<button type="button" class="button outline" id="c-copiar">Copiar</button>
+						<label class="interruptor" title="Consulta /turismo-inferido: los mismos datos más lo que deduce el razonador"><input type="checkbox" id="c-inferencia"> Con inferencia</label>
 						<span class="progreso" id="c-estado" role="status"></span>
 					</div>
 					<pre class="error-consulta" id="c-error" hidden></pre>
@@ -109,7 +115,7 @@
 					<label data-para="lugar">Comuna (si no tiene ciudad) <select name="comuna"></select></label>
 					<label data-para="actividad" hidden>Se realiza en <select name="lugar"></select></label>
 					<label>Calificación (0 a 5) <input name="calificacion" type="number" min="0" max="5" step="0.1"></label>
-					<label>Modelo 3D <input name="modelo" list="n-modelos" placeholder="modelos3d/archivo.glb"></label>
+					<label data-para="lugar">Modelo 3D <input name="modelo" list="n-modelos" placeholder="modelos3d/archivo.glb"></label>
 					<datalist id="n-modelos"></datalist>
 					<label>Imágenes (una por línea) <textarea name="imagenes" rows="2" placeholder="imagenes/archivo.jpg"></textarea></label>
 					<label>Enlaces (uno por línea) <textarea name="enlaces" rows="2" placeholder="https://…"></textarea></label>
@@ -128,7 +134,7 @@
 					<ol class="pasos-nuevo">
 						<li>Copia los archivos a <code>public/modelos3d/</code> o <code>public/imagenes/</code>.</li>
 						<li>Pega el Turtle en Protégé (o usa el INSERT en Fuseki, endpoint <code>/turismo/update</code>).</li>
-						<li>Recarga el dataset y abre la pestaña Validación.</li>
+						<li>Recarga el dataset (o reinicia Fuseki si lo inicias con <code>fuseki/config.ttl</code>) y abre la pestaña Validación.</li>
 					</ol>
 				</div>
 			</div>

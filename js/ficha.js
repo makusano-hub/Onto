@@ -1,18 +1,10 @@
 // Ficha reutilizable de una atracción: la usan atraccion.html y el panel.
 // Cada parte lleva data-campo para que la validación compruebe lo que realmente se dibuja.
 import { crearVisor } from './visor3d.js';
+import { CAMPOS } from './ficha-datos.js';
 
-const CAMPOS = [
-  ['ciudad', 'Ciudad', (a) => a.ciudad],
-  ['comuna', 'Comuna', (a) => a.comuna],
-  ['lugar', 'Se realiza en', (a) => a.lugar],
-  ['calificacion', 'Calificación', (a) => a.calificacion && `${formatearNumero(a.calificacion)} de 5`],
-  ['precio', 'Precio', (a) => a.precio && (Number(a.precio) === 0 ? 'Gratis' : `$${Number(a.precio).toLocaleString('es-CL')}`)],
-  ['permiso', 'Permiso de la autoridad', (a) => a.requierePermiso && (a.requierePermiso === 'true' ? 'Requerido' : 'No requerido')],
-  ['temporada', 'Temporada', (a) => a.tieneTemporada && (a.tieneTemporada === 'true' ? 'Depende de la temporada' : 'Todo el año')]
-];
-
-const formatearNumero = (valor) => Number(valor).toLocaleString('es-CL');
+// Los datos estructurados viven en ficha-datos.js, que también se usa al compilar
+export { datosEstructurados } from './ficha-datos.js';
 
 function el(etiqueta, atributos = {}, ...hijos) {
   const elemento = document.createElement(etiqueta);
@@ -27,7 +19,7 @@ function el(etiqueta, atributos = {}, ...hijos) {
 
 // Dibuja la ficha en el contenedor. Con visor: false no crea el visor 3D (útil para pruebas).
 export function renderizarFicha(contenedor, atraccion, { visor = true, nivelTitulo = 'h1' } = {}) {
-  const { nombre, tipo, comuna, descripcion, modelos, imagenes, enlaces } = atraccion;
+  const { nombre, tipo, comuna, descripcion, modelos, imagenes, enlaces, equivalentes } = atraccion;
 
   const titulo = el(nivelTitulo, { class: 'ficha-nombre', 'data-campo': 'nombre', texto: nombre });
   const categoria = el('p', {
@@ -60,8 +52,15 @@ export function renderizarFicha(contenedor, atraccion, { visor = true, nivelTitu
         el('a', { href: url, target: '_blank', rel: 'noopener noreferrer', texto: `${texto} ↗` }))))
     : null;
 
+  // owl:sameAs: el mismo lugar en otras bases de datos (Wikidata)
+  const listaEquivalentes = equivalentes.length
+    ? el('ul', { class: 'ficha-enlaces', 'data-campo': 'equivalentes', 'aria-label': 'Este lugar en otras bases de datos' },
+      ...equivalentes.map(({ url, texto }) => el('li', {},
+        el('a', { href: url, target: '_blank', rel: 'noopener noreferrer', texto: `${texto} ↗` }))))
+    : null;
+
   const ficha = el('article', { class: 'ficha-atraccion', 'data-atraccion': atraccion.id },
-    titulo, categoria, figura, galeria, datos, listaEnlaces);
+    titulo, categoria, figura, galeria, datos, listaEnlaces, listaEquivalentes);
   contenedor.replaceChildren(ficha);
 
   let visor3d = null;
@@ -78,36 +77,5 @@ export function renderizarFicha(contenedor, atraccion, { visor = true, nivelTitu
     destruir() {
       visor3d?.destruir();
     }
-  };
-}
-
-// Datos estructurados de schema.org, enlazados con el individuo de la ontología
-export function datosEstructurados({ uri, nombre, ciudad, comuna, descripcion, calificacion, modelos, imagenes, enlaces }) {
-  return {
-    '@context': 'https://schema.org',
-    '@type': 'TouristAttraction',
-    '@id': uri,
-    name: nombre,
-    ...(descripcion && { description: descripcion }),
-    ...((ciudad || comuna) && {
-      address: {
-        '@type': 'PostalAddress',
-        addressLocality: ciudad ?? comuna,
-        addressRegion: 'Región de Magallanes y de la Antártica Chilena',
-        addressCountry: 'CL'
-      }
-    }),
-    ...(calificacion && {
-      aggregateRating: { '@type': 'AggregateRating', ratingValue: Number(calificacion), bestRating: 5 }
-    }),
-    ...(imagenes.length && { image: imagenes.map(({ ruta }) => new URL(ruta, window.location.href).href) }),
-    ...(enlaces.length && { sameAs: enlaces.map(({ url }) => url) }),
-    ...(modelos.length && {
-      subjectOf: modelos.map((modelo) => ({
-        '@type': '3DModel',
-        name: `Modelo 3D de ${modelo.nombre}`,
-        encoding: { '@type': 'MediaObject', contentUrl: new URL(modelo.ruta, window.location.href).href }
-      }))
-    })
   };
 }

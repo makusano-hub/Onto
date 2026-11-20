@@ -88,6 +88,7 @@ h1 em{font-style:normal;color:var(--coiron)}
 .lista{display:flex;flex-wrap:wrap;gap:6px}
 .ir{font-size:13px;padding:4px 10px;border-radius:8px;border:1px solid var(--canal);background:none;text-align:left}
 .ir:hover{border-color:var(--hielo)}
+a.ir{text-decoration:none}
 .ir small{display:block;color:var(--bruma);font-size:11.5px}
 .ir.m3d{border-color:var(--coiron);color:var(--coiron);font-weight:600}
 .ir.m3d:hover{background:var(--coiron);color:#1b1400}

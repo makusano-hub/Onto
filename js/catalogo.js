@@ -5,11 +5,19 @@
 //  · Una imagen nueva: copiarla a public/imagenes/ y añadir t:tieneImagen "imagenes/archivo.jpg".
 //  · Un botón de categoría nuevo: añadir una entrada a CATEGORIAS.
 
-export const NS = 'http://www.semanticweb.org/usuario/ontologies/2026/9/Ontologia2#';
+// Dirección pública del sitio (GitHub Pages). Los IRIs de la ontología cuelgan de ella para que se puedan abrir:
+// <SITIO>ontologia#FuerteBulnes lleva al documento del vocabulario, que describe ese individuo.
+export const SITIO = 'https://makusano-hub.github.io/Onto/';
+
+export const NS = `${SITIO}ontologia#`;
+
+// Vocabulario externo con el que está alineada la ontología (rdfs:subClassOf y rdfs:subPropertyOf)
+export const SCHEMA = 'https://schema.org/';
 
 export const PREFIJOS = `PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX schema: <${SCHEMA}>
 PREFIX t: <${NS}>`;
 
 // Un individuo es "atracción" si alguna de sus clases desciende de estas raíces
@@ -32,17 +40,23 @@ export const CATEGORIAS = [
   { id: 'compras', nombre: 'Compras', clases: ['ZonaTiendas', 'Mercado'] }
 ];
 
-// Nombre legible de algunas clases; otra clase nueva usa su propio nombre
+// Nombre legible de las clases cuyo identificador no basta; otra clase nueva usa su propio nombre.
+// Es la única tabla de nombres del sitio (portada, fichas, panel y carta 3D) y debe decir lo mismo que
+// el rdfs:label de cada clase en la ontología: la pestaña Validación del panel avisa si dejan de coincidir.
 export const NOMBRES_CLASE = {
   Estatua: 'Monumento',
   SitioHistorico: 'Sitio histórico',
-  Montaña: 'Montaña',
+  CulturalHistorico: 'Cultural e histórico',
   Rio: 'Río',
   Cafeteria: 'Cafetería',
   PanoramaCiudad: 'Panorama en la ciudad',
   PescaDeportiva: 'Pesca deportiva',
   ZonaTiendas: 'Zona de tiendas',
-  safari: 'Safari'
+  ZonaTuristica: 'Zona turística',
+  Turistica: 'Actividad turística',
+  Cotidiana: 'Actividad cotidiana',
+  Establecimientos: 'Establecimiento',
+  Lugares: 'Lugar'
 };
 
 // Nombre del botón de cada modelo cuando una atracción tiene varios; otro archivo usa su propio nombre
@@ -79,8 +93,11 @@ export function categoriaPorId(id) {
   return CATEGORIAS.find((categoria) => categoria.id === id) ?? null;
 }
 
+// Fuera de Vite (al generar las fichas estáticas con Node) no existe import.meta.env
+const BASE = import.meta.env?.BASE_URL ?? './';
+
 // Convierte una ruta de la ontología en una dirección que el navegador puede abrir
 export function rutaPublica(ruta) {
   if (/^https?:\/\//i.test(ruta)) return ruta;
-  return `${import.meta.env.BASE_URL}${ruta.replace(/^\/+/, '')}`;
+  return `${BASE}${ruta.replace(/^\/+/, '')}`;
 }

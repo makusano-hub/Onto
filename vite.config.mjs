@@ -1,11 +1,15 @@
 import { defineConfig } from 'vite';
 import { readdirSync, existsSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { publicacion } from './scripts/publicacion.mjs';
+
+// Dirección de Fuseki: la usan el proxy y la publicación de datos al compilar
+const FUSEKI = 'http://localhost:3030';
 
 // Reenvía /fuseki/... a Fuseki para que el navegador no tenga problemas de CORS
 const proxy = {
   '/fuseki': {
-    target: 'http://localhost:3030',
+    target: FUSEKI,
     rewrite: (ruta) => ruta.replace(/^\/fuseki/, '')
   }
 };
@@ -48,7 +52,7 @@ function recursosPublicos() {
 
 export default defineConfig({
   base: './',
-  plugins: [recursosPublicos()],
+  plugins: [recursosPublicos(), publicacion({ fuseki: FUSEKI })],
   server: { proxy },
   preview: { proxy },
   build: {
@@ -57,7 +61,9 @@ export default defineConfig({
         index: 'index.html',
         atraccion: 'atraccion.html',
         grafo: 'grafo.html',
-        panel: 'panel.html'
+        panel: 'panel.html',
+        datos: 'datos.html',
+        vocabulario: 'ontologia/index.html'
       }
     }
   }
