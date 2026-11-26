@@ -40,7 +40,7 @@ SELECT ?atraccion
        (SAMPLE(STR(?latitud)) AS ?latitud) (SAMPLE(STR(?longitud)) AS ?longitud)
        ${agrupar('modelo')} ${agrupar('imagen', 'imagenes')} ${agrupar('enlace')}
        ${agrupar('mismo')} ${agrupar('tipoSchema', 'tiposSchema')}
-       ${agrupar('lugar', 'lugares')} ${agrupar('ciudad', 'ciudades')} ${agrupar('comuna')}
+       ${agrupar('lugar', 'lugares')} ${agrupar('ciudad', 'ciudades')} ${agrupar('comuna')} ${agrupar('raiz', 'raices')}
 WHERE {
   ${PATRON_ATRACCION.trim()}
   OPTIONAL { ?atraccion t:Nombre ?nombre }
@@ -121,6 +121,22 @@ GROUP BY ?ciudad`,
   // Todo lo que la ontología dice de sus propios términos: con ello se escribe el documento del vocabulario
   vocabulario: () => `${PREFIJOS}
 SELECT ?termino ?propiedad ?valor WHERE {
+  ?termino ?propiedad ?valor .
+  FILTER(STRSTARTS(STR(?termino), STR(t:)))
+}`,
+
+  // Ciudades con coordenadas: las que dibuja el mapa de la portada
+  ciudadesMapa: () => `${PREFIJOS}
+SELECT ?ciudad (SAMPLE(STR(?n)) AS ?nombre) (SAMPLE(STR(?lat)) AS ?latitud) (SAMPLE(STR(?lon)) AS ?longitud) WHERE {
+  ?ciudad a t:Ciudad ; t:Latitud ?lat ; t:Longitud ?lon .
+  OPTIONAL { ?ciudad t:Nombre ?n }
+}
+GROUP BY ?ciudad`,
+
+  // Todo lo que ya tiene identificador en la ontología (clases, propiedades e individuos, con tipo o sin él):
+  // el formulario "Nuevo individuo" no debe proponer uno repetido
+  identificadores: () => `${PREFIJOS}
+SELECT DISTINCT ?termino WHERE {
   ?termino ?propiedad ?valor .
   FILTER(STRSTARTS(STR(?termino), STR(t:)))
 }`,
@@ -223,6 +239,20 @@ export const CONSULTAS = [
     usadaEn: 'Documento del vocabulario (ontologia/)',
     descripcion: 'Todas las tripletas de las clases, propiedades e individuos propios. Con ellas se escribe la página a la que llevan los IRIs de la ontología.',
     texto: construir.vocabulario
+  },
+  {
+    id: 'ciudades-mapa',
+    titulo: 'Ciudades del mapa',
+    usadaEn: 'Mapa de la portada (index.html)',
+    descripcion: 'Las ciudades que tienen coordenadas. El mapa 3D de la portada dibuja una marca por cada una; una ciudad nueva en la ontología aparece sin tocar el código.',
+    texto: construir.ciudadesMapa
+  },
+  {
+    id: 'identificadores',
+    titulo: 'Identificadores en uso',
+    usadaEn: 'Panel · Nuevo individuo',
+    descripcion: 'Todos los términos propios que ya existen, sean clases, propiedades o individuos. El formulario los usa para avisar de un identificador repetido.',
+    texto: construir.identificadores
   },
   {
     id: 'axiomas',

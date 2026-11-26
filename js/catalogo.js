@@ -21,18 +21,19 @@ PREFIX schema: <${SCHEMA}>
 PREFIX t: <${NS}>`;
 
 // Un individuo es "atracción" si alguna de sus clases desciende de estas raíces
-export const RAICES = ['CulturalHistorico', 'ZonaTuristica', 'Establecimientos', 'Actividad'];
+export const RAICES = ['AtraccionTuristica', 'Establecimientos', 'Actividad'];
 
 // Clases de actividad: no tienen ubicación propia, se ubican a través de t:seRealizaEn
 export const RAIZ_ACTIVIDAD = 'Actividad';
 
 // Botones de la landing y del panel. "clases" incluye sus subclases.
 // Las seis primeras son las de la portada; el resto mantiene visible el contenido que ya existía.
+// "unidad" es cómo se cuenta su contenido en la portada (singular y plural); si falta, "lugar" y "lugares".
 export const CATEGORIAS = [
   { id: 'monumentos', nombre: 'Monumentos', clases: ['Estatua'], portada: true },
   { id: 'museos', nombre: 'Museos', clases: ['Museo'], portada: true },
   { id: 'plazas', nombre: 'Plazas', clases: ['Plaza'], portada: true },
-  { id: 'actividades', nombre: 'Actividades', clases: ['Actividad'], portada: true },
+  { id: 'actividades', nombre: 'Actividades', clases: ['Actividad'], portada: true, unidad: ['actividad', 'actividades'] },
   { id: 'restaurantes', nombre: 'Restaurantes', clases: ['Restaurante', 'Cafeteria'], portada: true },
   { id: 'hoteles', nombre: 'Hoteles', clases: ['Hotel'], portada: true },
   { id: 'historia', nombre: 'Sitios históricos', clases: ['SitioHistorico'] },
@@ -50,13 +51,23 @@ export const NOMBRES_CLASE = {
   Rio: 'Río',
   Cafeteria: 'Cafetería',
   PanoramaCiudad: 'Panorama en la ciudad',
-  PescaDeportiva: 'Pesca deportiva',
+  PanoramaCultural: 'Panorama cultural',
+  VidaNocturna: 'Vida nocturna',
   ZonaTiendas: 'Zona de tiendas',
-  ZonaTuristica: 'Zona turística',
+  AtraccionTuristica: 'Atracción turística',
   Turistica: 'Actividad turística',
   Cotidiana: 'Actividad cotidiana',
+  Navegacion: 'Navegación',
+  ObservacionFauna: 'Observación de fauna',
   Establecimientos: 'Establecimiento',
-  Lugares: 'Lugar'
+  Alimentacion: 'Alimentación',
+  Servicios: 'Servicio',
+  Bancario: 'Servicio bancario',
+  Entretencion: 'Entretención',
+  Nightpub: 'Pub nocturno',
+  Lugares: 'Lugar',
+  Ubicacion: 'Ubicación',
+  Provincias: 'Provincia'
 };
 
 // Nombre del botón de cada modelo cuando una atracción tiene varios; otro archivo usa su propio nombre
@@ -78,10 +89,13 @@ export function idDe(uri) {
 
 // Convierte "PuertoHambre" o "Isla_Magdalena" en un nombre legible
 export function nombreLegible(id) {
-  const texto = id
+  const texto = String(id)
     .replace(/_/g, ' ')
-    .replace(/([a-zñ])([A-Z])/g, '$1 $2')
-    .replace(/\s(De|Del|La|Las|Los|El)\s/g, (conector) => conector.toLowerCase());
+    // Cualquier minúscula seguida de mayúscula, también con tilde ("CaféTapiz")
+    .replace(/(\p{Ll})(\p{Lu})/gu, '$1 $2')
+    // El espacio de detrás no se consume: así "De La" pone en minúscula los dos conectores
+    .replace(/\s(De|Del|La|Las|Los|El)(?=\s)/g, (conector) => conector.toLowerCase())
+    .trim();
   return texto.charAt(0).toUpperCase() + texto.slice(1);
 }
 
@@ -92,6 +106,14 @@ export function nombreClase(clase) {
 export function categoriaPorId(id) {
   return CATEGORIAS.find((categoria) => categoria.id === id) ?? null;
 }
+
+// Solo se enlazan direcciones web: un valor de la ontología con otro esquema (javascript:, data:…) se
+// ejecutaría al pulsarlo. Vale para t:tieneEnlace y para los IRIs de owl:sameAs.
+export const esEnlaceWeb = (url) => /^https?:\/\//i.test(url);
+
+// xsd:boolean admite "true"/"false" y "1"/"0". Fuseki devuelve el texto tal como se escribió y el motor
+// del navegador lo normaliza: sin esto, la misma ficha diría cosas distintas según quién responda.
+export const esVerdadero = (valor) => valor === 'true' || valor === '1';
 
 // Texto de un enlace externo: los sitios conocidos por su nombre, el resto por su dominio.
 // Lo usan la ficha y la carta 3D para los enlaces (t:tieneEnlace) y las equivalencias (owl:sameAs).

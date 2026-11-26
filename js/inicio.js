@@ -89,7 +89,7 @@ function crearBotones({ campo, contenedor, todas }, opciones) {
 
 // Los seis accesos grandes de la portada: monumentos, museos, plazas, actividades, restaurantes y hoteles
 function crearTarjetasCategoria(categorias) {
-  tarjetasCategoria.replaceChildren(...categorias.map(({ id, nombre, total: cantidad }) => {
+  tarjetasCategoria.replaceChildren(...categorias.map(({ id, nombre, total: cantidad, unidad: [una, varias] }) => {
     const elemento = document.createElement('li');
     const enlace = document.createElement('a');
     const titulo = document.createElement('strong');
@@ -98,7 +98,8 @@ function crearTarjetasCategoria(categorias) {
     enlace.href = `?categoria=${id}#atracciones`;
     enlace.dataset.valor = id;
     titulo.textContent = nombre;
-    detalle.textContent = cantidad === 1 ? '1 lugar' : cantidad ? `${cantidad} lugares` : 'Próximamente';
+    // Cada categoría dice qué cuenta: lugares o, en "Actividades", actividades (js/catalogo.js)
+    detalle.textContent = cantidad === 1 ? `1 ${una}` : cantidad ? `${cantidad} ${varias}` : 'Próximamente';
     enlace.append(titulo, detalle);
 
     enlace.addEventListener('click', (evento) => {

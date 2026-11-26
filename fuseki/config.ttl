@@ -4,15 +4,17 @@
 #
 #   java -jar C:\apache-jena-fuseki-6.2.0\fuseki-server.jar --localhost --config=fuseki/config.ttl
 #
-# --localhost es necesario: /turismo/update y /turismo/data aceptan cambios sin contraseña, y sin esa opción
-# Fuseki escucha en todas las interfaces de red, así que cualquier equipo de la misma red podría borrar los datos.
+# Los dos servicios son de solo lectura: no hay /turismo/update ni /turismo/data. El sitio y la compilación solo
+# consultan, y un endpoint de escritura sin contraseña lo puede usar cualquier página web abierta en el mismo
+# navegador (un formulario POST hacia localhost no pasa por CORS), aunque Fuseki escuche solo en este equipo.
+# --localhost sigue siendo lo recomendable: sin él, Fuseki responde a toda la red sin necesidad.
 #
 # Carga ontologia/turismo.rdf al arrancar: no hay que subir el archivo a mano.
-# Después de editar la ontología, reinicia Fuseki para que la vuelva a leer.
+# Para cambiar los datos se edita ese archivo (en Protégé) y se reinicia Fuseki: es la única fuente de verdad.
 #
 #   /turismo            los datos tal como están en el archivo (lo usa el sitio)
 #   /turismo/shacl      validación con las reglas de ontologia/turismo.shacl.ttl
-#   /turismo-inferido   los mismos datos más lo que deduce el razonador (solo lectura)
+#   /turismo-inferido   los mismos datos más lo que deduce el razonador
 
 PREFIX :       <#>
 PREFIX fuseki: <http://jena.apache.org/fuseki#>
@@ -26,14 +28,11 @@ PREFIX rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
         fuseki:endpoint  [ fuseki:operation fuseki:query ] ;
         fuseki:endpoint  [ fuseki:operation fuseki:query ;  fuseki:name "sparql" ] ;
         fuseki:endpoint  [ fuseki:operation fuseki:query ;  fuseki:name "query" ] ;
-        fuseki:endpoint  [ fuseki:operation fuseki:update ; fuseki:name "update" ] ;
         fuseki:endpoint  [ fuseki:operation fuseki:gsp-r ;  fuseki:name "get" ] ;
-        fuseki:endpoint  [ fuseki:operation fuseki:gsp-rw ; fuseki:name "data" ] ;
         fuseki:endpoint  [ fuseki:operation fuseki:shacl ;  fuseki:name "shacl" ] ;
         fuseki:dataset   :datos .
 
-# En memoria: lo que se cambie con /turismo/update se pierde al reiniciar.
-# La fuente de verdad es el archivo.
+# En memoria y sin operaciones de escritura: contiene siempre lo que dice el archivo.
 :datos  rdf:type  ja:RDFDataset ;
         ja:defaultGraph  [ rdf:type  ja:MemoryModel ;
                            ja:content  [ ja:externalContent  <../ontologia/turismo.rdf> ] ] .
@@ -54,6 +53,9 @@ PREFIX rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 # owl:TransitiveProperty (con t:ubicadoEn deduce la comuna de un lugar que solo declara su ciudad).
 # No aplica owl:sameAs: así las entidades de Wikidata no se mezclan con los individuos propios.
 # Tampoco busca contradicciones (clases disjuntas, propiedades funcionales): eso lo hace HermiT en Protégé.
+#
+# Carga el archivo en un modelo propio, distinto del de /turismo. Los dos dicen lo mismo porque ninguno
+# admite escritura: si algún día se vuelve a abrir /turismo/update, este modelo no vería esos cambios.
 :grafoInferido  rdf:type  ja:InfModel ;
         ja:baseModel  [ rdf:type  ja:MemoryModel ;
                         ja:content  [ ja:externalContent  <../ontologia/turismo.rdf> ] ] ;

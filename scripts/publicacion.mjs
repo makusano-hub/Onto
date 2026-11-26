@@ -18,7 +18,7 @@
 // Fuseki aquí, al compilar, y se publica como dos archivos más.
 import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync, statSync, rmSync } from 'node:fs';
 import { resolve, relative } from 'node:path';
-import { SITIO, NS, SCHEMA, nombreLegible } from '../js/catalogo.js';
+import { SITIO, NS, SCHEMA, nombreLegible, esEnlaceWeb } from '../js/catalogo.js';
 
 // Archivos del repositorio que se publican tal cual
 const FUENTES = {
@@ -284,7 +284,8 @@ function paginaVocabulario(html, { terminos, jsonld, enlaceFicha, cabecera }) {
     if (iri.startsWith(GEONAMES)) return `<a href="${esc(iri)}">GeoNames ${esc(iri.slice(GEONAMES.length).replace(/\/$/, ''))}</a>`;
     if (iri.startsWith(XSD)) return `xsd:${esc(iri.slice(XSD.length))}`;
     if (iri === `${RDF}PlainLiteral`) return 'texto, con o sin idioma (rdf:PlainLiteral)';
-    return `<a href="${esc(iri)}">${esc(iri)}</a>`;
+    // Solo se enlazan direcciones web: un IRI con otro esquema (javascript:…) queda como texto
+    return esEnlaceWeb(iri) ? `<a href="${esc(iri)}">${esc(iri)}</a>` : esc(iri);
   };
   // "Etiqueta: a, b" con los valores de una propiedad; vacío si no tiene (o solo apunta a términos de OWL)
   const relacion = (nombre, termino, propiedad) => {

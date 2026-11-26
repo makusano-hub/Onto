@@ -36,12 +36,13 @@ const extension = (ruta) => ruta.split('?')[0].split('.').pop().toLowerCase();
 
 // Descarga todo lo necesario para validar y explorar
 export async function cargarDatos() {
-  const [atracciones, jerarquia, tipos, ciudades, huerfanos] = await Promise.all([
+  const [atracciones, jerarquia, tipos, ciudades, huerfanos, terminos] = await Promise.all([
     obtenerInventario(),
     consultarSPARQL(construir.jerarquia()),
     consultarSPARQL(construir.tipos()),
     consultarSPARQL(construir.ciudades()),
-    consultarSPARQL(construir.huerfanos())
+    consultarSPARQL(construir.huerfanos()),
+    consultarSPARQL(construir.identificadores())
   ]);
 
   const padres = new Map();
@@ -59,7 +60,10 @@ export async function cargarDatos() {
   const comunaDeCiudad = new Map(ciudades.map(({ ciudad, comunas }) =>
     [idDe(ciudad), comunas ? comunas.split(SEP).map(idDe) : []]));
 
-  const contexto = { padres, etiquetas, tiposPorIndividuo, comunaDeCiudad, huerfanos, recursos };
+  // Identificadores ya usados por cualquier término propio (clase, propiedad o individuo, con tipo o sin él)
+  const identificadores = new Set(terminos.map(({ termino }) => idDe(termino)));
+
+  const contexto = { padres, etiquetas, tiposPorIndividuo, comunaDeCiudad, identificadores, huerfanos, recursos };
   atracciones.forEach((atraccion) => {
     atraccion.ancestros = ancestros(atraccion.clases, padres);
     atraccion.categorias = CATEGORIAS
@@ -317,8 +321,8 @@ export function validarGlobal({ atracciones, huerfanos, comunaDeCiudad, etiqueta
     if (tipo) vistos.get(id).add(idDe(tipo));
   });
   vistos.forEach((tipos, id) => {
-    // Ciudades y comunas tienen ubicación pero no son atracciones: no se avisan
-    if ([...tipos].some((tipo) => ['Ciudad', 'Comuna'].includes(tipo))) return;
+    // Ciudades, comunas y provincias tienen nombre o ubicación pero no son atracciones: no se avisan
+    if ([...tipos].some((tipo) => ['Ciudad', 'Comuna', 'Provincias'].includes(tipo))) return;
     h.push(hallazgo('ontologia', 'aviso', `${id} tiene datos de atracción pero el sitio no lo muestra (tipo: ${[...tipos].join(', ') || 'ninguno'}).`, `Su clase debe descender de ${RAICES.join(', ')}.`));
   });
 

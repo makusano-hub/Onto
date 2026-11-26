@@ -2,8 +2,8 @@
 import { consultarSPARQL } from './fuseki.js';
 import { construir, SEP } from './consultas.js';
 import {
-  CATEGORIAS, NS, ID_VALIDO, NOMBRES_MODELO,
-  idDe, nombreLegible, nombreClase, nombreSitio, categoriaPorId, rutaPublica
+  CATEGORIAS, NS, ID_VALIDO, NOMBRES_MODELO, RAIZ_ACTIVIDAD,
+  idDe, nombreLegible, nombreClase, nombreSitio, categoriaPorId, rutaPublica, esEnlaceWeb, esVerdadero
 } from './catalogo.js';
 
 function ordenarPorNombre(opciones) {
@@ -30,10 +30,23 @@ export async function obtenerFiltros() {
       nombre: nombreLegible(idDe(comuna)),
       total: Number(total)
     }))),
-    categoria: CATEGORIAS.map(({ id, nombre, portada }) => ({
-      id, nombre, portada: Boolean(portada), total: totalPorCategoria[id] ?? 0
+    categoria: CATEGORIAS.map(({ id, nombre, portada, unidad = ['lugar', 'lugares'] }) => ({
+      id, nombre, portada: Boolean(portada), unidad, total: totalPorCategoria[id] ?? 0
     }))
   };
+}
+
+// Ciudades con coordenadas, para el mapa de la portada: { id, nombre, latitud, longitud }
+export async function obtenerCiudades() {
+  const filas = await consultarSPARQL(construir.ciudadesMapa());
+  return filas
+    .map(({ ciudad, nombre, latitud, longitud }) => ({
+      id: idDe(ciudad),
+      nombre: nombre || nombreLegible(idDe(ciudad)),
+      latitud: Number(latitud),
+      longitud: Number(longitud)
+    }))
+    .filter(({ latitud, longitud }) => Number.isFinite(latitud) && Number.isFinite(longitud));
 }
 
 export async function buscarAtracciones({ comuna, categoria }) {
@@ -87,6 +100,8 @@ export function crearAtraccion(fila) {
 
   const nombre = crudo.nombres[0] ?? nombreLegible(id);
   const clases = crudo.clases.map(idDe);
+  // "true" o "false", se escriba como se escriba en la ontología; null si no tiene el dato
+  const booleano = (valor) => (valor == null ? null : String(esVerdadero(valor)));
 
   return {
     id,
@@ -94,6 +109,8 @@ export function crearAtraccion(fila) {
     enEspacioPrincipal: fila.atraccion.startsWith(NS),
     nombre,
     clases,
+    // Una actividad no lleva modelo 3D ni ubicación propia: la ficha y la portada lo tienen en cuenta
+    esActividad: lista(fila.raices).map(idDe).includes(RAIZ_ACTIVIDAD),
     tipo: clases.map(nombreClase).join(' / '),
     ciudad: nombres(crudo.ciudades).join(', ') || null,
     comuna: nombres(crudo.comunas).join(', ') || null,
@@ -103,13 +120,14 @@ export function crearAtraccion(fila) {
     descripcion: crudo.descripciones[0] ?? '',
     calificacion: crudo.calificaciones[0] ?? null,
     precio: crudo.precios[0] ?? null,
-    requierePermiso: fila.requierePermiso ?? null,
-    tieneTemporada: fila.tieneTemporada ?? null,
+    requierePermiso: booleano(fila.requierePermiso),
+    tieneTemporada: booleano(fila.tieneTemporada),
     modelos: crearModelos(crudo.modelos, nombre),
     imagenes: crudo.imagenes.map((ruta) => ({ ruta: rutaPublica(ruta), original: ruta })),
-    enlaces: crudo.enlaces.map((url) => ({ url, texto: nombreSitio(url) })),
+    // Solo direcciones web: lo demás no se enlaza (la validación lo señala a partir de crudo.enlaces)
+    enlaces: crudo.enlaces.filter(esEnlaceWeb).map((url) => ({ url, texto: nombreSitio(url) })),
     // Datos enlazados: el mismo lugar en otras bases (owl:sameAs hacia Wikidata y GeoNames) y sus tipos de schema.org
-    equivalentes: lista(fila.mismos).map((url) => ({ url, texto: nombreSitio(url) })),
+    equivalentes: lista(fila.mismos).filter(esEnlaceWeb).map((url) => ({ url, texto: nombreSitio(url) })),
     tiposSchema: lista(fila.tiposSchema).map(idDe).sort(),
     coordenadas: crearCoordenadas(fila),
     crudo
