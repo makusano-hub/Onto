@@ -26,7 +26,7 @@
     <a href="#region">La región</a>
     <a href="index.html">Atracciones</a>
   </nav>
-</header>git s
+</header>
 
 <main id="inicio">
   <div class="hero">
@@ -77,11 +77,11 @@
   <section id="conexion" class="conexion">
     <div class="cab">
       <h2>De Protégé a la pantalla</h2>
-      <p>La página lee la ontología en vivo desde el dataset <code>turismo</code> de Fuseki. Si Fuseki no responde, usa una copia de <code>turismo.rdf</code> incluida en <code>js/grafo-datos.js</code>.</p>
+      <p>La página lee la ontología en vivo con SPARQL: desde el dataset <code>turismo</code> de Fuseki si está en marcha y, si no (como en GitHub Pages), con el motor SPARQL del navegador sobre <code>turismo.rdf</code>. Si ninguno responde, usa la copia de <code>turismo.rdf</code> incluida en <code>js/grafo-datos.js</code>.</p>
     </div>
     <ol class="pasos">
       <li><h3>Ontología</h3><p>Editas clases, propiedades e individuos en Protégé y guardas <code>turismo.rdf</code>.</p></li>
-      <li><h3>Fuseki</h3><p>Subes el archivo al dataset <code>turismo</code> de Apache Jena Fuseki. Vite reenvía <code>/fuseki/turismo/query</code> a <code>localhost:3030</code>.</p></li>
+      <li><h3>Fuseki</h3><p>Inicias Apache Jena Fuseki con <code>fuseki/config.ttl</code>, que carga <code>turismo.rdf</code> en el dataset <code>turismo</code> al arrancar. Vite reenvía <code>/fuseki/turismo/query</code> a <code>localhost:3030</code>.</p></li>
       <li><h3>Carta 3D</h3><p>La página pide todas las tripletas de los individuos y la jerarquía de clases, y arma con eso los nodos, las fichas y los enlaces.</p></li>
     </ol>
     <div class="codigos">
@@ -92,16 +92,17 @@
       <div class="codigo">
         <header><span>CONFIG en js/grafo.js</span><button type="button" data-copiar="config">Copiar</button></header>
 <pre id="config">const CONFIG = {
-  // Vite lo reenvía a Fuseki;
-  // null = usar siempre la copia
-  endpoint: "/fuseki/turismo/query",
+  // true = consultar con SPARQL
+  // (Fuseki o el navegador);
+  // false = usar siempre la copia
+  enVivo: true,
   // los .glb se sirven desde
   // public/modelos3d/
   modelos: ""
 };</pre>
       </div>
     </div>
-    <p class="nota">La ontología no guarda coordenadas, así que la página usa la tabla <code>COORDS</code> (aproximada) para ciudades, comunas y lugares naturales; los lugares urbanos se reparten en anillo alrededor de su ciudad. Si agregas a un individuo las propiedades de datos <code>Latitud</code> y <code>Longitud</code>, la página las usa en lugar de la tabla. Los archivos <code>.glb</code> de <code>tieneModelo3D</code> se cargan desde la carpeta <code>public/modelos3d/</code>.</p>
+    <p class="nota">Cada lugar se ubica en la carta con sus propiedades de datos <code>Latitud</code> y <code>Longitud</code>. Si no las tiene, se dibuja en un anillo alrededor de su ciudad o de su comuna. Los archivos <code>.glb</code> de <code>tieneModelo3D</code> se cargan desde la carpeta <code>public/modelos3d/</code>.</p>
   </section>
 
   <section id="region">
