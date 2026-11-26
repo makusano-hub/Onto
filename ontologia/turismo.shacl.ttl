@@ -182,6 +182,33 @@ f:Ciudad
         sh:message "Una ciudad debe tener exactamente un t:perteneceAComuna hacia una t:Comuna: sin él, sus atracciones quedan sin comuna."@es
     ] .
 
+# ---------- Comunas y provincias
+
+f:Comuna
+    a sh:NodeShape ;
+    sh:targetClass t:Comuna ;
+    sh:property [
+        sh:path t:ubicadoEnProvincia ;
+        sh:minCount 1 ;
+        sh:severity sh:Warning ;
+        sh:message "Sin t:ubicadoEnProvincia: no se sabe en qué provincia está la comuna, ni por inferencia sus ciudades y lugares."@es
+    ] ;
+    sh:property [
+        sh:path t:ubicadoEnProvincia ;
+        sh:class t:Provincias ;
+        sh:message "t:ubicadoEnProvincia debe apuntar a un individuo de tipo t:Provincias."@es
+    ] .
+
+# La capital va de la ciudad a la provincia; que quien la usa sea una ciudad lo comprueba f:Dominio
+f:Capital
+    a sh:NodeShape ;
+    sh:targetSubjectsOf t:esCapitalProvincial ;
+    sh:property [
+        sh:path t:esCapitalProvincial ;
+        sh:class t:Provincias ;
+        sh:message "t:esCapitalProvincial va de una ciudad a su provincia: debe apuntar a un individuo de tipo t:Provincias."@es
+    ] .
+
 # ---------- Coordenadas
 
 f:Coordenadas

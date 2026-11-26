@@ -21,7 +21,7 @@ PREFIX schema: <${SCHEMA}>
 PREFIX t: <${NS}>`;
 
 // Un individuo es "atracción" si alguna de sus clases desciende de estas raíces
-export const RAICES = ['CulturalHistorico', 'ZonaTuristica', 'Establecimientos', 'Actividad'];
+export const RAICES = ['AtraccionTuristica', 'Establecimientos', 'Actividad'];
 
 // Clases de actividad: no tienen ubicación propia, se ubican a través de t:seRealizaEn
 export const RAIZ_ACTIVIDAD = 'Actividad';
@@ -51,13 +51,23 @@ export const NOMBRES_CLASE = {
   Rio: 'Río',
   Cafeteria: 'Cafetería',
   PanoramaCiudad: 'Panorama en la ciudad',
-  PescaDeportiva: 'Pesca deportiva',
+  PanoramaCultural: 'Panorama cultural',
+  VidaNocturna: 'Vida nocturna',
   ZonaTiendas: 'Zona de tiendas',
-  ZonaTuristica: 'Zona turística',
+  AtraccionTuristica: 'Atracción turística',
   Turistica: 'Actividad turística',
   Cotidiana: 'Actividad cotidiana',
+  Navegacion: 'Navegación',
+  ObservacionFauna: 'Observación de fauna',
   Establecimientos: 'Establecimiento',
-  Lugares: 'Lugar'
+  Alimentacion: 'Alimentación',
+  Servicios: 'Servicio',
+  Bancario: 'Servicio bancario',
+  Entretencion: 'Entretención',
+  Nightpub: 'Pub nocturno',
+  Lugares: 'Lugar',
+  Ubicacion: 'Ubicación',
+  Provincias: 'Provincia'
 };
 
 // Nombre del botón de cada modelo cuando una atracción tiene varios; otro archivo usa su propio nombre

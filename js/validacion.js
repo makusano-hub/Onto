@@ -321,8 +321,8 @@ export function validarGlobal({ atracciones, huerfanos, comunaDeCiudad, etiqueta
     if (tipo) vistos.get(id).add(idDe(tipo));
   });
   vistos.forEach((tipos, id) => {
-    // Ciudades y comunas tienen ubicación pero no son atracciones: no se avisan
-    if ([...tipos].some((tipo) => ['Ciudad', 'Comuna'].includes(tipo))) return;
+    // Ciudades, comunas y provincias tienen nombre o ubicación pero no son atracciones: no se avisan
+    if ([...tipos].some((tipo) => ['Ciudad', 'Comuna', 'Provincias'].includes(tipo))) return;
     h.push(hallazgo('ontologia', 'aviso', `${id} tiene datos de atracción pero el sitio no lo muestra (tipo: ${[...tipos].join(', ') || 'ninguno'}).`, `Su clase debe descender de ${RAICES.join(', ')}.`));
   });
 
