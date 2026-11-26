@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="Carta 3D de la Región de Magallanes con los lugares, actividades y modelos 3D de la ontología de turismo, leídos con SPARQL.">
+<meta name="description" content="Carta 3D de la Región de Magallanes con los lugares, actividades y modelos 3D de la ontología de turismo, leídos con SPARQL desde Fuseki.">
 <title>Magallanes Grafo 3D</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -26,7 +26,7 @@
     <a href="#region">La región</a>
     <a href="index.html">Atracciones</a>
   </nav>
-</header>
+</header>git s
 
 <main id="inicio">
   <div class="hero">
@@ -77,11 +77,11 @@
   <section id="conexion" class="conexion">
     <div class="cab">
       <h2>De Protégé a la pantalla</h2>
-      <p>La página consulta la ontología con SPARQL: al dataset <code>turismo</code> de Fuseki si está en marcha y, si no (como en el sitio publicado), a un motor SPARQL que corre en el navegador sobre <code>datos/turismo.rdf</code>. Si ninguno responde, usa una copia incluida en <code>js/grafo-datos.js</code>.</p>
+      <p>La página lee la ontología en vivo desde el dataset <code>turismo</code> de Fuseki. Si Fuseki no responde, usa una copia de <code>turismo.rdf</code> incluida en <code>js/grafo-datos.js</code>.</p>
     </div>
     <ol class="pasos">
       <li><h3>Ontología</h3><p>Editas clases, propiedades e individuos en Protégé y guardas <code>turismo.rdf</code>.</p></li>
-      <li><h3>Fuseki o el navegador</h3><p>Fuseki carga el archivo en el dataset <code>turismo</code> y Vite reenvía <code>/fuseki/turismo/query</code> a <code>localhost:3030</code>. Sin Fuseki, el navegador carga el mismo archivo en Oxigraph.</p></li>
+      <li><h3>Fuseki</h3><p>Subes el archivo al dataset <code>turismo</code> de Apache Jena Fuseki. Vite reenvía <code>/fuseki/turismo/query</code> a <code>localhost:3030</code>.</p></li>
       <li><h3>Carta 3D</h3><p>La página pide todas las tripletas de los individuos y la jerarquía de clases, y arma con eso los nodos, las fichas y los enlaces.</p></li>
     </ol>
     <div class="codigos">
@@ -92,16 +92,16 @@
       <div class="codigo">
         <header><span>CONFIG en js/grafo.js</span><button type="button" data-copiar="config">Copiar</button></header>
 <pre id="config">const CONFIG = {
-  // true = consultar con SPARQL;
-  // false = usar siempre la copia
-  enVivo: true,
+  // Vite lo reenvía a Fuseki;
+  // null = usar siempre la copia
+  endpoint: "/fuseki/turismo/query",
   // los .glb se sirven desde
   // public/modelos3d/
   modelos: ""
 };</pre>
       </div>
     </div>
-    <p class="nota">Las coordenadas salen de la ontología: son las propiedades de datos <code>Latitud</code> y <code>Longitud</code> de cada individuo, en grados decimales (aproximadas). Un lugar sin coordenadas se dibuja en anillo alrededor de su ciudad o comuna; para ubicarlo en su sitio, añádele esas dos propiedades en <code>ontologia/turismo.rdf</code>. Los archivos <code>.glb</code> de <code>tieneModelo3D</code> se cargan desde la carpeta <code>public/modelos3d/</code>.</p>
+    <p class="nota">La ontología no guarda coordenadas, así que la página usa la tabla <code>COORDS</code> (aproximada) para ciudades, comunas y lugares naturales; los lugares urbanos se reparten en anillo alrededor de su ciudad. Si agregas a un individuo las propiedades de datos <code>Latitud</code> y <code>Longitud</code>, la página las usa en lugar de la tabla. Los archivos <code>.glb</code> de <code>tieneModelo3D</code> se cargan desde la carpeta <code>public/modelos3d/</code>.</p>
   </section>
 
   <section id="region">
